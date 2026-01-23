@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 interface FilterBottomSheetProps {
   isOpen: boolean
@@ -45,47 +44,46 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
     location: 'kenya'
   })
 
-  // Reset scroll when sheet opens
+  // Manage body scroll lock when sheet opens/closes
   useEffect(() => {
+    const originalOverflow = document.body.style.overflow
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
     }
     return () => {
-      document.body.style.overflow = ''
+      document.body.style.overflow = originalOverflow
     }
   }, [isOpen])
 
-  const handleClearAll = () => {
+  const handleClearAll = useCallback(() => {
     setFilters({
       category: '',
       documentation: [],
       location: 'kenya'
     })
-  }
+  }, [])
 
-  const handleCategoryChange = (categoryId: string) => {
+  const handleCategoryChange = useCallback((categoryId: string) => {
     setFilters(prev => ({ ...prev, category: categoryId }))
-  }
+  }, [])
 
-  const handleDocumentationToggle = (docId: string) => {
+  const handleDocumentationToggle = useCallback((docId: string) => {
     setFilters(prev => ({
       ...prev,
       documentation: prev.documentation.includes(docId)
         ? prev.documentation.filter(d => d !== docId)
         : [...prev.documentation, docId]
     }))
-  }
+  }, [])
 
-  const handleLocationChange = (locationId: string) => {
+  const handleLocationChange = useCallback((locationId: string) => {
     setFilters(prev => ({ ...prev, location: locationId }))
-  }
+  }, [])
 
-  const handleApply = () => {
+  const handleApply = useCallback(() => {
     onApply?.(filters)
     onClose()
-  }
+  }, [filters, onApply, onClose])
 
   if (!isOpen) return null
 
@@ -95,10 +93,19 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
       <div 
         className="fixed inset-0 bg-black/50 z-50 transition-opacity"
         onClick={onClose}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Escape' && onClose()}
+        aria-label="Close filter sheet"
       />
       
       {/* Bottom Sheet */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[85vh] overflow-hidden animate-slideUp">
+      <div 
+        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[85vh] overflow-hidden animate-slideUp"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="filter-title"
+      >
         {/* Handle bar */}
         <div className="flex justify-center py-3">
           <div className="w-10 h-1 bg-slate-300 rounded-full" />
@@ -106,7 +113,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pb-4 border-b border-[#E2E8F0]">
-          <h2 className="text-xl font-bold text-slate-900">Filter Opportunities</h2>
+          <h2 id="filter-title" className="text-xl font-bold text-slate-900">Filter Opportunities</h2>
           <button 
             onClick={handleClearAll}
             className="text-[#0F4C81] text-sm font-semibold hover:underline"
@@ -197,21 +204,6 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Animation styles */}
-      <style jsx>{`
-        @keyframes slideUp {
-          from {
-            transform: translateY(100%);
-          }
-          to {
-            transform: translateY(0);
-          }
-        }
-        .animate-slideUp {
-          animation: slideUp 0.3s ease-out forwards;
-        }
-      `}</style>
     </>
   )
 }

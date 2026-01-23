@@ -62,7 +62,14 @@ export const HomeContent = () => {
       return false
     }
     // Filter by documentation type (if not "all")
-    if (selectedFilter !== 'all' && !opp.documentation.includes(selectedFilter as any)) {
+    if (selectedFilter !== 'all' && selectedFilter !== 'scholarship') {
+      const docFilter = selectedFilter as 'alien_card' | 'ctd' | 'passport'
+      if (!opp.documentation.includes(docFilter)) {
+        return false
+      }
+    }
+    // Filter by scholarship category
+    if (selectedFilter === 'scholarship' && opp.category !== 'scholarship') {
       return false
     }
     return true
