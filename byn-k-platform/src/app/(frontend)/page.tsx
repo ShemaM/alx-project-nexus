@@ -16,14 +16,18 @@ export default async function HomePage() {
   const payloadConfig = await config
   let user: AuthUser | null = null
 
-  try {
-    const payload = await getPayload({ config: payloadConfig })
-    const authResult = await payload.auth({ headers })
-    user = authResult.user
-  } catch (err) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('Payload initialization failed:', err)
+  if (process.env.DATABASE_URL) {
+    try {
+      const payload = await getPayload({ config: payloadConfig })
+      const authResult = await payload.auth({ headers })
+      user = authResult.user
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Payload initialization failed:', err)
+      }
     }
+  } else if (process.env.NODE_ENV !== 'production') {
+    console.warn('DATABASE_URL is not set; skipping Payload initialization.')
   }
 
   const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
