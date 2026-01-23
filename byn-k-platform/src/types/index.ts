@@ -1,7 +1,7 @@
 export interface OpportunityCardProps {
   title: string
   organizationName: string
-  category: 'jobs' | 'scholarships' | 'internships' | 'fellowships'
+  category: 'job' | 'scholarship' | 'internship' | 'training'
   documentation: string[]
   deadline: string
   isVerified: boolean
