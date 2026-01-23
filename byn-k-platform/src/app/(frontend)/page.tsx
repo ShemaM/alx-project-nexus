@@ -7,10 +7,14 @@ import { fileURLToPath } from 'url'
 import config from '@/payload.config'
 import './styles.css'
 
+type AuthUser = {
+  email?: string | null
+}
+
 export default async function HomePage() {
   const headers = await getHeaders()
   const payloadConfig = await config
-  let user: { email?: string } | null = null
+  let user: AuthUser | null = null
 
   try {
     const payload = await getPayload({ config: payloadConfig })
@@ -39,7 +43,11 @@ export default async function HomePage() {
         {!user && (
           <>
             <h1>Welcome to your new project.</h1>
-            <p>Authentication is temporarily unavailable. Please try again later.</p>
+            <p>
+              {process.env.NODE_ENV === 'production'
+                ? 'Authentication is temporarily unavailable. Please try again later.'
+                : 'Database connection unavailable. Please check your configuration.'}
+            </p>
           </>
         )}
         {user && <h1>Welcome back, {user.email}</h1>}
