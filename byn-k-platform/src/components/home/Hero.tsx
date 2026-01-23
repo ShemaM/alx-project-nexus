@@ -1,7 +1,10 @@
+import Link from 'next/link'
+
 export const Hero = () => (
   <header className="relative bg-[#0F4C81] py-12 md:py-20 overflow-hidden">
     {/* Decorative background element */}
     <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
+    <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-72 h-72 bg-[#F5A623]/10 rounded-full blur-3xl" />
     
     <div className="max-w-7xl mx-auto px-4 relative z-10 text-center md:text-left md:flex items-center gap-12">
       <div className="md:w-3/5">
@@ -12,25 +15,39 @@ export const Hero = () => (
           Discover verified jobs, scholarships, and opportunities designed for Banyamulenge refugee youth in Kenya.
         </p>
         <div className="flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start">
-          <button className="bg-[#F5A623] text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg shadow-lg hover:bg-[#d98c1d] transition-all">
+          <Link 
+            href="/categories/jobs"
+            className="bg-[#F5A623] text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg shadow-lg hover:bg-[#d98c1d] transition-all"
+          >
             Explore Jobs
-          </button>
-          <button className="bg-white/10 text-white border border-white/20 backdrop-blur-md px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg hover:bg-white/20 transition-all">
-            Share Opportunity
-          </button>
+          </Link>
+          <Link 
+            href="/categories/scholarships"
+            className="bg-white/10 text-white border border-white/20 backdrop-blur-md px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg hover:bg-white/20 transition-all"
+          >
+            View Scholarships
+          </Link>
         </div>
       </div>
       
       {/* Quick Stat Cards */}
       <div className="hidden md:grid grid-cols-2 gap-4 md:w-2/5 mt-8 md:mt-0">
-        <div className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
-          <div className="text-2xl md:text-3xl font-bold text-[#F5A623]">50+</div>
+        <Link href="/categories/jobs" className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors group">
+          <div className="text-2xl md:text-3xl font-bold text-[#F5A623] group-hover:scale-105 transition-transform">50+</div>
           <div className="text-blue-100 text-sm">Verified Jobs</div>
-        </div>
-        <div className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
-          <div className="text-2xl md:text-3xl font-bold text-[#F5A623]">20+</div>
+        </Link>
+        <Link href="/categories/scholarships" className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors group">
+          <div className="text-2xl md:text-3xl font-bold text-[#F5A623] group-hover:scale-105 transition-transform">20+</div>
           <div className="text-blue-100 text-sm">Scholarships</div>
-        </div>
+        </Link>
+        <Link href="/categories/internships" className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors group">
+          <div className="text-2xl md:text-3xl font-bold text-[#F5A623] group-hover:scale-105 transition-transform">30+</div>
+          <div className="text-blue-100 text-sm">Internships</div>
+        </Link>
+        <Link href="/partners" className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors group">
+          <div className="text-2xl md:text-3xl font-bold text-[#F5A623] group-hover:scale-105 transition-transform">15+</div>
+          <div className="text-blue-100 text-sm">Partner Organizations</div>
+        </Link>
       </div>
     </div>
   </header>

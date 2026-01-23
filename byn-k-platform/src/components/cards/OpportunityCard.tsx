@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 import { Calendar, CheckCircle2, ExternalLink, Star } from 'lucide-react'
 import { OpportunityCardProps } from '@/types'
 
@@ -28,6 +29,7 @@ const getCategoryColor = (category: string) => {
 }
 
 export const OpportunityCard: React.FC<OpportunityCardProps> = ({
+  id,
   title,
   organizationName,
   category,
@@ -38,6 +40,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 }) => {
   const daysRemaining = getDaysRemaining(deadline)
   const categoryColorClass = getCategoryColor(category)
+  const detailLink = id ? `/opportunities/${id}` : applyLink
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative">
@@ -63,9 +66,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       </div>
 
       {/* Title */}
-      <h3 className="text-lg sm:text-xl font-bold text-[#0F4C81] mb-3 leading-tight pr-8">
-        {title}
-      </h3>
+      <Link href={detailLink}>
+        <h3 className="text-lg sm:text-xl font-bold text-[#0F4C81] mb-3 leading-tight pr-8 hover:text-[#0d3f6b] transition-colors cursor-pointer">
+          {title}
+        </h3>
+      </Link>
 
       {/* Category & Deadline Row */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -96,14 +101,22 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       </div>
 
       {/* Apply Button */}
-      <a 
-        href={applyLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 w-full bg-[#0F4C81] hover:bg-[#0d3f6b] text-white px-4 py-3 rounded-lg font-bold text-sm transition-colors"
-      >
-        Apply Now <ExternalLink size={14} />
-      </a>
+      <div className="flex gap-2">
+        <Link 
+          href={detailLink}
+          className="flex-1 flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-[#0F4C81] px-4 py-3 rounded-lg font-bold text-sm transition-colors"
+        >
+          View Details
+        </Link>
+        <a 
+          href={applyLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex items-center justify-center gap-2 bg-[#0F4C81] hover:bg-[#0d3f6b] text-white px-4 py-3 rounded-lg font-bold text-sm transition-colors"
+        >
+          Apply Now <ExternalLink size={14} />
+        </a>
+      </div>
     </div>
   )
 }

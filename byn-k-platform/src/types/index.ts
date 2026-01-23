@@ -1,4 +1,5 @@
 export interface OpportunityCardProps {
+  id?: string
   title: string
   organizationName: string
   category: 'job' | 'scholarship' | 'internship' | 'training'
