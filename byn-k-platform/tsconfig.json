@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "lib": [
       "DOM",
       "DOM.Iterable",
@@ -31,6 +32,7 @@
       ]
     },
     "target": "ES2022",
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "next-env.d.ts",
