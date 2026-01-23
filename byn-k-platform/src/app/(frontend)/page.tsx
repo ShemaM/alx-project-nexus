@@ -7,11 +7,24 @@ import { fileURLToPath } from 'url'
 import config from '@/payload.config'
 import './styles.css'
 
+type AuthUser = {
+  email?: string | null
+}
+
 export default async function HomePage() {
   const headers = await getHeaders()
   const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
+  let user: AuthUser | null = null
+
+  try {
+    const payload = await getPayload({ config: payloadConfig })
+    const authResult = await payload.auth({ headers })
+    user = authResult.user
+  } catch (err) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Payload initialization failed:', err)
+    }
+  }
 
   const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
 
@@ -27,7 +40,16 @@ export default async function HomePage() {
             width={65}
           />
         </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
+        {!user && (
+          <>
+            <h1>Welcome to your new project.</h1>
+            <p>
+              {process.env.NODE_ENV === 'production'
+                ? 'Authentication is temporarily unavailable. Please try again later.'
+                : 'Database connection unavailable. Please check your configuration.'}
+            </p>
+          </>
+        )}
         {user && <h1>Welcome back, {user.email}</h1>}
         <div className="links">
           <a
