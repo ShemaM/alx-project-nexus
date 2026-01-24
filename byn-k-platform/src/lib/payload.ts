@@ -2,8 +2,9 @@ import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
 import type { Opportunity, Partner } from '@/payload-types'
 
-// Bookmark type - will be auto-generated after running `payload generate:types`
-// This is a temporary type until the database schema is updated
+// TODO: Remove this temporary type after running `payload generate:types`
+// The Bookmark type will be auto-generated in @/payload-types after the database
+// migration is applied and types are regenerated.
 export interface Bookmark {
   id: number
   user: number | { id: number; email: string }
