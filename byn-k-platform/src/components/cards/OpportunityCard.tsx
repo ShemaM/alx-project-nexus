@@ -22,6 +22,7 @@ const getCategoryColor = (category: string) => {
     case 'internship':
       return 'text-blue-600 bg-blue-50'
     case 'training':
+    case 'fellowship':
       return 'text-green-600 bg-green-50'
     default:
       return 'text-slate-600 bg-slate-100'

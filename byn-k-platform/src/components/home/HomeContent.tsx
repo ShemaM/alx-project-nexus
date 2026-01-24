@@ -6,93 +6,42 @@ import { OpportunityCard } from '@/components/cards/OpportunityCard'
 import { SearchBar } from '@/components/home/SearchBar'
 import { FilterChips } from '@/components/home/FilterChips'
 import { FilterBottomSheet } from '@/components/home/FilterBottomSheet'
+import { LatestOpportunitiesSidebar } from '@/components/home/LatestOpportunitiesSidebar'
 import { ArrowRight } from 'lucide-react'
 
-// Sample opportunities for demonstration
-const sampleOpportunities = [
-  {
-    id: '1',
-    slug: 'junior-software-developer',
-    title: 'Junior Software Developer',
-    organizationName: 'Tech Solutions Kenya',
-    category: 'job' as const,
-    documentation: ['alien_card', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
-    deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-    isVerified: true,
-    applyLink: '#'
-  },
-  {
-    id: '2',
-    slug: 'dafi-scholarship-2025',
-    title: 'DAFI Scholarship 2025',
-    organizationName: 'UNHCR',
-    category: 'scholarship' as const,
-    documentation: ['alien_card', 'ctd'] as ('alien_card' | 'ctd' | 'passport')[],
-    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    isVerified: true,
-    applyLink: '#'
-  },
-  {
-    id: '3',
-    slug: 'digital-marketing-internship',
-    title: 'Digital Marketing Internship',
-    organizationName: 'Growth Agency',
-    category: 'internship' as const,
-    documentation: ['passport', 'alien_card'] as ('alien_card' | 'ctd' | 'passport')[],
-    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    isVerified: false,
-    applyLink: '#'
-  },
-  {
-    id: '4',
-    slug: 'coding-bootcamp-training',
-    title: 'Coding Bootcamp Training',
-    organizationName: 'ALX Africa',
-    category: 'training' as const,
-    documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
-    deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
-    isVerified: true,
-    applyLink: '#'
-  },
-  {
-    id: '5',
-    slug: 'customer-service-representative',
-    title: 'Customer Service Representative',
-    organizationName: 'Safaricom',
-    category: 'job' as const,
-    documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
-    deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-    isVerified: true,
-    applyLink: '#'
-  },
-  {
-    id: '6',
-    slug: 'mastercard-foundation-scholars',
-    title: 'Mastercard Foundation Scholars',
-    organizationName: 'Mastercard Foundation',
-    category: 'scholarship' as const,
-    documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
-    deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
-    isVerified: true,
-    applyLink: '#'
-  }
-]
+// Transformed opportunity interface for client-side use
+export interface TransformedOpportunity {
+  id: string
+  slug: string
+  title: string
+  organizationName: string
+  category: 'job' | 'scholarship' | 'internship' | 'training' | 'fellowship'
+  documentation: string[]
+  deadline: string
+  isVerified: boolean
+  applyLink: string
+  createdAt: string
+}
 
-export const HomeContent = () => {
+interface HomeContentProps {
+  opportunities: TransformedOpportunity[]
+  latestOpportunities: TransformedOpportunity[]
+}
+
+export const HomeContent: React.FC<HomeContentProps> = ({ opportunities, latestOpportunities }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('all')
 
   // Filter opportunities based on search and filters
-  const filteredOpportunities = sampleOpportunities.filter((opp) => {
+  const filteredOpportunities = opportunities.filter((opp) => {
     // Filter by search query
     if (searchQuery && !opp.title.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false
     }
     // Filter by documentation type (if not "all")
     if (selectedFilter !== 'all' && selectedFilter !== 'scholarship') {
-      const docFilter = selectedFilter as 'alien_card' | 'ctd' | 'passport'
-      if (!opp.documentation.includes(docFilter)) {
+      if (!opp.documentation.includes(selectedFilter)) {
         return false
       }
     }
@@ -139,29 +88,40 @@ export const HomeContent = () => {
         />
       </section>
       
-      {/* Opportunities Feed */}
+      {/* Main Content with Sidebar */}
       <section className="max-w-7xl mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-2 gap-4">
-          {filteredOpportunities.length > 0 ? (
-            filteredOpportunities.map((opp) => (
-              <OpportunityCard
-                key={opp.id}
-                slug={opp.slug}
-                title={opp.title}
-                organizationName={opp.organizationName}
-                category={opp.category}
-                documentation={opp.documentation}
-                deadline={opp.deadline}
-                isVerified={opp.isVerified}
-                applyLink={opp.applyLink}
-              />
-            ))
-          ) : (
-            <div className="md:col-span-2 text-center py-12 text-slate-500 bg-white rounded-xl border border-[#E2E8F0]">
-              <p className="text-lg">No opportunities found</p>
-              <p className="text-sm mt-2">Try adjusting your search or filters</p>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Main Opportunities Feed */}
+          <div className="flex-1">
+            <div className="grid md:grid-cols-2 gap-4">
+              {filteredOpportunities.length > 0 ? (
+                filteredOpportunities.map((opp) => (
+                  <OpportunityCard
+                    key={opp.id}
+                    id={opp.id}
+                    slug={opp.slug}
+                    title={opp.title}
+                    organizationName={opp.organizationName}
+                    category={opp.category}
+                    documentation={opp.documentation}
+                    deadline={opp.deadline}
+                    isVerified={opp.isVerified}
+                    applyLink={opp.applyLink}
+                  />
+                ))
+              ) : (
+                <div className="md:col-span-2 text-center py-12 text-slate-500 bg-white rounded-xl border border-[#E2E8F0]">
+                  <p className="text-lg">No opportunities found</p>
+                  <p className="text-sm mt-2">Try adjusting your search or filters</p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
+          {/* Latest Opportunities Sidebar - Right Column */}
+          <div className="lg:w-80 flex-shrink-0">
+            <LatestOpportunitiesSidebar opportunities={latestOpportunities} />
+          </div>
         </div>
       </section>
 
