@@ -3,7 +3,7 @@ export interface OpportunityCardProps {
   slug?: string
   title: string
   organizationName: string
-  category: 'job' | 'scholarship' | 'internship' | 'training'
+  category: 'job' | 'scholarship' | 'internship' | 'training' | 'fellowship'
   documentation: string[]
   deadline: string
   isVerified: boolean

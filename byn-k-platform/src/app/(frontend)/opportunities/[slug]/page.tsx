@@ -4,140 +4,11 @@ import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, MapPin, Building2, FileText, Share2 } from 'lucide-react'
 import { generateSlug } from '@/types'
+import { getOpportunities, getOrganizationName, mapCategoryForDisplay } from '@/lib/payload'
+import type { Opportunity } from '@/payload-types'
 
-// Sample opportunity data (would be fetched from Payload CMS in production)
-const getOpportunityBySlug = (slug: string) => {
-  const opportunities = [
-    {
-      id: '1',
-      slug: 'junior-software-developer',
-      title: 'Junior Software Developer',
-      organizationName: 'Tech Solutions Kenya',
-      category: 'job',
-      documentation: ['alien_card', 'passport'],
-      deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: true,
-      applyLink: '#',
-      location: 'Nairobi, Kenya',
-      description: `We are looking for a motivated Junior Software Developer to join our team. You will work on exciting projects using modern technologies.\n\nRequirements:\n- Basic knowledge of JavaScript/TypeScript\n- Understanding of React or similar frameworks\n- Good problem-solving skills\n- Ability to work in a team\n\nBenefits:\n- Competitive salary\n- Remote work options\n- Professional development opportunities`,
-      postedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '2',
-      slug: 'dafi-scholarship-2025',
-      title: 'DAFI Scholarship 2025',
-      organizationName: 'UNHCR',
-      category: 'scholarship',
-      documentation: ['alien_card', 'ctd'],
-      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: true,
-      applyLink: '#',
-      location: 'Kenya',
-      description: `The DAFI (Albert Einstein German Academic Refugee Initiative) scholarship provides higher education opportunities to refugees.\n\nEligibility:\n- Must be a registered refugee\n- Strong academic record\n- Demonstrated financial need\n\nBenefits:\n- Full tuition coverage\n- Monthly stipend\n- Learning materials allowance`,
-      postedDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '3',
-      slug: 'digital-marketing-internship',
-      title: 'Digital Marketing Internship',
-      organizationName: 'Growth Agency',
-      category: 'internship',
-      documentation: ['passport', 'alien_card'],
-      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: false,
-      applyLink: '#',
-      location: 'Remote',
-      description: `Exciting internship opportunity in digital marketing. Learn hands-on skills in SEO, social media marketing, and content creation.\n\nDuration: 3 months\nType: Part-time/Full-time\n\nWhat you'll learn:\n- Social media management\n- Content marketing strategies\n- Analytics and reporting`,
-      postedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '4',
-      slug: 'coding-bootcamp-training',
-      title: 'Coding Bootcamp Training',
-      organizationName: 'ALX Africa',
-      category: 'training',
-      documentation: ['alien_card', 'ctd', 'passport'],
-      deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: true,
-      applyLink: '#',
-      location: 'Nairobi / Online',
-      description: `Join ALX Africa's intensive coding bootcamp and transform your career in tech.\n\nProgram Highlights:\n- 12-month comprehensive training\n- Industry-relevant curriculum\n- Mentorship from tech professionals\n- Job placement support\n\nNo prior coding experience required!`,
-      postedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '5',
-      slug: 'customer-service-representative',
-      title: 'Customer Service Representative',
-      organizationName: 'Safaricom',
-      category: 'job',
-      documentation: ['alien_card', 'ctd', 'passport'],
-      deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: true,
-      applyLink: '#',
-      location: 'Nairobi, Kenya',
-      description: `Join Safaricom as a Customer Service Representative and help us deliver exceptional service to our customers.\n\nResponsibilities:\n- Handle customer inquiries via phone and email\n- Resolve complaints professionally\n- Document customer interactions\n\nRequirements:\n- Excellent communication skills\n- Customer-oriented mindset\n- Basic computer skills`,
-      postedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '6',
-      slug: 'data-entry-clerk',
-      title: 'Data Entry Clerk',
-      organizationName: 'Kenya Red Cross',
-      category: 'job',
-      documentation: ['alien_card'],
-      deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: true,
-      applyLink: '#',
-      location: 'Nairobi, Kenya',
-      description: `Kenya Red Cross is seeking a Data Entry Clerk to support our humanitarian operations.\n\nKey Responsibilities:\n- Enter and update data in our systems\n- Maintain accurate records\n- Generate reports as needed\n\nRequirements:\n- Attention to detail\n- Fast and accurate typing skills\n- Microsoft Excel proficiency`,
-      postedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '7',
-      slug: 'mastercard-foundation-scholars',
-      title: 'Mastercard Foundation Scholars',
-      organizationName: 'Mastercard Foundation',
-      category: 'scholarship',
-      documentation: ['alien_card', 'ctd', 'passport'],
-      deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: true,
-      applyLink: '#',
-      location: 'Kenya / Pan-African',
-      description: `The Mastercard Foundation Scholars Program provides comprehensive scholarships for academically talented young people.\n\nProgram Benefits:\n- Full tuition and fees coverage\n- Accommodation allowance\n- Books and supplies\n- Leadership development programs\n\nEligibility:\n- Academic excellence\n- Demonstrated leadership potential\n- Financial need`,
-      postedDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '8',
-      slug: 'finance-intern',
-      title: 'Finance Intern',
-      organizationName: 'World Bank Kenya',
-      category: 'internship',
-      documentation: ['passport'],
-      deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: true,
-      applyLink: '#',
-      location: 'Nairobi, Kenya',
-      description: `The World Bank Kenya office offers an exciting internship opportunity in our Finance department.\n\nProgram Details:\n- Duration: 6 months\n- Paid internship with competitive stipend\n\nLearning Opportunities:\n- Financial analysis and reporting\n- Budget management\n- International development finance`,
-      postedDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '9',
-      slug: 'digital-skills-training',
-      title: 'Digital Skills Training',
-      organizationName: 'Microsoft',
-      category: 'training',
-      documentation: ['alien_card', 'ctd', 'passport'],
-      deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-      isVerified: true,
-      applyLink: '#',
-      location: 'Online',
-      description: `Microsoft's Digital Skills Training program helps you build essential technology skills for the modern workplace.\n\nCourses Available:\n- Microsoft Office Suite\n- Cloud Computing Basics\n- Data Analysis with Excel\n- Introduction to Programming\n\nBenefits:\n- Free certification upon completion\n- Self-paced learning\n- Industry-recognized credentials`,
-      postedDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ]
-  // Find by slug or by generated slug from title for fallback
-  return opportunities.find(opp => opp.slug === slug || generateSlug(opp.title) === slug)
-}
+// Force dynamic rendering to fetch data at runtime (requires database connection)
+export const dynamic = 'force-dynamic'
 
 // Helper function to calculate days remaining
 const getDaysRemaining = (deadline: string) => {
@@ -152,11 +23,16 @@ const getDaysRemaining = (deadline: string) => {
 const getCategoryColor = (category: string) => {
   switch (category) {
     case 'job':
+    case 'jobs':
       return 'text-[#F5A623] bg-orange-50 border-orange-200'
     case 'scholarship':
+    case 'scholarships':
       return 'text-purple-600 bg-purple-50 border-purple-200'
     case 'internship':
+    case 'internships':
       return 'text-blue-600 bg-blue-50 border-blue-200'
+    case 'fellowship':
+    case 'fellowships':
     case 'training':
       return 'text-green-600 bg-green-50 border-green-200'
     default:
@@ -172,13 +48,44 @@ const formatDate = (dateString: string) => {
   })
 }
 
+// Helper to extract plain text from rich text content
+const extractTextFromRichText = (description: Opportunity['description']): string => {
+  if (!description || !description.root || !description.root.children) {
+    return 'No description available.'
+  }
+  
+  const extractText = (children: unknown[]): string => {
+    return children.map((child: unknown) => {
+      const node = child as { text?: string; children?: unknown[] }
+      if (typeof node.text === 'string') {
+        return node.text
+      }
+      if (Array.isArray(node.children)) {
+        return extractText(node.children)
+      }
+      return ''
+    }).join('')
+  }
+  
+  return description.root.children.map((paragraph: unknown) => {
+    const node = paragraph as { children?: unknown[] }
+    if (Array.isArray(node.children)) {
+      return extractText(node.children)
+    }
+    return ''
+  }).filter(Boolean).join('\n\n')
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>
 }
 
 export default async function OpportunityDetailPage({ params }: PageProps) {
   const { slug } = await params
-  const opportunity = getOpportunityBySlug(slug)
+  
+  // Fetch all opportunities and find by slug
+  const opportunities = await getOpportunities()
+  const opportunity = opportunities.find(opp => generateSlug(opp.title) === slug)
 
   if (!opportunity) {
     return (
@@ -198,7 +105,10 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
   }
 
   const daysRemaining = getDaysRemaining(opportunity.deadline)
-  const categoryColorClass = getCategoryColor(opportunity.category)
+  const displayCategory = mapCategoryForDisplay(opportunity.category)
+  const categoryColorClass = getCategoryColor(displayCategory)
+  const organizationName = getOrganizationName(opportunity)
+  const descriptionText = extractTextFromRichText(opportunity.description)
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -221,7 +131,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
           <div className="p-6 md:p-8 border-b border-[#E2E8F0]">
             <div className="flex flex-wrap items-center gap-3 mb-4">
               <span className={`text-xs px-3 py-1.5 rounded-full font-semibold uppercase border ${categoryColorClass}`}>
-                {opportunity.category}
+                {displayCategory}
               </span>
               {opportunity.isVerified && (
                 <div className="flex items-center gap-1 bg-emerald-50 text-[#27AE60] px-3 py-1.5 rounded-full text-xs font-semibold border border-emerald-200">
@@ -238,11 +148,11 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
             <div className="flex flex-wrap items-center gap-4 text-slate-600">
               <div className="flex items-center gap-2">
                 <Building2 size={18} className="text-slate-400" />
-                <span className="font-medium">{opportunity.organizationName}</span>
+                <span className="font-medium">{organizationName}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin size={18} className="text-slate-400" />
-                <span>{opportunity.location}</span>
+                <span>Kenya</span>
               </div>
             </div>
           </div>
@@ -290,7 +200,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
               <div>
                 <p className="text-xs text-slate-500 mb-1">Posted</p>
                 <p className="font-semibold text-slate-900">
-                  {formatDate(opportunity.postedDate)}
+                  {formatDate(opportunity.createdAt)}
                 </p>
               </div>
             </div>
@@ -300,7 +210,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
           <div className="p-6 md:p-8">
             <h2 className="text-lg font-bold text-slate-900 mb-4">About this opportunity</h2>
             <div className="prose prose-slate max-w-none">
-              {opportunity.description.split('\n').map((paragraph, index) => (
+              {descriptionText.split('\n').map((paragraph, index) => (
                 <p key={index} className="text-slate-600 mb-4 last:mb-0 whitespace-pre-wrap">
                   {paragraph}
                 </p>
