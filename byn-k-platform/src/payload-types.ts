@@ -173,7 +173,7 @@ export interface Opportunity {
   organization: number | Partner;
   category: 'jobs' | 'internships' | 'scholarships' | 'fellowships';
   /**
-   * Which refugee IDs are accepted for this opportunity?
+   * Which refugee IDs are accepted for this opportunity? (Optional - leave empty if not applicable)
    */
   documentation?: ('alien_card' | 'ctd' | 'passport' | 'waiting_slip' | 'any_id' | 'not_specified')[] | null;
   deadline: string;
@@ -191,17 +191,20 @@ export interface Opportunity {
    */
   applicationEmail?: string | null;
   /**
-   * Suggested subject line for the application email
+   * Suggested subject line for the application email (optional)
    */
   emailSubjectLine?: string | null;
   /**
-   * List the documents applicants should attach
+   * List the documents applicants should attach (e.g., CV, Cover Letter, Certificates)
    */
   requiredDocuments?: string | null;
   /**
-   * Choose to write a description or upload a document
+   * Choose to write a description or upload a document with opportunity details
    */
   descriptionType: 'text' | 'document';
+  /**
+   * Write the opportunity details here
+   */
   description?: {
     root: {
       type: string;
