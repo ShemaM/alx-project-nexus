@@ -54,23 +54,31 @@ const extractTextFromRichText = (description: Opportunity['description']): strin
     return 'No description available.'
   }
   
+  // Type guard for text node
+  const isTextNode = (node: unknown): node is { text: string } => {
+    return typeof node === 'object' && node !== null && 'text' in node && typeof (node as { text: unknown }).text === 'string'
+  }
+  
+  // Type guard for node with children
+  const hasChildren = (node: unknown): node is { children: unknown[] } => {
+    return typeof node === 'object' && node !== null && 'children' in node && Array.isArray((node as { children: unknown }).children)
+  }
+  
   const extractText = (children: unknown[]): string => {
     return children.map((child: unknown) => {
-      const node = child as { text?: string; children?: unknown[] }
-      if (typeof node.text === 'string') {
-        return node.text
+      if (isTextNode(child)) {
+        return child.text
       }
-      if (Array.isArray(node.children)) {
-        return extractText(node.children)
+      if (hasChildren(child)) {
+        return extractText(child.children)
       }
       return ''
     }).join('')
   }
   
   return description.root.children.map((paragraph: unknown) => {
-    const node = paragraph as { children?: unknown[] }
-    if (Array.isArray(node.children)) {
-      return extractText(node.children)
+    if (hasChildren(paragraph)) {
+      return extractText(paragraph.children)
     }
     return ''
   }).filter(Boolean).join('\n\n')
