@@ -2,10 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, MapPin, Building2, FileText, Share2 } from 'lucide-react'
+import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, MapPin, Building2, FileText, Share2, Mail, Download, Paperclip } from 'lucide-react'
 import { generateSlug } from '@/types'
 import { getOpportunities, getOrganizationName, mapCategoryForDisplay } from '@/lib/payload'
-import type { Opportunity } from '@/payload-types'
+import type { Opportunity, Media } from '@/payload-types'
 
 // Force dynamic rendering to fetch data at runtime (requires database connection)
 export const dynamic = 'force-dynamic'
@@ -24,13 +24,13 @@ const getCategoryColor = (category: string) => {
   switch (category) {
     case 'job':
     case 'jobs':
-      return 'text-[#F5A623] bg-orange-50 border-orange-200'
+      return 'text-[#F5D300] bg-yellow-50 border-yellow-200'
     case 'scholarship':
     case 'scholarships':
       return 'text-purple-600 bg-purple-50 border-purple-200'
     case 'internship':
     case 'internships':
-      return 'text-blue-600 bg-blue-50 border-blue-200'
+      return 'text-[#2D8FDD] bg-blue-50 border-blue-200'
     case 'fellowship':
     case 'fellowships':
     case 'training':
@@ -84,6 +84,19 @@ const extractTextFromRichText = (description: Opportunity['description']): strin
   }).filter(Boolean).join('\n\n')
 }
 
+// Helper to generate mailto link
+const generateMailtoLink = (email: string, subject?: string | null) => {
+  const subjectParam = subject ? `?subject=${encodeURIComponent(subject)}` : ''
+  return `mailto:${email}${subjectParam}`
+}
+
+// Helper to get document URL
+const getDocumentUrl = (doc: Opportunity['opportunityDocument']): string | null => {
+  if (!doc) return null
+  if (typeof doc === 'number') return null
+  return (doc as Media).url || null
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>
 }
@@ -102,7 +115,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold text-slate-900 mb-4">Opportunity Not Found</h1>
           <p className="text-slate-600 mb-8">The opportunity you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-          <Link href="/" className="inline-flex items-center gap-2 bg-[#0F4C81] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0d3f6b] transition-colors">
+          <Link href="/" className="inline-flex items-center gap-2 bg-[#2D8FDD] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#1E6BB8] transition-colors">
             <ArrowLeft size={18} />
             Back to Home
           </Link>
@@ -117,6 +130,16 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
   const categoryColorClass = getCategoryColor(displayCategory)
   const organizationName = getOrganizationName(opportunity)
   const descriptionText = extractTextFromRichText(opportunity.description)
+  
+  // Application method handling
+  const isEmailApplication = opportunity.applicationType === 'email'
+  const applyUrl = isEmailApplication 
+    ? (opportunity.applicationEmail ? generateMailtoLink(opportunity.applicationEmail, opportunity.emailSubjectLine) : '#')
+    : (opportunity.applyLink || '#')
+  
+  // Document handling
+  const hasUploadedDocument = opportunity.descriptionType === 'document' && opportunity.opportunityDocument
+  const documentUrl = getDocumentUrl(opportunity.opportunityDocument)
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -125,7 +148,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
       {/* Breadcrumb */}
       <div className="bg-white border-b border-[#E2E8F0]">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link href="/" className="inline-flex items-center gap-2 text-[#0F4C81] hover:text-[#0d3f6b] font-medium transition-colors">
+          <Link href="/" className="inline-flex items-center gap-2 text-[#2D8FDD] hover:text-[#1E6BB8] font-medium transition-colors">
             <ArrowLeft size={18} />
             Back to Opportunities
           </Link>
@@ -147,9 +170,16 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
                   Verified
                 </div>
               )}
+              {/* Application Method Badge */}
+              {isEmailApplication && (
+                <div className="flex items-center gap-1 bg-blue-50 text-[#2D8FDD] px-3 py-1.5 rounded-full text-xs font-semibold border border-blue-200">
+                  <Mail size={14} />
+                  Email Application
+                </div>
+              )}
             </div>
             
-            <h1 className="text-2xl md:text-3xl font-bold text-[#0F4C81] mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#2D8FDD] mb-4">
               {opportunity.title}
             </h1>
             
@@ -168,42 +198,44 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
           {/* Key Info */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 md:p-8 bg-slate-50 border-b border-[#E2E8F0]">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#0F4C81]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Calendar size={20} className="text-[#0F4C81]" />
+              <div className="w-10 h-10 bg-[#2D8FDD]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Calendar size={20} className="text-[#2D8FDD]" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-1">Deadline</p>
-                <p className={`font-semibold ${daysRemaining <= 7 ? 'text-[#F5A623]' : 'text-slate-900'}`}>
+                <p className={`font-semibold ${daysRemaining <= 7 ? 'text-[#D52B2B]' : 'text-slate-900'}`}>
                   {formatDate(opportunity.deadline)}
                 </p>
-                <p className={`text-sm ${daysRemaining <= 7 ? 'text-[#F5A623]' : 'text-slate-500'}`}>
+                <p className={`text-sm ${daysRemaining <= 7 ? 'text-[#D52B2B]' : 'text-slate-500'}`}>
                   {daysRemaining > 0 ? `${daysRemaining} days remaining` : 'Deadline passed'}
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#0F4C81]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <FileText size={20} className="text-[#0F4C81]" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-1">Accepted Documents</p>
-                <div className="flex flex-wrap gap-1">
-                  {opportunity.documentation.map((doc) => (
-                    <span 
-                      key={doc}
-                      className="bg-white text-[#0F4C81] border border-[#0F4C81]/20 px-2 py-0.5 rounded text-xs font-medium"
-                    >
-                      {doc.replace('_', ' ').toUpperCase()}
-                    </span>
-                  ))}
+            {opportunity.documentation && opportunity.documentation.length > 0 && (
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-[#2D8FDD]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FileText size={20} className="text-[#2D8FDD]" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Accepted Documents</p>
+                  <div className="flex flex-wrap gap-1">
+                    {opportunity.documentation.map((doc) => (
+                      <span 
+                        key={doc}
+                        className="bg-white text-[#2D8FDD] border border-[#2D8FDD]/20 px-2 py-0.5 rounded text-xs font-medium"
+                      >
+                        {doc.replace('_', ' ').toUpperCase()}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#0F4C81]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Calendar size={20} className="text-[#0F4C81]" />
+              <div className="w-10 h-10 bg-[#2D8FDD]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Calendar size={20} className="text-[#2D8FDD]" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-1">Posted</p>
@@ -214,9 +246,85 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
             </div>
           </div>
 
+          {/* Email Application Requirements */}
+          {isEmailApplication && (opportunity.requiredDocuments || opportunity.applicationEmail) && (
+            <div className="p-6 md:p-8 border-b border-[#E2E8F0] bg-blue-50/50">
+              <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <Mail size={20} className="text-[#2D8FDD]" />
+                How to Apply
+              </h2>
+              <div className="space-y-4">
+                {opportunity.applicationEmail && (
+                  <div className="flex items-start gap-3">
+                    <Paperclip size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">Send your application to:</p>
+                      <a 
+                        href={`mailto:${opportunity.applicationEmail}`}
+                        className="text-[#2D8FDD] hover:underline font-semibold"
+                      >
+                        {opportunity.applicationEmail}
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {opportunity.emailSubjectLine && (
+                  <div className="flex items-start gap-3">
+                    <FileText size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">Subject Line:</p>
+                      <p className="text-slate-600 bg-white px-3 py-1.5 rounded border border-slate-200 inline-block mt-1">
+                        {opportunity.emailSubjectLine}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {opportunity.requiredDocuments && (
+                  <div className="flex items-start gap-3">
+                    <FileText size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 mb-2">Required Documents:</p>
+                      <p className="text-slate-600 whitespace-pre-wrap bg-white p-3 rounded border border-slate-200">
+                        {opportunity.requiredDocuments}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Description */}
           <div className="p-6 md:p-8">
             <h2 className="text-lg font-bold text-slate-900 mb-4">About this opportunity</h2>
+            
+            {/* Show document download if available */}
+            {hasUploadedDocument && documentUrl && (
+              <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#2D8FDD]/10 rounded-lg flex items-center justify-center">
+                      <FileText size={20} className="text-[#2D8FDD]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-900">Opportunity Details Document</p>
+                      <p className="text-sm text-slate-500">Download the full document for complete information</p>
+                    </div>
+                  </div>
+                  <a 
+                    href={documentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+                  >
+                    <Download size={16} />
+                    Download
+                  </a>
+                </div>
+              </div>
+            )}
+            
+            {/* Show text description */}
             <div className="prose prose-slate max-w-none">
               {descriptionText.split('\n').map((paragraph, index) => (
                 <p key={index} className="text-slate-600 mb-4 last:mb-0 whitespace-pre-wrap">
@@ -230,12 +338,16 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
           <div className="p-6 md:p-8 border-t border-[#E2E8F0] bg-slate-50">
             <div className="flex flex-col sm:flex-row gap-4">
               <a 
-                href={opportunity.applyLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 bg-[#0F4C81] hover:bg-[#0d3f6b] text-white px-6 py-4 rounded-xl font-bold text-base transition-colors"
+                href={applyUrl}
+                target={isEmailApplication ? undefined : '_blank'}
+                rel={isEmailApplication ? undefined : 'noopener noreferrer'}
+                className="flex-1 flex items-center justify-center gap-2 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-6 py-4 rounded-xl font-bold text-base transition-colors"
               >
-                Apply Now <ExternalLink size={18} />
+                {isEmailApplication ? (
+                  <>Apply via Email <Mail size={18} /></>
+                ) : (
+                  <>Apply Now <ExternalLink size={18} /></>
+                )}
               </a>
               <button 
                 className="flex items-center justify-center gap-2 bg-white border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 px-6 py-4 rounded-xl font-bold text-base transition-colors"

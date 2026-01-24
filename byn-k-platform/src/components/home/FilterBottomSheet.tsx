@@ -116,7 +116,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
           <h2 id="filter-title" className="text-xl font-bold text-slate-900">Filter Opportunities</h2>
           <button 
             onClick={handleClearAll}
-            className="text-[#0F4C81] text-sm font-semibold hover:underline"
+            className="text-[#2D8FDD] text-sm font-semibold hover:underline"
           >
             Clear All
           </button>
@@ -139,7 +139,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                     value={cat.id}
                     checked={filters.category === cat.id}
                     onChange={() => handleCategoryChange(cat.id)}
-                    className="w-5 h-5 text-[#0F4C81] border-slate-300 focus:ring-[#0F4C81]"
+                    className="w-5 h-5 text-[#2D8FDD] border-slate-300 focus:ring-[#2D8FDD]"
                   />
                   <span className="text-slate-700">{cat.label}</span>
                 </label>
@@ -161,7 +161,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                     value={doc.id}
                     checked={filters.documentation.includes(doc.id)}
                     onChange={() => handleDocumentationToggle(doc.id)}
-                    className="w-5 h-5 rounded text-[#0F4C81] border-slate-300 focus:ring-[#0F4C81]"
+                    className="w-5 h-5 rounded text-[#2D8FDD] border-slate-300 focus:ring-[#2D8FDD]"
                   />
                   <span className="text-slate-700">{doc.label}</span>
                 </label>
@@ -184,7 +184,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                     value={loc.id}
                     checked={filters.location === loc.id}
                     onChange={() => handleLocationChange(loc.id)}
-                    className="w-5 h-5 text-[#0F4C81] border-slate-300 focus:ring-[#0F4C81]"
+                    className="w-5 h-5 text-[#2D8FDD] border-slate-300 focus:ring-[#2D8FDD]"
                   />
                   <span className="text-xl mr-1">{loc.flag}</span>
                   <span className="text-slate-700">{loc.label}</span>
@@ -198,7 +198,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
         <div className="p-5 border-t border-[#E2E8F0] bg-white">
           <button
             onClick={handleApply}
-            className="w-full bg-[#F5A623] hover:bg-[#d98c1d] text-white py-4 rounded-xl font-bold text-lg transition-colors"
+            className="w-full bg-[#F5D300] hover:bg-[#D4B500] text-[#1E6BB8] py-4 rounded-xl font-bold text-lg transition-colors"
           >
             Show Results
           </button>

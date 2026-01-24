@@ -19,7 +19,15 @@ export interface TransformedOpportunity {
   documentation: string[]
   deadline: string
   isVerified: boolean
-  applyLink: string
+  // Application method fields
+  applicationType: 'link' | 'email'
+  applyLink?: string | null
+  applicationEmail?: string | null
+  emailSubjectLine?: string | null
+  requiredDocuments?: string | null
+  // Description type
+  descriptionType?: 'text' | 'document'
+  opportunityDocumentUrl?: string | null
   createdAt: string
 }
 
@@ -59,7 +67,7 @@ export const HomeContent: React.FC<HomeContentProps> = ({ opportunities, latestO
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#0F4C81] mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-[#2D8FDD] mb-2">
                 Latest Opportunities
               </h2>
               <p className="text-slate-600">
@@ -68,7 +76,7 @@ export const HomeContent: React.FC<HomeContentProps> = ({ opportunities, latestO
             </div>
             <Link 
               href="/categories/jobs"
-              className="inline-flex items-center gap-2 text-[#0F4C81] font-semibold hover:text-[#0d3f6b] transition-colors"
+              className="inline-flex items-center gap-2 text-[#2D8FDD] font-semibold hover:text-[#1E6BB8] transition-colors"
             >
               View All <ArrowRight size={18} />
             </Link>
@@ -106,7 +114,11 @@ export const HomeContent: React.FC<HomeContentProps> = ({ opportunities, latestO
                     documentation={opp.documentation}
                     deadline={opp.deadline}
                     isVerified={opp.isVerified}
+                    applicationType={opp.applicationType}
                     applyLink={opp.applyLink}
+                    applicationEmail={opp.applicationEmail}
+                    emailSubjectLine={opp.emailSubjectLine}
+                    requiredDocuments={opp.requiredDocuments}
                   />
                 ))
               ) : (

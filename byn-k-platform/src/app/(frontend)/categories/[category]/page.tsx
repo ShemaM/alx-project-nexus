@@ -14,7 +14,7 @@ const categoryMeta: Record<string, { title: string; description: string; icon: R
     title: 'Jobs',
     description: 'Find verified job opportunities suitable for your documentation status',
     icon: Briefcase,
-    color: 'bg-orange-50 text-[#F5A623]'
+    color: 'bg-yellow-50 text-[#F5D300]'
   },
   scholarships: {
     title: 'Scholarships',
@@ -26,7 +26,7 @@ const categoryMeta: Record<string, { title: string; description: string; icon: R
     title: 'Internships',
     description: 'Gain valuable work experience through internship programs',
     icon: Building,
-    color: 'bg-blue-50 text-blue-600'
+    color: 'bg-blue-50 text-[#2D8FDD]'
   },
   training: {
     title: 'Training Programs',
@@ -48,6 +48,7 @@ const allOpportunities = [
     documentation: ['alien_card', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
+    applicationType: 'link' as const,
     applyLink: '#'
   },
   {
@@ -60,6 +61,7 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
+    applicationType: 'link' as const,
     applyLink: '#'
   },
   {
@@ -72,6 +74,7 @@ const allOpportunities = [
     documentation: ['alien_card'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
+    applicationType: 'link' as const,
     applyLink: '#'
   },
   {
@@ -84,6 +87,7 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
+    applicationType: 'link' as const,
     applyLink: '#'
   },
   {
@@ -96,6 +100,7 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
+    applicationType: 'link' as const,
     applyLink: '#'
   },
   {
@@ -108,6 +113,7 @@ const allOpportunities = [
     documentation: ['passport', 'alien_card'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: false,
+    applicationType: 'link' as const,
     applyLink: '#'
   },
   {
@@ -120,6 +126,7 @@ const allOpportunities = [
     documentation: ['passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
+    applicationType: 'link' as const,
     applyLink: '#'
   },
   {
@@ -132,6 +139,7 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
+    applicationType: 'link' as const,
     applyLink: '#'
   },
   {
@@ -144,6 +152,7 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
+    applicationType: 'link' as const,
     applyLink: '#'
   }
 ]
@@ -165,7 +174,7 @@ export default function CategoryPage({ params }: PageProps) {
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold text-slate-900 mb-4">Category Not Found</h1>
           <p className="text-slate-600 mb-8">The category you&apos;re looking for doesn&apos;t exist.</p>
-          <Link href="/" className="inline-flex items-center gap-2 bg-[#0F4C81] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0d3f6b] transition-colors">
+          <Link href="/" className="inline-flex items-center gap-2 bg-[#2D8FDD] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#1E6BB8] transition-colors">
             <ArrowLeft size={18} />
             Back to Home
           </Link>
@@ -193,7 +202,7 @@ export default function CategoryPage({ params }: PageProps) {
       <Navbar />
       
       {/* Category Header */}
-      <section className="bg-[#0F4C81] py-12 md:py-16">
+      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-4">
           <Link href="/" className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-6 transition-colors">
             <ArrowLeft size={18} />
@@ -211,7 +220,7 @@ export default function CategoryPage({ params }: PageProps) {
             {meta.description}
           </p>
           <div className="mt-6">
-            <span className="text-[#F5A623] font-bold text-lg">
+            <span className="text-[#F5D300] font-bold text-lg">
               {filteredOpportunities.length} {filteredOpportunities.length === 1 ? 'opportunity' : 'opportunities'} available
             </span>
           </div>
@@ -237,6 +246,7 @@ export default function CategoryPage({ params }: PageProps) {
                 documentation={opp.documentation}
                 deadline={opp.deadline}
                 isVerified={opp.isVerified}
+                applicationType={opp.applicationType}
                 applyLink={opp.applyLink}
               />
             ))

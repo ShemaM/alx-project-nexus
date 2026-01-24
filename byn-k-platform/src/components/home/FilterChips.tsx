@@ -36,7 +36,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
             className={`
               whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors
               ${selected === filter.id 
-                ? 'bg-[#0F4C81] text-white' 
+                ? 'bg-[#2D8FDD] text-white' 
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }
             `}
