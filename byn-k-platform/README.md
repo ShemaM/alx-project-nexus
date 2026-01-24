@@ -1,67 +1,160 @@
-# Payload Blank Template
+# Project Nexus
 
-This template comes configured with the bare minimum to get started on anything you need.
+## Overview
 
-## Quick start
+Project Nexus is an initiative to build a scalable, multi-tenant platform for creating community-focused web applications. The goal is to provide a reusable, robust, and customizable foundation that can be rapidly deployed and configured for various communities, each with its unique content and needs. This core platform, "Nexus," is designed to be a configurable system that different organizations can use as a starting point, saving significant time and resources in development.
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+## Case Study: The Banyamulenge Youth of Kenya (BYN-K) Platform
 
-## Quick Start - local setup
+This repository is the first implementation of the Project Nexus vision, a dedicated platform for the Banyamulenge Youth of Kenya (BYN-K). It serves as a central hub for this community, offering:
 
-To spin up this template locally, follow these steps:
+- **Opportunity Listings:** A curated list of jobs, scholarships, and other opportunities.
+- **Partner Directory:** A directory of organizations that partner with the BYN-K community.
+- **Resource Hub:** A place for sharing important information and resources.
+- **Community Engagement:** Features like user accounts and bookmarking to foster engagement.
 
-### Clone
+The BYN-K platform showcases the power of Project Nexus by providing a real-world application that is both functional and tailored to the specific needs of its users.
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+## Tech Stack & Rationale
 
-### Development
+The technologies for Project Nexus were chosen to prioritize developer experience, scalability, and maintainability.
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+- **Frontend:** [Next.js](https://nextjs.org/), [React](https://reactjs.org/), [Tailwind CSS](https://tailwindcss.com/)
+- **Backend/CMS:** [Payload CMS](https://payloadcms.com/)
+- **Database & BaaS:** [Supabase](https://supabase.io/) (using PostgreSQL)
+- **Testing:** [Playwright](https://playwright.dev/) & [Vitest](https://vitest.dev/)
+- **Deployment:** [Docker](https://www.docker.com/)
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+### Why Payload CMS?
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+Payload was chosen as our content management system and application framework for several key reasons:
 
-#### Docker (Optional)
+- **Code-First & TypeScript-Native:** Unlike traditional CMSs, Payload allows us to define our data structures directly in TypeScript code. This provides strong typing from the database to the frontend, reducing errors and improving developer productivity.
+- **Extensible & Customizable:** It's built to be a developer-first platform. We can easily extend its core functionality, customize the admin UI with our own React components, and integrate it seamlessly into our Next.js application.
+- **Self-Hosted & Scalable:** Being able to self-host gives us full control over our data and infrastructure. It runs as a standard Node.js application, which can be easily containerized and scaled.
+- **Powerful Features Out-of-the-Box:** Payload provides a rich feature set, including a flexible field editor, authentication, file uploads, and a robust GraphQL API, which significantly accelerated our development process.
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+*Alternatives considered: We evaluated other headless CMSs like **Strapi** and **Contentful**. However, Payload's deep integration with the React ecosystem, its code-first approach, and the lack of limitations on the self-hosted version made it the ideal choice for Project Nexus.*
 
-To do so, follow these steps:
+### Why Supabase?
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+Supabase serves as our backend-as-a-service (BaaS) platform, primarily for its PostgreSQL database and other integrated services.
 
-## How it works
+- **Open Source & PostgreSQL-Based:** Supabase is built on top of PostgreSQL, a powerful and reliable open-source relational database. This allows us to leverage the power of SQL for complex queries while benefiting from Supabase's user-friendly interface.
+- **More than a Database:** It's an open-source alternative to Firebase. While we are currently using it for its database, it offers a suite of tools including authentication, storage, and auto-generated APIs that can be leveraged as Project Nexus grows.
+- **Excellent Developer Experience:** Supabase provides a clean dashboard for database management, easy-to-use client libraries, and clear documentation. This simplifies database administration and allows developers to focus on building features.
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+*Alternatives considered: We could have used a managed **PostgreSQL** service from a cloud provider like AWS RDS. However, Supabase offers a more comprehensive package with its additional services and a more intuitive developer experience, making it a better fit for rapid application development.*
 
-### Collections
+## Getting Started
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+Follow these instructions to get the project up and running on your local machine.
 
-- #### Users (Authentication)
+### Prerequisites
 
-  Users are auth-enabled collections that have access to the admin panel.
+- Node.js (v18.20.2 or >=20.9.0)
+- pnpm (v9 or v10)
+- Docker (optional, for running a local PostgreSQL instance)
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+### Installation
 
-- #### Media
+1.**Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd byn-k-platform
+    ```
 
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+2.**Install dependencies:**
+    ```bash
+    pnpm install
+    ```
 
-### Docker
+3.**Set up environment variables:**
+    Copy the example environment file and update it with your configuration.
+    ```bash
+    cp .env.example .env
+    ```
+    You will need to provide a `DATABASE_URL` for your PostgreSQL database (ideally from a Supabase project) and a `PAYLOAD_SECRET`.
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+4.**Run the development server:**
+    ```bash
+    pnpm dev
+    ```
+    The application will be available at [http://localhost:3000](http://localhost:3000). The Payload admin panel will be at [http://localhost:3000/admin](http://localhost:3000/admin).
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+### Using Docker for Local Development
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+If you prefer to use Docker for a consistent development environment, you can use the provided `docker-compose.yml` file to run a PostgreSQL database.
 
-## Questions
+1.Ensure you have Docker installed and running.
+2.  In your `.env` file, set the `DATABASE_URL` to `postgresql://payload:payload@localhost:5432/payload`.
+3.  Start the Docker container:
+    ```bash
+    docker-compose up -d
+    ```
+4.  Run the development server:
+    ```bash
+    pnpm dev
+    ```
 
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+## Environment Variables
+
+The following environment variables are required:
+
+- `DATABASE_URL`: The connection string for your PostgreSQL database.
+- `PAYLOAD_SECRET`: A secret key used by Payload for authentication.
+- `NEXT_PUBLIC_SERVER_URL`: The public URL of your server (e.g., `http://localhost:3000`).
+
+## Running Tests
+
+The project includes both end-to-end and integration tests.
+
+-**Run all tests:**
+    ```bash
+    pnpm test
+    ```
+-**Run end-to-end tests:**
+    ```bash
+    pnpm test:e2e
+    ```
+-**Run integration tests:**
+    ```bash
+    pnpm test:int
+    ```
+
+## Seeding the Database
+
+To populate the database with initial data, run the seed script:
+
+```bash
+pnpm seed
+```
+
+## Project Structure
+
+-`src/app/(frontend)/`: Contains the Next.js pages for the user-facing application.
+-`src/app/(payload)/`: Contains the Payload CMS admin panel and API.
+-`src/collections/`: Defines the data models (schemas) for Payload CMS.
+-`src/components/`: Shared React components used across the frontend.
+-`src/lib/`: Utility functions and libraries.
+-`src/payload.config.ts`: The main configuration file for Payload CMS.
+-`tests/`: Contains all the tests.
+
+## API
+
+The application exposes a GraphQL API powered by Payload CMS. You can access the GraphQL playground at [http://localhost:3000/api/graphql-playground](http://localhost:3000/api/graphql-playground).
+
+## Contributing
+
+Contributions are welcome! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/your-feature-name`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add some feature'`).
+5. Push to the branch (`git push origin feature/your-feature-name`).
+6. Open a pull request.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
