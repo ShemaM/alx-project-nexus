@@ -2,10 +2,11 @@ import React from 'react'
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, MapPin, Building2, FileText, Share2, Mail, Download, Paperclip } from 'lucide-react'
+import { ArrowLeft, Calendar, CheckCircle2, MapPin, Building2, FileText, Mail, Download, Paperclip } from 'lucide-react'
 import { generateSlug } from '@/types'
 import { getOpportunities, getOrganizationName, mapCategoryForDisplay } from '@/lib/payload'
 import type { Opportunity, Media } from '@/payload-types'
+import OpportunityActions from '@/components/ui/OpportunityActions'
 
 // Force dynamic rendering to fetch data at runtime (requires database connection)
 export const dynamic = 'force-dynamic'
@@ -335,29 +336,12 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
           </div>
 
           {/* Actions */}
-          <div className="p-6 md:p-8 border-t border-[#E2E8F0] bg-slate-50">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <a 
-                href={applyUrl}
-                target={isEmailApplication ? undefined : '_blank'}
-                rel={isEmailApplication ? undefined : 'noopener noreferrer'}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-6 py-4 rounded-xl font-bold text-base transition-colors"
-              >
-                {isEmailApplication ? (
-                  <>Apply via Email <Mail size={18} /></>
-                ) : (
-                  <>Apply Now <ExternalLink size={18} /></>
-                )}
-              </a>
-              <button 
-                className="flex items-center justify-center gap-2 bg-white border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 px-6 py-4 rounded-xl font-bold text-base transition-colors"
-                aria-label="Share opportunity"
-              >
-                <Share2 size={18} />
-                Share
-              </button>
-            </div>
-          </div>
+          <OpportunityActions 
+            opportunityId={String(opportunity.id)}
+            title={opportunity.title}
+            applyUrl={applyUrl}
+            isEmailApplication={isEmailApplication}
+          />
         </div>
       </main>
 
