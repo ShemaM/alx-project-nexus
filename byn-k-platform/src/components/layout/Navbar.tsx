@@ -66,9 +66,6 @@ export const Navbar = () => {
             </div>
             <Link href="/partners" className="text-sm font-semibold text-slate-600 hover:text-[#0F4C81] transition-colors">Partners</Link>
             <Link href="/about" className="text-sm font-semibold text-slate-600 hover:text-[#0F4C81] transition-colors">About</Link>
-            <Link href="/admin" className="bg-[#0F4C81] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#0d3f6b] transition-colors">
-              Admin Login
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -115,13 +112,6 @@ export const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
-              </Link>
-              <Link 
-                href="/admin" 
-                className="block bg-[#0F4C81] text-white px-4 py-3 rounded-lg text-sm font-bold text-center hover:bg-[#0d3f6b] transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Admin Login
               </Link>
             </div>
           </div>

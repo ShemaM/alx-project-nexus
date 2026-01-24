@@ -11,7 +11,7 @@ export default async function RootLayout(props: Readonly<{ children: React.React
 
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         {children}
       </body>
     </html>
