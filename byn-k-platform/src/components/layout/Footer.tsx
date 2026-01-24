@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
-import { Star, Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin, Heart } from 'lucide-react'
+import Image from 'next/image'
+import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin, Heart } from 'lucide-react'
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
@@ -63,9 +64,13 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-[#F5A623] rounded-lg flex items-center justify-center">
-                <Star className="w-6 h-6 text-white fill-white" />
-              </div>
+              <Image 
+                src="/images/logo.png" 
+                alt="BANYAMULENGE YOUTH KENYA Logo" 
+                width={48} 
+                height={48}
+                className="rounded-lg"
+              />
               <span className="text-lg font-black tracking-tight">BANYAMULENGE YOUTH KENYA</span>
             </Link>
             <p className="text-blue-200 text-sm leading-relaxed mb-4">

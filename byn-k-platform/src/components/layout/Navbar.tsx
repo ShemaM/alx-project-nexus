@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Star, Menu, X, ChevronDown } from 'lucide-react'
+import Image from 'next/image'
+import { Menu, X, ChevronDown } from 'lucide-react'
 
 const categories = [
   { href: '/categories/jobs', label: 'Jobs' },
@@ -21,9 +22,13 @@ export const Navbar = () => {
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#F5A623] rounded-lg flex items-center justify-center">
-              <Star className="w-5 h-5 text-white fill-white" />
-            </div>
+            <Image 
+              src="/images/logo.png" 
+              alt="BANYAMULENGE YOUTH KENYA Logo" 
+              width={40} 
+              height={40}
+              className="rounded-lg"
+            />
             <span className="text-xl font-black text-[#0F4C81] tracking-tight">BANYAMULENGE YOUTH KENYA</span>
           </Link>
           
