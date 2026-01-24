@@ -3,11 +3,11 @@
 import React, { useState } from 'react'
 
 const filterOptions = [
-  { id: 'all', label: 'All' },
+  { id: 'all', label: 'All Opportunities' },
   { id: 'alien_card', label: 'Alien Card' },
   { id: 'ctd', label: 'CTD' },
   { id: 'passport', label: 'Passport' },
-  { id: 'scholarship', label: 'Scholarship' },
+  { id: 'scholarship', label: 'Scholarships Only' },
 ]
 
 interface FilterChipsProps {
@@ -17,7 +17,7 @@ interface FilterChipsProps {
 
 export const FilterChips: React.FC<FilterChipsProps> = ({ 
   onFilterChange,
-  defaultSelected = 'alien_card'
+  defaultSelected = 'all'
 }) => {
   const [selected, setSelected] = useState(defaultSelected)
 
