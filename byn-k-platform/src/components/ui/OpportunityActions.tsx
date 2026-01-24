@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ExternalLink, Mail, Star } from 'lucide-react'
 import ShareButton from '@/components/ui/ShareButton'
 
@@ -17,6 +18,7 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
   applyUrl,
   isEmailApplication,
 }) => {
+  const router = useRouter()
   const [shareUrl, setShareUrl] = useState('')
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLoadingBookmark, setIsLoadingBookmark] = useState(false)
@@ -24,7 +26,9 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
 
   useEffect(() => {
     // Set share URL on client side
-    setShareUrl(window.location.href)
+    if (typeof window !== 'undefined') {
+      setShareUrl(window.location.href)
+    }
 
     // Check bookmark status
     const checkBookmarkStatus = async () => {
@@ -43,7 +47,8 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
 
   const handleToggleBookmark = async () => {
     if (!isAuthenticated) {
-      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+      router.push('/login?redirect=' + encodeURIComponent(currentPath))
       return
     }
 

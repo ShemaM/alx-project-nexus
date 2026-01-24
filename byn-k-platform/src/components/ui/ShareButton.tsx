@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Share2 } from 'lucide-react'
 
 interface ShareButtonProps {
@@ -14,6 +15,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
   url: propUrl,
   className = '',
 }) => {
+  const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showCopied, setShowCopied] = useState(false)
@@ -21,7 +23,8 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
   useEffect(() => {
     // Set URL from window if not provided as prop or if prop is empty
-    if (!propUrl) {
+    // This only runs on client side
+    if (!propUrl && typeof window !== 'undefined') {
       setCurrentUrl(window.location.href)
     }
 
@@ -47,21 +50,30 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
     }
   }, [propUrl])
 
-  const shareUrl = currentUrl || (typeof window !== 'undefined' ? window.location.href : '')
+  const copyToClipboard = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(currentUrl)
+      setShowCopied(true)
+      setTimeout(() => setShowCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }, [currentUrl])
 
   const handleShare = async () => {
     if (!isAuthenticated) {
-      // Redirect to login page
-      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+      // Redirect to login page using Next.js router
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+      router.push('/login?redirect=' + encodeURIComponent(currentPath))
       return
     }
 
     // Use Web Share API if available
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({
           title: title,
-          url: shareUrl,
+          url: currentUrl,
         })
       } catch (err) {
         // User cancelled or error - fall back to copying link
@@ -72,16 +84,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
     } else {
       // Fall back to copying the link
       copyToClipboard()
-    }
-  }
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl)
-      setShowCopied(true)
-      setTimeout(() => setShowCopied(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
     }
   }
 

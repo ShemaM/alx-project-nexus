@@ -132,9 +132,11 @@ export async function GET(request: NextRequest) {
       }
     } else {
       // Create new user
-      // Generate a random secure password for Google users
+      // Generate a cryptographically secure random password for Google users
       // They won't use it since they'll sign in with Google
-      const randomPassword = crypto.randomUUID() + crypto.randomUUID()
+      const randomBytes = new Uint8Array(64)
+      crypto.getRandomValues(randomBytes)
+      const randomPassword = Array.from(randomBytes, b => b.toString(16).padStart(2, '0')).join('')
       
       user = await payload.create({
         collection: 'users',
@@ -147,64 +149,41 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Login the user to get a token
-    // For Google users, we need to use a workaround since we don't have their password
-    // We'll generate a token directly using Payload's auth strategy
-    const loginResult = await payload.login({
-      collection: 'users',
-      data: {
-        email: googleUser.email.toLowerCase(),
-        // This won't work with regular password - we need a different approach
-        password: '', // placeholder
-      },
-    }).catch(() => null)
-
-    // If direct login fails (which it will for Google users), 
-    // we need to manually create a session token
-    let token: string | null = null
+    // For Google OAuth users, we create a JWT token directly
+    // since we don't have their password for a standard login
     
-    if (loginResult?.token) {
-      token = loginResult.token
-    } else {
-      // For Google OAuth users, we'll use Payload's internal auth mechanism
-      // This creates a valid JWT token for the user
-      
-      // Get the full user data with collection info needed for token
-      const fullUser = await payload.findByID({
+    // Get the full user data with collection info needed for token
+    const fullUser = await payload.findByID({
+      collection: 'users',
+      id: user.id,
+    })
+    
+    // Generate token using JWT
+    const jwt = await import('jsonwebtoken')
+    const payloadConfig = await configPromise
+    const secret = payloadConfig.secret
+    
+    const token = jwt.default.sign(
+      {
+        id: fullUser.id,
+        email: fullUser.email,
         collection: 'users',
-        id: user.id,
-      })
-      
-      // Generate token using Payload's built-in auth
-      // We need to manually create the JWT since we can't use password login
-      const jwt = await import('jsonwebtoken')
-      const payloadConfig = await configPromise
-      const secret = payloadConfig.secret
-      
-      token = jwt.default.sign(
-        {
-          id: fullUser.id,
-          email: fullUser.email,
-          collection: 'users',
-        },
-        secret,
-        { expiresIn: '7d' }
-      )
-    }
+      },
+      secret,
+      { expiresIn: '7d' }
+    )
 
     // Create response with redirect
     const response = NextResponse.redirect(new URL(redirectUrl, request.url))
 
     // Set the auth token as a cookie
-    if (token) {
-      response.cookies.set('payload-token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      })
-    }
+    response.cookies.set('payload-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
 
     return response
   } catch (error) {
