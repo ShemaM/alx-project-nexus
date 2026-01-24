@@ -54,7 +54,7 @@ export const PartnersSection = () => {
     <section className="py-16 bg-slate-50 border-t border-[#E2E8F0]">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#0F4C81] mb-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#2D8FDD] mb-3">
             Our Trusted Partners
           </h2>
           <p className="text-slate-600 max-w-lg mx-auto">
@@ -66,11 +66,11 @@ export const PartnersSection = () => {
           {featuredPartners.map((partner) => (
             <div 
               key={partner.id}
-              className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:shadow-lg transition-all duration-300 hover:border-[#0F4C81]/20"
+              className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:shadow-lg transition-all duration-300 hover:border-[#2D8FDD]/20"
             >
               {/* Logo and Verified Badge */}
               <div className="flex items-start justify-between mb-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-[#0F4C81]/5 to-[#F5A623]/5 rounded-xl flex items-center justify-center overflow-hidden p-2">
+                <div className="w-20 h-20 bg-gradient-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-xl flex items-center justify-center overflow-hidden p-2">
                   {partner.logo ? (
                     <Image 
                       src={partner.logo} 
@@ -80,7 +80,7 @@ export const PartnersSection = () => {
                       className="object-contain w-full h-full"
                     />
                   ) : (
-                    <Building2 size={32} className="text-[#0F4C81]" />
+                    <Building2 size={32} className="text-[#2D8FDD]" />
                   )}
                 </div>
                 <div className="flex items-center gap-1 bg-emerald-50 text-[#27AE60] px-2 py-1 rounded-full text-xs font-semibold">
@@ -90,7 +90,7 @@ export const PartnersSection = () => {
               </div>
 
               {/* Partner Info */}
-              <h3 className="text-lg font-bold text-[#0F4C81] mb-1">
+              <h3 className="text-lg font-bold text-[#2D8FDD] mb-1">
                 {partner.name}
               </h3>
               <span className="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-xs font-medium mb-3">
@@ -106,7 +106,7 @@ export const PartnersSection = () => {
         <div className="text-center mt-10">
           <Link 
             href="/partners"
-            className="inline-flex items-center gap-2 bg-[#0F4C81] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0d3f6b] transition-colors"
+            className="inline-flex items-center gap-2 bg-[#2D8FDD] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#1E6BB8] transition-colors"
           >
             View All Partners <ArrowRight size={18} />
           </Link>

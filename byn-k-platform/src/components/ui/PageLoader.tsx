@@ -21,19 +21,19 @@ export const PageLoader: React.FC<PageLoaderProps> = ({
           {/* Outer ring */}
           <div className="absolute inset-0 rounded-full border-4 border-[#E2E8F0]" />
           {/* Spinning ring */}
-          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#0F4C81] animate-spin" />
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#2D8FDD] animate-spin" />
           {/* Inner pulse */}
-          <div className="absolute inset-3 rounded-full bg-[#F5A623]/20 animate-pulse" />
-          <div className="absolute inset-4 rounded-full bg-[#F5A623]/40 animate-pulse delay-75" />
-          <div className="absolute inset-5 rounded-full bg-[#F5A623] animate-pulse delay-150" />
+          <div className="absolute inset-3 rounded-full bg-[#F5D300]/20 animate-pulse" />
+          <div className="absolute inset-4 rounded-full bg-[#F5D300]/40 animate-pulse delay-75" />
+          <div className="absolute inset-5 rounded-full bg-[#F5D300] animate-pulse delay-150" />
         </div>
         
         {/* Loading text with animated dots */}
         <p className="text-slate-600 font-medium text-lg">{message}</p>
         <div className="flex items-center justify-center gap-1 mt-2">
-          <span className="w-2 h-2 bg-[#0F4C81] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <span className="w-2 h-2 bg-[#0F4C81] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <span className="w-2 h-2 bg-[#0F4C81] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <span className="w-2 h-2 bg-[#2D8FDD] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <span className="w-2 h-2 bg-[#2D8FDD] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <span className="w-2 h-2 bg-[#2D8FDD] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     </div>

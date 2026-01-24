@@ -38,7 +38,9 @@ export const seed = async () => {
       documentation: ['alien_card', 'ctd'],
       deadline: '2026-06-30',
       isVerified: true,
+      applicationType: 'link',
       applyLink: 'https://unhcr.org/dafi-apply',
+      descriptionType: 'text',
     },
   })
 
@@ -51,7 +53,9 @@ export const seed = async () => {
       documentation: ['alien_card', 'waiting_slip', 'passport'],
       deadline: '2026-03-15',
       isVerified: true,
+      applicationType: 'link',
       applyLink: 'https://mastercardfdn.org/digital-kenya',
+      descriptionType: 'text',
     },
   })
 

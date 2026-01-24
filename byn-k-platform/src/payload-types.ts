@@ -175,10 +175,33 @@ export interface Opportunity {
   /**
    * Which refugee IDs are accepted for this opportunity?
    */
-  documentation: ('alien_card' | 'ctd' | 'passport' | 'waiting_slip')[];
+  documentation?: ('alien_card' | 'ctd' | 'passport' | 'waiting_slip' | 'any_id' | 'not_specified')[] | null;
   deadline: string;
   isVerified?: boolean | null;
-  applyLink: string;
+  /**
+   * How should applicants apply for this opportunity?
+   */
+  applicationType: 'link' | 'email';
+  /**
+   * Direct URL to the application portal or website
+   */
+  applyLink?: string | null;
+  /**
+   * Email address where applicants should send their applications
+   */
+  applicationEmail?: string | null;
+  /**
+   * Suggested subject line for the application email
+   */
+  emailSubjectLine?: string | null;
+  /**
+   * List the documents applicants should attach
+   */
+  requiredDocuments?: string | null;
+  /**
+   * Choose to write a description or upload a document
+   */
+  descriptionType: 'text' | 'document';
   description?: {
     root: {
       type: string;
@@ -194,6 +217,10 @@ export interface Opportunity {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Upload a PDF or document containing the full opportunity details
+   */
+  opportunityDocument?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -342,8 +369,14 @@ export interface OpportunitiesSelect<T extends boolean = true> {
   documentation?: T;
   deadline?: T;
   isVerified?: T;
+  applicationType?: T;
   applyLink?: T;
+  applicationEmail?: T;
+  emailSubjectLine?: T;
+  requiredDocuments?: T;
+  descriptionType?: T;
   description?: T;
+  opportunityDocument?: T;
   updatedAt?: T;
   createdAt?: T;
 }

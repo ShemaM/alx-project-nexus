@@ -28,7 +28,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterClick })
           placeholder="Search opportunities..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full h-12 pl-12 pr-4 bg-white border border-[#E2E8F0] rounded-lg text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/20 focus:border-[#0F4C81]"
+          className="w-full h-12 pl-12 pr-4 bg-white border border-[#E2E8F0] rounded-lg text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2D8FDD]/20 focus:border-[#2D8FDD]"
         />
       </div>
       <button

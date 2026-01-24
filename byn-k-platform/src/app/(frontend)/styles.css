@@ -1,9 +1,14 @@
 @import "tailwindcss";
 
 /* Custom Theme Configuration for BYN-K Platform */
+/* Brand colors from logo: Blue, Yellow/Gold, Red */
 :root {
-  --color-primary: #0F4C81;
-  --color-secondary: #F5A623;
+  --color-primary: #2D8FDD;
+  --color-primary-dark: #1E6BB8;
+  --color-secondary: #F5D300;
+  --color-secondary-dark: #D4B500;
+  --color-accent: #D52B2B;
+  --color-accent-dark: #B82424;
   --color-verified: #27AE60;
   --color-border: #E2E8F0;
 }
