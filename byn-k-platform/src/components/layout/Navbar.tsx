@@ -24,7 +24,7 @@ export const Navbar = () => {
             <div className="w-8 h-8 bg-[#F5A623] rounded-lg flex items-center justify-center">
               <Star className="w-5 h-5 text-white fill-white" />
             </div>
-            <span className="text-xl font-black text-[#0F4C81] tracking-tight">BYN-K</span>
+            <span className="text-xl font-black text-[#0F4C81] tracking-tight">BANYAMULENGE YOUTH KENYA</span>
           </Link>
           
           {/* Desktop Navigation */}

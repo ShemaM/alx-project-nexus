@@ -40,6 +40,7 @@ const categoryMeta: Record<string, { title: string; description: string; icon: R
 const allOpportunities = [
   {
     id: '1',
+    slug: 'junior-software-developer',
     title: 'Junior Software Developer',
     organizationName: 'Tech Solutions Kenya',
     category: 'job' as const,
@@ -47,10 +48,11 @@ const allOpportunities = [
     documentation: ['alien_card', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
-    applyLink: '/opportunities/1'
+    applyLink: '#'
   },
   {
     id: '5',
+    slug: 'customer-service-representative',
     title: 'Customer Service Representative',
     organizationName: 'Safaricom',
     category: 'job' as const,
@@ -58,10 +60,11 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
-    applyLink: '/opportunities/5'
+    applyLink: '#'
   },
   {
     id: '6',
+    slug: 'data-entry-clerk',
     title: 'Data Entry Clerk',
     organizationName: 'Kenya Red Cross',
     category: 'job' as const,
@@ -69,10 +72,11 @@ const allOpportunities = [
     documentation: ['alien_card'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
-    applyLink: '/opportunities/6'
+    applyLink: '#'
   },
   {
     id: '2',
+    slug: 'dafi-scholarship-2025',
     title: 'DAFI Scholarship 2025',
     organizationName: 'UNHCR',
     category: 'scholarship' as const,
@@ -80,10 +84,11 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
-    applyLink: '/opportunities/2'
+    applyLink: '#'
   },
   {
     id: '7',
+    slug: 'mastercard-foundation-scholars',
     title: 'Mastercard Foundation Scholars',
     organizationName: 'Mastercard Foundation',
     category: 'scholarship' as const,
@@ -91,10 +96,11 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
-    applyLink: '/opportunities/7'
+    applyLink: '#'
   },
   {
     id: '3',
+    slug: 'digital-marketing-internship',
     title: 'Digital Marketing Internship',
     organizationName: 'Growth Agency',
     category: 'internship' as const,
@@ -102,10 +108,11 @@ const allOpportunities = [
     documentation: ['passport', 'alien_card'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: false,
-    applyLink: '/opportunities/3'
+    applyLink: '#'
   },
   {
     id: '8',
+    slug: 'finance-intern',
     title: 'Finance Intern',
     organizationName: 'World Bank Kenya',
     category: 'internship' as const,
@@ -113,10 +120,11 @@ const allOpportunities = [
     documentation: ['passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
-    applyLink: '/opportunities/8'
+    applyLink: '#'
   },
   {
     id: '4',
+    slug: 'coding-bootcamp-training',
     title: 'Coding Bootcamp Training',
     organizationName: 'ALX Africa',
     category: 'training' as const,
@@ -124,10 +132,11 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
-    applyLink: '/opportunities/4'
+    applyLink: '#'
   },
   {
     id: '9',
+    slug: 'digital-skills-training',
     title: 'Digital Skills Training',
     organizationName: 'Microsoft',
     category: 'training' as const,
@@ -135,7 +144,7 @@ const allOpportunities = [
     documentation: ['alien_card', 'ctd', 'passport'] as ('alien_card' | 'ctd' | 'passport')[],
     deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
     isVerified: true,
-    applyLink: '/opportunities/9'
+    applyLink: '#'
   }
 ]
 
@@ -221,7 +230,7 @@ export default function CategoryPage({ params }: PageProps) {
             filteredOpportunities.map((opp) => (
               <OpportunityCard
                 key={opp.id}
-                id={opp.id}
+                slug={opp.slug}
                 title={opp.title}
                 organizationName={opp.organizationName}
                 category={opp.category}

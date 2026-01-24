@@ -3,12 +3,14 @@ import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, MapPin, Building2, FileText, Share2 } from 'lucide-react'
+import { generateSlug } from '@/types'
 
 // Sample opportunity data (would be fetched from Payload CMS in production)
-const getOpportunityById = (id: string) => {
+const getOpportunityBySlug = (slug: string) => {
   const opportunities = [
     {
       id: '1',
+      slug: 'junior-software-developer',
       title: 'Junior Software Developer',
       organizationName: 'Tech Solutions Kenya',
       category: 'job',
@@ -22,6 +24,7 @@ const getOpportunityById = (id: string) => {
     },
     {
       id: '2',
+      slug: 'dafi-scholarship-2025',
       title: 'DAFI Scholarship 2025',
       organizationName: 'UNHCR',
       category: 'scholarship',
@@ -35,6 +38,7 @@ const getOpportunityById = (id: string) => {
     },
     {
       id: '3',
+      slug: 'digital-marketing-internship',
       title: 'Digital Marketing Internship',
       organizationName: 'Growth Agency',
       category: 'internship',
@@ -48,6 +52,7 @@ const getOpportunityById = (id: string) => {
     },
     {
       id: '4',
+      slug: 'coding-bootcamp-training',
       title: 'Coding Bootcamp Training',
       organizationName: 'ALX Africa',
       category: 'training',
@@ -58,9 +63,80 @@ const getOpportunityById = (id: string) => {
       location: 'Nairobi / Online',
       description: `Join ALX Africa's intensive coding bootcamp and transform your career in tech.\n\nProgram Highlights:\n- 12-month comprehensive training\n- Industry-relevant curriculum\n- Mentorship from tech professionals\n- Job placement support\n\nNo prior coding experience required!`,
       postedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '5',
+      slug: 'customer-service-representative',
+      title: 'Customer Service Representative',
+      organizationName: 'Safaricom',
+      category: 'job',
+      documentation: ['alien_card', 'ctd', 'passport'],
+      deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+      isVerified: true,
+      applyLink: '#',
+      location: 'Nairobi, Kenya',
+      description: `Join Safaricom as a Customer Service Representative and help us deliver exceptional service to our customers.\n\nResponsibilities:\n- Handle customer inquiries via phone and email\n- Resolve complaints professionally\n- Document customer interactions\n\nRequirements:\n- Excellent communication skills\n- Customer-oriented mindset\n- Basic computer skills`,
+      postedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '6',
+      slug: 'data-entry-clerk',
+      title: 'Data Entry Clerk',
+      organizationName: 'Kenya Red Cross',
+      category: 'job',
+      documentation: ['alien_card'],
+      deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+      isVerified: true,
+      applyLink: '#',
+      location: 'Nairobi, Kenya',
+      description: `Kenya Red Cross is seeking a Data Entry Clerk to support our humanitarian operations.\n\nKey Responsibilities:\n- Enter and update data in our systems\n- Maintain accurate records\n- Generate reports as needed\n\nRequirements:\n- Attention to detail\n- Fast and accurate typing skills\n- Microsoft Excel proficiency`,
+      postedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '7',
+      slug: 'mastercard-foundation-scholars',
+      title: 'Mastercard Foundation Scholars',
+      organizationName: 'Mastercard Foundation',
+      category: 'scholarship',
+      documentation: ['alien_card', 'ctd', 'passport'],
+      deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+      isVerified: true,
+      applyLink: '#',
+      location: 'Kenya / Pan-African',
+      description: `The Mastercard Foundation Scholars Program provides comprehensive scholarships for academically talented young people.\n\nProgram Benefits:\n- Full tuition and fees coverage\n- Accommodation allowance\n- Books and supplies\n- Leadership development programs\n\nEligibility:\n- Academic excellence\n- Demonstrated leadership potential\n- Financial need`,
+      postedDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '8',
+      slug: 'finance-intern',
+      title: 'Finance Intern',
+      organizationName: 'World Bank Kenya',
+      category: 'internship',
+      documentation: ['passport'],
+      deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+      isVerified: true,
+      applyLink: '#',
+      location: 'Nairobi, Kenya',
+      description: `The World Bank Kenya office offers an exciting internship opportunity in our Finance department.\n\nProgram Details:\n- Duration: 6 months\n- Paid internship with competitive stipend\n\nLearning Opportunities:\n- Financial analysis and reporting\n- Budget management\n- International development finance`,
+      postedDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '9',
+      slug: 'digital-skills-training',
+      title: 'Digital Skills Training',
+      organizationName: 'Microsoft',
+      category: 'training',
+      documentation: ['alien_card', 'ctd', 'passport'],
+      deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+      isVerified: true,
+      applyLink: '#',
+      location: 'Online',
+      description: `Microsoft's Digital Skills Training program helps you build essential technology skills for the modern workplace.\n\nCourses Available:\n- Microsoft Office Suite\n- Cloud Computing Basics\n- Data Analysis with Excel\n- Introduction to Programming\n\nBenefits:\n- Free certification upon completion\n- Self-paced learning\n- Industry-recognized credentials`,
+      postedDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
     }
   ]
-  return opportunities.find(opp => opp.id === id)
+  // Find by slug or by generated slug from title for fallback
+  return opportunities.find(opp => opp.slug === slug || generateSlug(opp.title) === slug)
 }
 
 // Helper function to calculate days remaining
@@ -97,12 +173,12 @@ const formatDate = (dateString: string) => {
 }
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }
 
 export default async function OpportunityDetailPage({ params }: PageProps) {
-  const { id } = await params
-  const opportunity = getOpportunityById(id)
+  const { slug } = await params
+  const opportunity = getOpportunityBySlug(slug)
 
   if (!opportunity) {
     return (

@@ -12,6 +12,7 @@ import { ArrowRight } from 'lucide-react'
 const sampleOpportunities = [
   {
     id: '1',
+    slug: 'junior-software-developer',
     title: 'Junior Software Developer',
     organizationName: 'Tech Solutions Kenya',
     category: 'job' as const,
@@ -22,6 +23,7 @@ const sampleOpportunities = [
   },
   {
     id: '2',
+    slug: 'dafi-scholarship-2025',
     title: 'DAFI Scholarship 2025',
     organizationName: 'UNHCR',
     category: 'scholarship' as const,
@@ -32,6 +34,7 @@ const sampleOpportunities = [
   },
   {
     id: '3',
+    slug: 'digital-marketing-internship',
     title: 'Digital Marketing Internship',
     organizationName: 'Growth Agency',
     category: 'internship' as const,
@@ -42,6 +45,7 @@ const sampleOpportunities = [
   },
   {
     id: '4',
+    slug: 'coding-bootcamp-training',
     title: 'Coding Bootcamp Training',
     organizationName: 'ALX Africa',
     category: 'training' as const,
@@ -52,6 +56,7 @@ const sampleOpportunities = [
   },
   {
     id: '5',
+    slug: 'customer-service-representative',
     title: 'Customer Service Representative',
     organizationName: 'Safaricom',
     category: 'job' as const,
@@ -62,6 +67,7 @@ const sampleOpportunities = [
   },
   {
     id: '6',
+    slug: 'mastercard-foundation-scholars',
     title: 'Mastercard Foundation Scholars',
     organizationName: 'Mastercard Foundation',
     category: 'scholarship' as const,
@@ -140,7 +146,7 @@ export const HomeContent = () => {
             filteredOpportunities.map((opp) => (
               <OpportunityCard
                 key={opp.id}
-                id={opp.id}
+                slug={opp.slug}
                 title={opp.title}
                 organizationName={opp.organizationName}
                 category={opp.category}

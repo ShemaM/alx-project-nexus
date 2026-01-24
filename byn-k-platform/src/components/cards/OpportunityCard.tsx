@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Calendar, CheckCircle2, ExternalLink, Star } from 'lucide-react'
-import { OpportunityCardProps } from '@/types'
+import { OpportunityCardProps, generateSlug } from '@/types'
 
 // Helper function to calculate days remaining
 const getDaysRemaining = (deadline: string) => {
@@ -29,7 +29,7 @@ const getCategoryColor = (category: string) => {
 }
 
 export const OpportunityCard: React.FC<OpportunityCardProps> = ({
-  id,
+  slug,
   title,
   organizationName,
   category,
@@ -40,7 +40,9 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 }) => {
   const daysRemaining = getDaysRemaining(deadline)
   const categoryColorClass = getCategoryColor(category)
-  const detailLink = id ? `/opportunities/${id}` : applyLink
+  // Use provided slug or generate from title
+  const opportunitySlug = slug || generateSlug(title)
+  const detailLink = `/opportunities/${opportunitySlug}`
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative">
