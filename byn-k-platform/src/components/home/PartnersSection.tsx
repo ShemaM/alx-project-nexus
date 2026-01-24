@@ -1,15 +1,16 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Building2, ArrowRight } from 'lucide-react'
 
-// Sample partners (would come from Payload CMS)
+// Key partner organizations supporting refugees
 const featuredPartners = [
-  { id: '1', name: 'UNHCR Kenya' },
-  { id: '2', name: 'ALX Africa' },
-  { id: '3', name: 'Mastercard Foundation' },
-  { id: '4', name: 'Kenya Red Cross' },
-  { id: '5', name: 'Safaricom' },
-  { id: '6', name: 'World Bank Kenya' },
+  { id: '1', name: 'IKEA', logo: '/images/partners/ikea.png' },
+  { id: '2', name: 'Refugee Point', logo: '/images/partners/refugee-point.png' },
+  { id: '3', name: 'Refugee Consortium of Kenya', logo: '/images/partners/rck.png' },
+  { id: '4', name: 'Cohere NGO', logo: '/images/partners/cohere.png' },
+  { id: '5', name: 'Amahoro Coalition', logo: '/images/partners/amahoro-coalition.png' },
+  { id: '6', name: 'Inkomoko', logo: '/images/partners/inkomoko.png' },
 ]
 
 export const PartnersSection = () => {
@@ -31,8 +32,18 @@ export const PartnersSection = () => {
               key={partner.id}
               className="bg-white rounded-xl border border-[#E2E8F0] p-4 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow"
             >
-              <div className="w-12 h-12 bg-[#0F4C81]/5 rounded-full flex items-center justify-center mb-3">
-                <Building2 size={20} className="text-[#0F4C81]" />
+              <div className="w-16 h-16 bg-[#0F4C81]/5 rounded-lg flex items-center justify-center mb-3 overflow-hidden">
+                {partner.logo ? (
+                  <Image 
+                    src={partner.logo} 
+                    alt={`${partner.name} logo`}
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
+                ) : (
+                  <Building2 size={24} className="text-[#0F4C81]" />
+                )}
               </div>
               <span className="text-sm font-semibold text-slate-700 line-clamp-2">
                 {partner.name}
