@@ -2,13 +2,22 @@ import React from 'react'
 import Link from 'next/link'
 import { Briefcase, GraduationCap, Building, BookOpen, ArrowRight } from 'lucide-react'
 
-const categories = [
+export interface CategoriesSectionProps {
+  counts?: {
+    jobs: number
+    scholarships: number
+    internships: number
+    fellowships: number
+  }
+}
+
+const getCategoryConfig = (counts?: CategoriesSectionProps['counts']) => [
   {
     href: '/categories/jobs',
     icon: Briefcase,
     title: 'Jobs',
     description: 'Find verified job opportunities for your skills',
-    count: '50+',
+    count: counts?.jobs ?? 0,
     color: 'bg-yellow-50 text-[#F5D300] border-yellow-200'
   },
   {
@@ -16,7 +25,7 @@ const categories = [
     icon: GraduationCap,
     title: 'Scholarships',
     description: 'Educational funding opportunities for students',
-    count: '20+',
+    count: counts?.scholarships ?? 0,
     color: 'bg-purple-50 text-purple-600 border-purple-200'
   },
   {
@@ -24,20 +33,22 @@ const categories = [
     icon: Building,
     title: 'Internships',
     description: 'Gain experience with internship programs',
-    count: '30+',
+    count: counts?.internships ?? 0,
     color: 'bg-blue-50 text-[#2D8FDD] border-blue-200'
   },
   {
-    href: '/categories/training',
+    href: '/categories/fellowships',
     icon: BookOpen,
-    title: 'Training',
-    description: 'Skill-building courses and bootcamps',
-    count: '15+',
+    title: 'Fellowships',
+    description: 'Fellowship programs and opportunities',
+    count: counts?.fellowships ?? 0,
     color: 'bg-green-50 text-green-600 border-green-200'
   }
 ]
 
-export const CategoriesSection = () => {
+export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
+  const categories = getCategoryConfig(counts)
+  
   return (
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4">

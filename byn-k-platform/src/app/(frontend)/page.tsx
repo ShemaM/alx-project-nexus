@@ -5,7 +5,7 @@ import { CategoriesSection } from '@/components/home/CategoriesSection'
 import { HomeContent, TransformedOpportunity } from '@/components/home/HomeContent'
 import { PartnersSection } from '@/components/home/PartnersSection'
 import Footer from '@/components/layout/Footer'
-import { getOpportunities, getLatestOpportunities, getOrganizationName, mapCategoryForDisplay } from '@/lib/payload'
+import { getOpportunities, getLatestOpportunities, getOrganizationName, mapCategoryForDisplay, getOpportunityCounts } from '@/lib/payload'
 import { generateSlug } from '@/types'
 import type { Opportunity, Media } from '@/payload-types'
 
@@ -43,8 +43,11 @@ const transformOpportunity = (opp: Opportunity): TransformedOpportunity => ({
 
 export default async function HomePage() {
   // Fetch real opportunities from Payload CMS
-  const opportunities = await getOpportunities()
-  const latestOpportunities = await getLatestOpportunities(5)
+  const [opportunities, latestOpportunities, counts] = await Promise.all([
+    getOpportunities(),
+    getLatestOpportunities(5),
+    getOpportunityCounts(),
+  ])
 
   // Transform to client-safe format
   const transformedOpportunities = opportunities.map(transformOpportunity)
@@ -53,8 +56,8 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
-      <Hero />
-      <CategoriesSection />
+      <Hero counts={counts} />
+      <CategoriesSection counts={counts} />
       <HomeContent 
         opportunities={transformedOpportunities} 
         latestOpportunities={transformedLatestOpportunities}

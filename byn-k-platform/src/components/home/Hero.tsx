@@ -1,7 +1,16 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
-export const Hero = () => (
+export interface HeroProps {
+  counts?: {
+    jobs: number
+    scholarships: number
+    internships: number
+    partners: number
+  }
+}
+
+export const Hero = ({ counts }: HeroProps) => (
   <header className="relative bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-24 overflow-hidden">
     {/* Decorative background elements with brand colors */}
     <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-[#F5D300]/20 rounded-full blur-3xl" />
@@ -51,19 +60,19 @@ export const Hero = () => (
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
         <Link href="/categories/jobs" className="bg-white/10 p-5 md:p-6 rounded-2xl border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all group text-center">
-          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">50+</div>
+          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">{counts?.jobs ?? 0}</div>
           <div className="text-blue-100 text-sm mt-1">Verified Jobs</div>
         </Link>
         <Link href="/categories/scholarships" className="bg-white/10 p-5 md:p-6 rounded-2xl border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all group text-center">
-          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">20+</div>
+          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">{counts?.scholarships ?? 0}</div>
           <div className="text-blue-100 text-sm mt-1">Scholarships</div>
         </Link>
         <Link href="/categories/internships" className="bg-white/10 p-5 md:p-6 rounded-2xl border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all group text-center">
-          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">30+</div>
+          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">{counts?.internships ?? 0}</div>
           <div className="text-blue-100 text-sm mt-1">Internships</div>
         </Link>
         <Link href="/partners" className="bg-white/10 p-5 md:p-6 rounded-2xl border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all group text-center">
-          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">15+</div>
+          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">{counts?.partners ?? 0}</div>
           <div className="text-blue-100 text-sm mt-1">Partners</div>
         </Link>
       </div>

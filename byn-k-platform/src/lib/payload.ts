@@ -2,6 +2,17 @@ import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
 import type { Opportunity, Partner } from '@/payload-types'
 
+// Bookmark type - will be auto-generated after running `payload generate:types`
+// This is a temporary type until the database schema is updated
+export interface Bookmark {
+  id: number
+  user: number | { id: number; email: string }
+  opportunity: number | Opportunity
+  notes?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 export const getOpportunities = async () => {
   const payload = await getPayload({ config: configPromise })
   
@@ -58,4 +69,99 @@ export const mapCategoryForDisplay = (category: Opportunity['category']): string
     fellowships: 'fellowship',
   }
   return categoryMap[category] || category
+}
+
+// Get count of opportunities by category
+export const getOpportunityCounts = async (): Promise<{
+  jobs: number
+  scholarships: number
+  internships: number
+  fellowships: number
+  partners: number
+}> => {
+  const payload = await getPayload({ config: configPromise })
+
+  // Count opportunities by category
+  const [jobsData, scholarshipsData, internshipsData, fellowshipsData, partnersData] =
+    await Promise.all([
+      payload.count({
+        collection: 'opportunities',
+        where: { category: { equals: 'jobs' } },
+      }),
+      payload.count({
+        collection: 'opportunities',
+        where: { category: { equals: 'scholarships' } },
+      }),
+      payload.count({
+        collection: 'opportunities',
+        where: { category: { equals: 'internships' } },
+      }),
+      payload.count({
+        collection: 'opportunities',
+        where: { category: { equals: 'fellowships' } },
+      }),
+      payload.count({
+        collection: 'partners',
+      }),
+    ])
+
+  return {
+    jobs: jobsData.totalDocs,
+    scholarships: scholarshipsData.totalDocs,
+    internships: internshipsData.totalDocs,
+    fellowships: fellowshipsData.totalDocs,
+    partners: partnersData.totalDocs,
+  }
+}
+
+// Get user's bookmarked opportunities
+export const getUserBookmarks = async (userId: number) => {
+  const payload = await getPayload({ config: configPromise })
+
+  const data = await payload.find({
+    collection: 'bookmarks',
+    where: {
+      user: { equals: userId },
+    },
+    depth: 2, // Include opportunity details
+    sort: '-createdAt',
+  })
+
+  return data.docs
+}
+
+// Check if user has bookmarked a specific opportunity
+export const isOpportunityBookmarked = async (
+  userId: number,
+  opportunityId: number
+): Promise<boolean> => {
+  const payload = await getPayload({ config: configPromise })
+
+  const data = await payload.find({
+    collection: 'bookmarks',
+    where: {
+      and: [{ user: { equals: userId } }, { opportunity: { equals: opportunityId } }],
+    },
+    limit: 1,
+  })
+
+  return data.totalDocs > 0
+}
+
+// Get bookmark by user and opportunity
+export const getBookmark = async (
+  userId: number,
+  opportunityId: number
+): Promise<Bookmark | null> => {
+  const payload = await getPayload({ config: configPromise })
+
+  const data = await payload.find({
+    collection: 'bookmarks',
+    where: {
+      and: [{ user: { equals: userId } }, { opportunity: { equals: opportunityId } }],
+    },
+    limit: 1,
+  })
+
+  return data.docs[0] || null
 }
