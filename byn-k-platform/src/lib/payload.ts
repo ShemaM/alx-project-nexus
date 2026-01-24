@@ -1,18 +1,6 @@
 import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
-import type { Opportunity, Partner } from '@/payload-types'
-
-// TODO: Remove this temporary type after running `payload generate:types`
-// The Bookmark type will be auto-generated in @/payload-types after the database
-// migration is applied and types are regenerated.
-export interface Bookmark {
-  id: number
-  user: number | { id: number; email: string }
-  opportunity: number | Opportunity
-  notes?: string | null
-  createdAt: string
-  updatedAt: string
-}
+import type { Opportunity, Partner, Bookmark } from '@/payload-types'
 
 export const getOpportunities = async () => {
   const payload = await getPayload({ config: configPromise })
