@@ -10,6 +10,7 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Opportunities } from './collections/Opportunities'
 import { Partners } from './collections/Partners'
+import { Bookmarks } from './collections/Bookmarks'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,7 +23,7 @@ export default buildConfig({
     },
   },
   // Registering all collections for the BYN-K Platform
-  collections: [Users, Media, Opportunities, Partners],
+  collections: [Users, Media, Opportunities, Partners, Bookmarks],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

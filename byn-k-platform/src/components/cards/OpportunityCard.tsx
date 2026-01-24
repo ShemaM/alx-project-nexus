@@ -1,7 +1,8 @@
 import React from 'react'
 import Link from 'next/link'
-import { Calendar, CheckCircle2, ExternalLink, Mail, Star } from 'lucide-react'
+import { Calendar, CheckCircle2, ExternalLink, Mail } from 'lucide-react'
 import { OpportunityCardProps, generateSlug } from '@/types'
+import BookmarkButton from '@/components/ui/BookmarkButton'
 
 // Helper function to calculate days remaining
 const getDaysRemaining = (deadline: string) => {
@@ -36,6 +37,7 @@ const generateMailtoLink = (email: string, subject?: string | null) => {
 }
 
 export const OpportunityCard: React.FC<OpportunityCardProps> = ({
+  id,
   slug,
   title,
   organizationName,
@@ -62,13 +64,13 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative">
-      {/* Save Star Icon */}
-      <button 
-        className="absolute top-4 right-4 text-slate-300 hover:text-[#F5D300] transition-colors"
-        aria-label="Save opportunity"
-      >
-        <Star size={20} />
-      </button>
+      {/* Bookmark Button */}
+      {id && (
+        <BookmarkButton 
+          opportunityId={id}
+          className="absolute top-4 right-4"
+        />
+      )}
 
       {/* Top Row: Organization & Verified Badge */}
       <div className="flex items-center gap-2 mb-2 pr-8">
