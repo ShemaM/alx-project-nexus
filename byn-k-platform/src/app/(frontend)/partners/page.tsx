@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Building2, Globe, CheckCircle2, ExternalLink } from 'lucide-react'
@@ -9,83 +10,71 @@ export const metadata = {
   description: 'Meet our trusted partner organizations helping to connect refugee youth with verified opportunities.',
 }
 
-// Sample partners data (would come from Payload CMS)
+// Partner organizations that support refugees
 const partners = [
   {
     id: '1',
-    name: 'UNHCR Kenya',
-    description: 'The UN Refugee Agency works to ensure that everyone has the right to seek asylum and find safe refuge in another state.',
-    website: 'https://www.unhcr.org/ke/',
-    opportunitiesCount: 12,
+    name: 'IKEA',
+    description: 'IKEA Foundation supports refugees through programs that provide skills training, employment opportunities, and sustainable livelihoods for displaced communities.',
+    website: 'https://www.ikeafoundation.org/',
+    opportunitiesCount: 8,
     isVerified: true,
-    category: 'UN Agency'
+    category: 'Foundation',
+    logo: '/images/partners/ikea.png'
   },
   {
     id: '2',
-    name: 'ALX Africa',
-    description: 'ALX is a leadership development program that provides young Africans with the skills needed for the digital economy.',
-    website: 'https://www.alxafrica.com/',
-    opportunitiesCount: 5,
+    name: 'Refugee Point',
+    description: 'RefugePoint works to find lasting solutions for the world\'s most vulnerable refugees, providing protection, assistance, and pathways to self-reliance.',
+    website: 'https://www.refugepoint.org/',
+    opportunitiesCount: 6,
     isVerified: true,
-    category: 'Education'
+    category: 'NGO',
+    logo: '/images/partners/refugee-point.png'
   },
   {
     id: '3',
-    name: 'Mastercard Foundation',
-    description: 'The Foundation works with partners to provide greater access to education, skills training, and financial services.',
-    website: 'https://mastercardfdn.org/',
-    opportunitiesCount: 8,
+    name: 'Refugee Consortium of Kenya',
+    description: 'RCK provides legal aid, advocacy, and psychosocial support to refugees and asylum seekers in Kenya, promoting their rights and well-being.',
+    website: 'https://www.rckkenya.org/',
+    opportunitiesCount: 10,
     isVerified: true,
-    category: 'Foundation'
+    category: 'NGO',
+    logo: '/images/partners/rck.png'
   },
   {
     id: '4',
-    name: 'Kenya Red Cross',
-    description: 'Kenya Red Cross Society provides humanitarian services to the most vulnerable communities in Kenya.',
-    website: 'https://www.redcross.or.ke/',
-    opportunitiesCount: 6,
+    name: 'Cohere NGO',
+    description: 'Cohere partners with refugee-led organizations to provide them with the resources, networks, and support needed to create lasting change in their communities.',
+    website: 'https://www.wearecohere.org/',
+    opportunitiesCount: 7,
     isVerified: true,
-    category: 'Humanitarian'
+    category: 'NGO',
+    logo: '/images/partners/cohere.png'
   },
   {
     id: '5',
-    name: 'Tech Solutions Kenya',
-    description: 'A leading technology company providing employment opportunities for skilled developers and tech professionals.',
-    website: '#',
-    opportunitiesCount: 3,
+    name: 'Amahoro Coalition',
+    description: 'Amahoro Coalition brings together refugee-led organizations to amplify refugee voices and advocate for policies that support displaced communities.',
+    website: 'https://www.amahorocoalition.org/',
+    opportunitiesCount: 5,
     isVerified: true,
-    category: 'Private Sector'
+    category: 'Coalition',
+    logo: '/images/partners/amahoro-coalition.png'
   },
   {
     id: '6',
-    name: 'World Bank Kenya',
-    description: 'The World Bank Group works with the Government of Kenya to reduce poverty and enhance shared prosperity.',
-    website: 'https://www.worldbank.org/en/country/kenya',
-    opportunitiesCount: 4,
+    name: 'Inkomoko',
+    description: 'Inkomoko provides business consulting, access to finance, and market linkages to help refugees and vulnerable populations build sustainable businesses.',
+    website: 'https://www.inkomoko.com/',
+    opportunitiesCount: 12,
     isVerified: true,
-    category: 'International Organization'
-  },
-  {
-    id: '7',
-    name: 'Safaricom',
-    description: 'Kenya\'s leading telecommunications company, committed to transforming lives through technology and innovation.',
-    website: 'https://www.safaricom.co.ke/',
-    opportunitiesCount: 7,
-    isVerified: true,
-    category: 'Private Sector'
-  },
-  {
-    id: '8',
-    name: 'Microsoft',
-    description: 'Global technology company offering digital skills training and opportunities for young professionals.',
-    website: 'https://www.microsoft.com/',
-    opportunitiesCount: 2,
-    isVerified: true,
-    category: 'Private Sector'
+    category: 'Social Enterprise',
+    logo: '/images/partners/inkomoko.png'
   }
 ]
 
-const categories = ['All', 'UN Agency', 'Foundation', 'Education', 'Humanitarian', 'Private Sector', 'International Organization']
+const categories = ['All', 'Foundation', 'NGO', 'Coalition', 'Social Enterprise']
 
 export default function PartnersPage() {
   return (
@@ -144,8 +133,18 @@ export default function PartnersPage() {
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-14 h-14 bg-[#0F4C81]/5 rounded-xl flex items-center justify-center">
-                    <Building2 className="w-7 h-7 text-[#0F4C81]" />
+                  <div className="w-16 h-16 bg-[#0F4C81]/5 rounded-xl flex items-center justify-center overflow-hidden">
+                    {partner.logo ? (
+                      <Image 
+                        src={partner.logo} 
+                        alt={`${partner.name} logo`}
+                        width={48}
+                        height={48}
+                        className="object-contain"
+                      />
+                    ) : (
+                      <Building2 className="w-7 h-7 text-[#0F4C81]" />
+                    )}
                   </div>
                   {partner.isVerified && (
                     <div className="flex items-center gap-1 bg-emerald-50 text-[#27AE60] px-2 py-1 rounded-full text-xs font-semibold">
