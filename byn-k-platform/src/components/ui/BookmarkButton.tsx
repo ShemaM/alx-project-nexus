@@ -54,13 +54,19 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
           setIsBookmarked(false)
         }
       } else {
-        // Add bookmark
+        // Add bookmark - validate and convert ID
+        const idNum = typeof opportunityId === 'number' ? opportunityId : Number(opportunityId)
+        if (isNaN(idNum)) {
+          console.error('Invalid opportunity ID:', opportunityId)
+          return
+        }
+        
         const response = await fetch('/api/bookmarks', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ opportunityId: Number(opportunityId) }),
+          body: JSON.stringify({ opportunityId: idNum }),
         })
         if (response.ok) {
           setIsBookmarked(true)

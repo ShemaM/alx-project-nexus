@@ -145,13 +145,21 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    const opportunityIdNum = Number(opportunityId)
+    if (isNaN(opportunityIdNum)) {
+      return NextResponse.json(
+        { error: 'Invalid opportunity ID format' },
+        { status: 400 }
+      )
+    }
+
     // Find and delete the bookmark
     const existing = await payload.find({
       collection: 'bookmarks',
       where: {
         and: [
           { user: { equals: user.id } },
-          { opportunity: { equals: Number(opportunityId) } },
+          { opportunity: { equals: opportunityIdNum } },
         ],
       },
       limit: 1,
