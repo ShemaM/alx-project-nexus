@@ -17,7 +17,6 @@ const Footer: React.FC = () => {
   const resources = [
     { href: '/about', label: 'About Us' },
     { href: '/partners', label: 'Our Partners' },
-    { href: '/admin', label: 'Admin Portal' },
     { href: '#faq', label: 'FAQ' },
     { href: '#contact', label: 'Contact Us' },
   ]

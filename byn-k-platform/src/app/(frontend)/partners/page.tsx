@@ -14,23 +14,23 @@ export const metadata = {
 const partners = [
   {
     id: '1',
-    name: 'IKEA',
+    name: 'IKEA Foundation',
     description: 'IKEA Foundation supports refugees through programs that provide skills training, employment opportunities, and sustainable livelihoods for displaced communities.',
     website: 'https://www.ikeafoundation.org/',
     opportunitiesCount: 8,
     isVerified: true,
     category: 'Foundation',
-    logo: '/images/partners/ikea.png'
+    logo: '/images/partners/IKEA.png'
   },
   {
     id: '2',
-    name: 'Refugee Point',
+    name: 'RefugePoint',
     description: 'RefugePoint works to find lasting solutions for the world\'s most vulnerable refugees, providing protection, assistance, and pathways to self-reliance.',
     website: 'https://www.refugepoint.org/',
     opportunitiesCount: 6,
     isVerified: true,
     category: 'NGO',
-    logo: '/images/partners/refugee-point.png'
+    logo: '/images/partners/RefugeePoint.png'
   },
   {
     id: '3',
@@ -40,17 +40,17 @@ const partners = [
     opportunitiesCount: 10,
     isVerified: true,
     category: 'NGO',
-    logo: '/images/partners/rck.png'
+    logo: '/images/partners/Refugee Consortium of Kenya.jpg'
   },
   {
     id: '4',
-    name: 'Cohere NGO',
+    name: 'Cohere',
     description: 'Cohere partners with refugee-led organizations to provide them with the resources, networks, and support needed to create lasting change in their communities.',
     website: 'https://www.wearecohere.org/',
     opportunitiesCount: 7,
     isVerified: true,
     category: 'NGO',
-    logo: '/images/partners/cohere.png'
+    logo: '/images/partners/Cohere.png'
   },
   {
     id: '5',
@@ -60,7 +60,7 @@ const partners = [
     opportunitiesCount: 5,
     isVerified: true,
     category: 'Coalition',
-    logo: '/images/partners/amahoro-coalition.png'
+    logo: '/images/partners/AmahoroCoalition.jpeg'
   },
   {
     id: '6',
@@ -125,30 +125,30 @@ export default function PartnersPage() {
       {/* Partners Grid */}
       <section className="py-12">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {partners.map((partner) => (
               <div 
                 key={partner.id}
-                className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:shadow-lg transition-shadow"
+                className="bg-white rounded-2xl border border-[#E2E8F0] p-8 hover:shadow-xl transition-all duration-300 hover:border-[#0F4C81]/20"
               >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-16 h-16 bg-[#0F4C81]/5 rounded-xl flex items-center justify-center overflow-hidden">
+                {/* Header with larger logo */}
+                <div className="flex items-start justify-between mb-6">
+                  <div className="w-24 h-24 bg-gradient-to-br from-[#0F4C81]/5 to-[#F5A623]/5 rounded-2xl flex items-center justify-center overflow-hidden p-3">
                     {partner.logo ? (
                       <Image 
                         src={partner.logo} 
                         alt={`${partner.name} logo`}
-                        width={48}
-                        height={48}
-                        className="object-contain"
+                        width={80}
+                        height={80}
+                        className="object-contain w-full h-full"
                       />
                     ) : (
-                      <Building2 className="w-7 h-7 text-[#0F4C81]" />
+                      <Building2 className="w-10 h-10 text-[#0F4C81]" />
                     )}
                   </div>
                   {partner.isVerified && (
-                    <div className="flex items-center gap-1 bg-emerald-50 text-[#27AE60] px-2 py-1 rounded-full text-xs font-semibold">
-                      <CheckCircle2 size={12} />
+                    <div className="flex items-center gap-1 bg-emerald-50 text-[#27AE60] px-3 py-1.5 rounded-full text-sm font-semibold">
+                      <CheckCircle2 size={14} />
                       Verified
                     </div>
                   )}
@@ -158,28 +158,28 @@ export default function PartnersPage() {
                 <h3 className="text-xl font-bold text-[#0F4C81] mb-2">
                   {partner.name}
                 </h3>
-                <span className="inline-block bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-medium mb-3">
+                <span className="inline-block bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-sm font-medium mb-4">
                   {partner.category}
                 </span>
-                <p className="text-slate-600 text-sm mb-4 line-clamp-3">
+                <p className="text-slate-600 text-sm mb-6 leading-relaxed">
                   {partner.description}
                 </p>
 
                 {/* Stats */}
-                <div className="flex items-center justify-between pt-4 border-t border-[#E2E8F0]">
+                <div className="flex items-center justify-between pt-5 border-t border-[#E2E8F0]">
                   <span className="text-sm text-slate-500">
-                    <span className="font-semibold text-[#F5A623]">{partner.opportunitiesCount}</span> opportunities
+                    <span className="font-bold text-[#F5A623] text-lg">{partner.opportunitiesCount}</span> opportunities
                   </span>
                   {partner.website !== '#' && (
                     <Link 
                       href={partner.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-[#0F4C81] text-sm font-medium hover:underline"
+                      className="flex items-center gap-1.5 text-[#0F4C81] text-sm font-semibold hover:underline"
                     >
-                      <Globe size={14} />
+                      <Globe size={16} />
                       Website
-                      <ExternalLink size={12} />
+                      <ExternalLink size={14} />
                     </Link>
                   )}
                 </div>
