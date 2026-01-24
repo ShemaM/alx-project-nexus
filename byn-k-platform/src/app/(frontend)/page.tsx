@@ -7,10 +7,17 @@ import { PartnersSection } from '@/components/home/PartnersSection'
 import Footer from '@/components/layout/Footer'
 import { getOpportunities, getLatestOpportunities, getOrganizationName, mapCategoryForDisplay } from '@/lib/payload'
 import { generateSlug } from '@/types'
-import type { Opportunity } from '@/payload-types'
+import type { Opportunity, Media } from '@/payload-types'
 
 // Force dynamic rendering to fetch data at runtime (requires database connection)
 export const dynamic = 'force-dynamic'
+
+// Helper to get document URL
+const getDocumentUrl = (doc: Opportunity['opportunityDocument']): string | null => {
+  if (!doc) return null
+  if (typeof doc === 'number') return null
+  return (doc as Media).url || null
+}
 
 // Transform Payload opportunity to client-safe format
 const transformOpportunity = (opp: Opportunity): TransformedOpportunity => ({
@@ -19,10 +26,18 @@ const transformOpportunity = (opp: Opportunity): TransformedOpportunity => ({
   title: opp.title,
   organizationName: getOrganizationName(opp),
   category: mapCategoryForDisplay(opp.category) as TransformedOpportunity['category'],
-  documentation: opp.documentation,
+  documentation: opp.documentation || [],
   deadline: opp.deadline,
   isVerified: opp.isVerified ?? false,
+  // Application method fields
+  applicationType: opp.applicationType || 'link',
   applyLink: opp.applyLink,
+  applicationEmail: opp.applicationEmail,
+  emailSubjectLine: opp.emailSubjectLine,
+  requiredDocuments: opp.requiredDocuments,
+  // Description type
+  descriptionType: opp.descriptionType || 'text',
+  opportunityDocumentUrl: getDocumentUrl(opp.opportunityDocument),
   createdAt: opp.createdAt,
 })
 

@@ -7,7 +7,15 @@ export interface OpportunityCardProps {
   documentation: string[]
   deadline: string
   isVerified: boolean
-  applyLink: string
+  // Application method fields
+  applicationType: 'link' | 'email'
+  applyLink?: string | null
+  applicationEmail?: string | null
+  emailSubjectLine?: string | null
+  requiredDocuments?: string | null
+  // Description type
+  descriptionType?: 'text' | 'document'
+  opportunityDocumentUrl?: string | null
 }
 
 // Utility function to generate a slug from a title

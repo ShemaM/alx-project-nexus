@@ -82,10 +82,10 @@ export default function PartnersPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="bg-[#0F4C81] py-12 md:py-16">
+      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Building2 className="w-8 h-8 text-[#F5A623]" />
+            <Building2 className="w-8 h-8 text-[#F5D300]" />
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
             Our Trusted Partners
@@ -101,21 +101,21 @@ export default function PartnersPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
-              <div className="text-3xl font-bold text-[#0F4C81]">{partners.length}</div>
+              <div className="text-3xl font-bold text-[#2D8FDD]">{partners.length}</div>
               <div className="text-slate-600 text-sm">Partner Organizations</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-[#0F4C81]">
+              <div className="text-3xl font-bold text-[#2D8FDD]">
                 {partners.reduce((acc, p) => acc + p.opportunitiesCount, 0)}
               </div>
               <div className="text-slate-600 text-sm">Active Opportunities</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-[#0F4C81]">100%</div>
+              <div className="text-3xl font-bold text-[#2D8FDD]">100%</div>
               <div className="text-slate-600 text-sm">Verified Partners</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-[#0F4C81]">{categories.length - 1}</div>
+              <div className="text-3xl font-bold text-[#2D8FDD]">{categories.length - 1}</div>
               <div className="text-slate-600 text-sm">Sectors</div>
             </div>
           </div>
@@ -129,11 +129,11 @@ export default function PartnersPage() {
             {partners.map((partner) => (
               <div 
                 key={partner.id}
-                className="bg-white rounded-2xl border border-[#E2E8F0] p-8 hover:shadow-xl transition-all duration-300 hover:border-[#0F4C81]/20"
+                className="bg-white rounded-2xl border border-[#E2E8F0] p-8 hover:shadow-xl transition-all duration-300 hover:border-[#2D8FDD]/20"
               >
                 {/* Header with larger logo */}
                 <div className="flex items-start justify-between mb-6">
-                  <div className="w-24 h-24 bg-gradient-to-br from-[#0F4C81]/5 to-[#F5A623]/5 rounded-2xl flex items-center justify-center overflow-hidden p-3">
+                  <div className="w-24 h-24 bg-gradient-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-2xl flex items-center justify-center overflow-hidden p-3">
                     {partner.logo ? (
                       <Image 
                         src={partner.logo} 
@@ -143,7 +143,7 @@ export default function PartnersPage() {
                         className="object-contain w-full h-full"
                       />
                     ) : (
-                      <Building2 className="w-10 h-10 text-[#0F4C81]" />
+                      <Building2 className="w-10 h-10 text-[#2D8FDD]" />
                     )}
                   </div>
                   {partner.isVerified && (
@@ -155,7 +155,7 @@ export default function PartnersPage() {
                 </div>
 
                 {/* Info */}
-                <h3 className="text-xl font-bold text-[#0F4C81] mb-2">
+                <h3 className="text-xl font-bold text-[#2D8FDD] mb-2">
                   {partner.name}
                 </h3>
                 <span className="inline-block bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-sm font-medium mb-4">
@@ -168,14 +168,14 @@ export default function PartnersPage() {
                 {/* Stats */}
                 <div className="flex items-center justify-between pt-5 border-t border-[#E2E8F0]">
                   <span className="text-sm text-slate-500">
-                    <span className="font-bold text-[#F5A623] text-lg">{partner.opportunitiesCount}</span> opportunities
+                    <span className="font-bold text-[#F5D300] text-lg">{partner.opportunitiesCount}</span> opportunities
                   </span>
                   {partner.website !== '#' && (
                     <Link 
                       href={partner.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-[#0F4C81] text-sm font-semibold hover:underline"
+                      className="flex items-center gap-1.5 text-[#2D8FDD] text-sm font-semibold hover:underline"
                     >
                       <Globe size={16} />
                       Website
@@ -190,7 +190,7 @@ export default function PartnersPage() {
       </section>
 
       {/* Become a Partner CTA */}
-      <section className="py-16 bg-gradient-to-r from-[#0F4C81] to-[#1a5a9a]">
+      <section className="py-16 bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8]">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Become a Partner
@@ -200,7 +200,7 @@ export default function PartnersPage() {
           </p>
           <a 
             href="mailto:partners@byn-k.org" 
-            className="inline-block bg-[#F5A623] hover:bg-[#d98c1d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors"
+            className="inline-block bg-[#F5D300] hover:bg-[#D4B500] text-[#1E6BB8] px-8 py-4 rounded-xl font-bold text-lg transition-colors"
           >
             Contact Us
           </a>

@@ -1,52 +1,70 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export const Hero = () => (
-  <header className="relative bg-[#0F4C81] py-12 md:py-20 overflow-hidden">
-    {/* Decorative background element */}
-    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
-    <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-72 h-72 bg-[#F5A623]/10 rounded-full blur-3xl" />
+  <header className="relative bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-24 overflow-hidden">
+    {/* Decorative background elements with brand colors */}
+    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-[#F5D300]/20 rounded-full blur-3xl" />
+    <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-72 h-72 bg-[#D52B2B]/15 rounded-full blur-3xl" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl" />
     
-    <div className="max-w-7xl mx-auto px-4 relative z-10 text-center md:text-left md:flex items-center gap-12">
-      <div className="md:w-3/5">
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4 md:mb-6">
-          Unlock Your <span className="text-[#F5A623]">Potential</span>
+    <div className="max-w-7xl mx-auto px-4 relative z-10">
+      {/* Main Hero Content */}
+      <div className="text-center mb-12">
+        {/* Logo Section */}
+        <div className="flex justify-center mb-6">
+          <div className="bg-white p-4 rounded-2xl shadow-xl">
+            <Image 
+              src="/images/logo.png" 
+              alt="BANYAMULENGE YOUTH KENYA Logo" 
+              width={100} 
+              height={100}
+              className="w-20 h-20 md:w-24 md:h-24"
+            />
+          </div>
+        </div>
+        
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
+          Empowering <span className="text-[#F5D300]">Banyamulenge</span> Youth
         </h1>
-        <p className="text-lg md:text-xl text-blue-100 mb-6 md:mb-8 max-w-xl leading-relaxed mx-auto md:mx-0">
-          Discover verified jobs, scholarships, and opportunities designed for Banyamulenge refugee youth in Kenya.
+        <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed">
+          Your gateway to verified jobs, scholarships, internships, and opportunities designed for refugee youth in Kenya.
         </p>
-        <div className="flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start">
+        
+        {/* CTA Buttons with brand colors */}
+        <div className="flex flex-wrap gap-4 justify-center mb-12">
           <Link 
             href="/categories/jobs"
-            className="bg-[#F5A623] text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg shadow-lg hover:bg-[#d98c1d] transition-all"
+            className="bg-[#F5D300] text-[#1E6BB8] px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-[#D4B500] hover:shadow-xl transition-all transform hover:scale-105"
           >
             Explore Jobs
           </Link>
           <Link 
             href="/categories/scholarships"
-            className="bg-white/10 text-white border border-white/20 backdrop-blur-md px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg hover:bg-white/20 transition-all"
+            className="bg-white/10 text-white border-2 border-white/30 backdrop-blur-md px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 hover:border-white/50 transition-all"
           >
             View Scholarships
           </Link>
         </div>
       </div>
       
-      {/* Quick Stat Cards */}
-      <div className="hidden md:grid grid-cols-2 gap-4 md:w-2/5 mt-8 md:mt-0">
-        <Link href="/categories/jobs" className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors group">
-          <div className="text-2xl md:text-3xl font-bold text-[#F5A623] group-hover:scale-105 transition-transform">50+</div>
-          <div className="text-blue-100 text-sm">Verified Jobs</div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <Link href="/categories/jobs" className="bg-white/10 p-5 md:p-6 rounded-2xl border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all group text-center">
+          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">50+</div>
+          <div className="text-blue-100 text-sm mt-1">Verified Jobs</div>
         </Link>
-        <Link href="/categories/scholarships" className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors group">
-          <div className="text-2xl md:text-3xl font-bold text-[#F5A623] group-hover:scale-105 transition-transform">20+</div>
-          <div className="text-blue-100 text-sm">Scholarships</div>
+        <Link href="/categories/scholarships" className="bg-white/10 p-5 md:p-6 rounded-2xl border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all group text-center">
+          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">20+</div>
+          <div className="text-blue-100 text-sm mt-1">Scholarships</div>
         </Link>
-        <Link href="/categories/internships" className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors group">
-          <div className="text-2xl md:text-3xl font-bold text-[#F5A623] group-hover:scale-105 transition-transform">30+</div>
-          <div className="text-blue-100 text-sm">Internships</div>
+        <Link href="/categories/internships" className="bg-white/10 p-5 md:p-6 rounded-2xl border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all group text-center">
+          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">30+</div>
+          <div className="text-blue-100 text-sm mt-1">Internships</div>
         </Link>
-        <Link href="/partners" className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors group">
-          <div className="text-2xl md:text-3xl font-bold text-[#F5A623] group-hover:scale-105 transition-transform">15+</div>
-          <div className="text-blue-100 text-sm">Partner Organizations</div>
+        <Link href="/partners" className="bg-white/10 p-5 md:p-6 rounded-2xl border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all group text-center">
+          <div className="text-3xl md:text-4xl font-bold text-[#F5D300] group-hover:scale-110 transition-transform">15+</div>
+          <div className="text-blue-100 text-sm mt-1">Partners</div>
         </Link>
       </div>
     </div>
