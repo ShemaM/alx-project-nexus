@@ -66,7 +66,7 @@ const Footer: React.FC = () => {
               <div className="w-10 h-10 bg-[#F5A623] rounded-lg flex items-center justify-center">
                 <Star className="w-6 h-6 text-white fill-white" />
               </div>
-              <span className="text-2xl font-black tracking-tight">BYN-K</span>
+              <span className="text-lg font-black tracking-tight">BANYAMULENGE YOUTH KENYA</span>
             </Link>
             <p className="text-blue-200 text-sm leading-relaxed mb-4">
               Connecting Banyamulenge refugee youth in Kenya with verified jobs, scholarships, and opportunities.
@@ -161,7 +161,7 @@ const Footer: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-blue-200">
             <p className="flex items-center gap-1">
-              &copy; {currentYear} BYN-K Platform. Made with{' '}
+              &copy; {currentYear} BANYAMULENGE YOUTH KENYA. Made with{' '}
               <Heart size={14} className="text-[#F5A623] fill-[#F5A623]" /> for refugee youth.
             </p>
             <div className="flex items-center gap-6">
