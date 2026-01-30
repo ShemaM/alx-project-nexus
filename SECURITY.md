@@ -68,8 +68,11 @@ This application implements the following security measures:
 - **Authorization**: Payload CMS access control with field-level permissions
 - **Input Validation**: Server-side validation of all user inputs
 - **SQL Injection Prevention**: Use of parameterized queries via Payload ORM
-- **XSS Prevention**: React's automatic escaping and CSP headers
+- **XSS Prevention**: React's automatic escaping 
+- **Security Headers**: X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy
 - **CSRF Protection**: Built-in CSRF protection in Payload CMS
+
+> **Note**: Content Security Policy (CSP) should be configured based on your specific application needs during production deployment.
 
 ## Third-Party Dependencies
 

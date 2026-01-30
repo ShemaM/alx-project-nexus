@@ -49,13 +49,9 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    # Security: Use environment file for credentials
+    # Security: Use environment file for credentials (set POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB in .env)
     env_file:
       - .env
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-payload}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-payload}
-      - POSTGRES_DB=${POSTGRES_DB:-payload}
     # Security: Limit resources
     deploy:
       resources:

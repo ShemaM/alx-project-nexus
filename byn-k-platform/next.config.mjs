@@ -3,11 +3,6 @@ import { withPayload } from '@payloadcms/next/withPayload'
 // Security headers for production deployment
 const securityHeaders = [
   {
-    // Prevent XSS attacks
-    key: 'X-XSS-Protection',
-    value: '1; mode=block',
-  },
-  {
     // Prevent clickjacking
     key: 'X-Frame-Options',
     value: 'SAMEORIGIN',

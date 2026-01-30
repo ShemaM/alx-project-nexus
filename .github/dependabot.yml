@@ -11,7 +11,6 @@ updates:
       prefix: "deps"
     labels:
       - "dependencies"
-      - "security"
     groups:
       production-dependencies:
         patterns:
