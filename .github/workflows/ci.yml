@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Default permissions for all jobs (principle of least privilege)
+permissions:
+  contents: read
+
 env:
   NODE_VERSION: '20'
 
@@ -16,6 +20,8 @@ jobs:
   lint:
     name: Lint & Type Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./byn-k-platform
@@ -61,6 +67,8 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./byn-k-platform
@@ -120,6 +128,8 @@ jobs:
   security-audit:
     name: Security Audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./byn-k-platform
@@ -178,6 +188,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     needs: [lint, test]
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./byn-k-platform
