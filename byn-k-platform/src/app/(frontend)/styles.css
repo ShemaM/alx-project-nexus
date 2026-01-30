@@ -1,33 +1,280 @@
 @import "tailwindcss";
 
-/* Custom Theme Configuration for BYN-K Platform */
-/* Brand colors from logo: Blue, Yellow/Gold, Red */
+/**
+ * BYN-K Platform Custom Styles
+ * 
+ * Custom theme configuration, animations, and utility classes
+ * for the BYN-K Platform frontend.
+ * 
+ * Color Palette:
+ * - Primary (Blue): Community, trust, opportunity
+ * - Secondary (Gold): Achievement, hope, success
+ * - Accent (Red): Energy, urgency, important notices
+ */
+
+/* ============================================
+   CSS Custom Properties (Theme Variables)
+   ============================================ */
 :root {
+  /* Brand Colors */
   --color-primary: #2D8FDD;
   --color-primary-dark: #1E6BB8;
+  --color-primary-light: #5BA8E6;
+  
   --color-secondary: #F5D300;
   --color-secondary-dark: #D4B500;
+  --color-secondary-light: #FFE033;
+  
   --color-accent: #D52B2B;
   --color-accent-dark: #B82424;
+  --color-accent-light: #E05555;
+  
+  /* Status Colors */
   --color-verified: #27AE60;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  
+  /* Neutral Colors */
   --color-border: #E2E8F0;
+  --color-background: #F8FAFC;
+  
+  /* Animation Durations */
+  --animation-fast: 150ms;
+  --animation-normal: 300ms;
+  --animation-slow: 500ms;
 }
 
-/* Animations */
+/* ============================================
+   Keyframe Animations
+   ============================================ */
+
+/* Slide up from bottom */
 @keyframes slideUp {
   from {
+    opacity: 0;
     transform: translateY(100%);
   }
   to {
+    opacity: 1;
     transform: translateY(0);
   }
 }
 
-.animate-slideUp {
-  animation: slideUp 0.3s ease-out forwards;
+/* Slide down from top */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Hide scrollbar for filter chips */
+/* Slide in from right (for toasts) */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade out */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Scale up (for modals, cards) */
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Bounce (for attention) */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Pulse (for highlights) */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Spin (for loaders) */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Shimmer (for skeleton loading) */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ============================================
+   Animation Utility Classes
+   ============================================ */
+.animate-slide-up {
+  animation: slideUp var(--animation-normal) ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown var(--animation-normal) ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--animation-normal) ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft var(--animation-normal) ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--animation-normal) ease-out forwards;
+}
+
+.animate-fade-out {
+  animation: fadeOut var(--animation-normal) ease-out forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp var(--animation-normal) ease-out forwards;
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Legacy class for compatibility */
+.animate-slideUp {
+  animation: slideUp var(--animation-normal) ease-out forwards;
+}
+
+/* ============================================
+   Transition Utilities
+   ============================================ */
+.transition-fast {
+  transition: all var(--animation-fast) ease-out;
+}
+
+.transition-normal {
+  transition: all var(--animation-normal) ease-out;
+}
+
+.transition-slow {
+  transition: all var(--animation-slow) ease-out;
+}
+
+/* ============================================
+   Interactive Element Hover Effects
+   ============================================ */
+.hover-lift {
+  transition: transform var(--animation-fast) ease-out, box-shadow var(--animation-fast) ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.hover-scale {
+  transition: transform var(--animation-fast) ease-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-glow {
+  transition: box-shadow var(--animation-fast) ease-out;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(45, 143, 221, 0.3);
+}
+
+/* ============================================
+   Scrollbar Utilities
+   ============================================ */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -35,4 +282,98 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Custom styled scrollbar */
+.scrollbar-styled {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
+
+.scrollbar-styled::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-styled::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-styled::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 3px;
+}
+
+/* ============================================
+   Focus Styles (Accessibility)
+   ============================================ */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Glass Morphism Effect
+   ============================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   Gradient Utilities
+   ============================================ */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, #1E3A5F 0%, #2D8FDD 50%, #5BA8E6 100%);
+}
+
+/* ============================================
+   Card Styles
+   ============================================ */
+.card {
+  background: white;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  transition: all var(--animation-fast) ease-out;
+}
+
+.card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(45, 143, 221, 0.1);
+}
+
+/* ============================================
+   Badge Styles
+   ============================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+
+.badge-verified {
+  background-color: rgba(39, 174, 96, 0.1);
+  color: var(--color-verified);
+}
+
+.badge-featured {
+  background-color: rgba(245, 211, 0, 0.1);
+  color: var(--color-secondary-dark);
 }

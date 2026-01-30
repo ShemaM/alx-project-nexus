@@ -1,3 +1,17 @@
+/**
+ * Categories Section Component
+ * 
+ * Displays browsable category cards for different opportunity types.
+ * Each card shows the count and links to filtered opportunity listings.
+ * 
+ * Features:
+ * - Responsive grid layout
+ * - Hover animations
+ * - Live count display
+ * - Tour integration via data-tour attribute
+ * 
+ * @module components/home/CategoriesSection
+ */
 import React from 'react'
 import Link from 'next/link'
 import { Briefcase, GraduationCap, Building, BookOpen, ArrowRight } from 'lucide-react'
@@ -11,6 +25,9 @@ export interface CategoriesSectionProps {
   }
 }
 
+/**
+ * Category configuration with colors and icons
+ */
 const getCategoryConfig = (counts?: CategoriesSectionProps['counts']) => [
   {
     href: '/categories/jobs',
@@ -50,8 +67,9 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
   const categories = getCategoryConfig(counts)
   
   return (
-    <section className="py-12 bg-white">
+    <section data-tour="categories" className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4">
+        {/* Section Header */}
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-[#2D8FDD] mb-3">
             Browse by Category
@@ -61,6 +79,7 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
           </p>
         </div>
         
+        {/* Category Cards Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {categories.map((cat) => {
             const Icon = cat.icon
@@ -68,20 +87,32 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
               <Link
                 key={cat.title}
                 href={cat.href}
-                className="group bg-white border border-[#E2E8F0] rounded-2xl p-5 hover:shadow-lg hover:border-[#2D8FDD]/20 transition-all"
+                className="group bg-white border border-[#E2E8F0] rounded-2xl p-5 hover:shadow-lg hover:border-[#2D8FDD]/20 transition-all hover-lift"
               >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${cat.color} border`}>
+                {/* Category Icon */}
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${cat.color} border transition-transform group-hover:scale-110`}>
                   <Icon size={24} />
                 </div>
+                
+                {/* Category Title */}
                 <h3 className="text-lg font-bold text-[#2D8FDD] mb-1 group-hover:text-[#1E6BB8]">
                   {cat.title}
                 </h3>
+                
+                {/* Description (hidden on mobile) */}
                 <p className="text-sm text-slate-500 mb-3 hidden md:block">
                   {cat.description}
                 </p>
+                
+                {/* Count and Arrow */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#F5D300]">{cat.count} listings</span>
-                  <ArrowRight size={16} className="text-[#2D8FDD] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span className="text-xs font-semibold text-[#F5D300]">
+                    {cat.count} listings
+                  </span>
+                  <ArrowRight 
+                    size={16} 
+                    className="text-[#2D8FDD] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" 
+                  />
                 </div>
               </Link>
             )

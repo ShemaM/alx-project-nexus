@@ -1,9 +1,41 @@
+/**
+ * Root Layout for Frontend
+ * 
+ * Main layout component for the public-facing frontend.
+ * Includes global providers, metadata, and styling.
+ * 
+ * @module app/(frontend)/layout
+ */
 import React from 'react'
+import { Providers } from '@/components/layout/Providers'
 import './styles.css'
 
+// SEO Metadata
 export const metadata = {
-  description: 'Verified jobs and scholarships for Banyamulenge refugee youth in Kenya.',
-  title: 'Banyamulenge Youth Kenya - Opportunity Platform | Nexus Hub',
+  title: {
+    default: 'BYN-K Platform - Opportunities for Banyamulenge Youth',
+    template: '%s | BYN-K Platform',
+  },
+  description: 'Verified jobs, scholarships, internships, and fellowships for Banyamulenge refugee youth in Kenya. Find opportunities that accept your documentation.',
+  keywords: ['jobs', 'scholarships', 'internships', 'fellowships', 'Banyamulenge', 'refugee', 'Kenya', 'opportunities'],
+  authors: [{ name: 'BYN-K Platform' }],
+  creator: 'BYN-K Platform',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'BYN-K Platform',
+    title: 'BYN-K Platform - Opportunities for Banyamulenge Youth',
+    description: 'Verified jobs, scholarships, internships, and fellowships for Banyamulenge refugee youth in Kenya.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'BYN-K Platform - Opportunities for Banyamulenge Youth',
+    description: 'Verified jobs, scholarships, internships, and fellowships for Banyamulenge refugee youth in Kenya.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default async function RootLayout(props: Readonly<{ children: React.ReactNode }>) {
@@ -12,7 +44,9 @@ export default async function RootLayout(props: Readonly<{ children: React.React
   return (
     <html lang="en">
       <body className="antialiased" suppressHydrationWarning>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   )
