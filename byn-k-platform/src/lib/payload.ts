@@ -2,43 +2,58 @@ import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
 import type { Opportunity, Partner, Bookmark } from '@/payload-types'
 
-export const getOpportunities = async () => {
-  const payload = await getPayload({ config: configPromise })
-  
-  const data = await payload.find({
-    collection: 'opportunities',
-    depth: 1, // This automatically "joins" the Partner data (Organization Name)
-    sort: '-createdAt',
-  })
+export const getOpportunities = async (): Promise<Opportunity[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.find({
+      collection: 'opportunities',
+      depth: 1, // This automatically "joins" the Partner data (Organization Name)
+      sort: '-createdAt',
+    })
 
-  return data.docs
+    return data.docs
+  } catch (error) {
+    console.error('Failed to fetch opportunities:', error)
+    return []
+  }
 }
 
 // Get latest opportunities for sidebar (limited count, sorted by newest)
-export const getLatestOpportunities = async (limit: number = 5) => {
-  const payload = await getPayload({ config: configPromise })
-  
-  const data = await payload.find({
-    collection: 'opportunities',
-    depth: 1,
-    sort: '-createdAt',
-    limit,
-  })
+export const getLatestOpportunities = async (limit: number = 5): Promise<Opportunity[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.find({
+      collection: 'opportunities',
+      depth: 1,
+      sort: '-createdAt',
+      limit,
+    })
 
-  return data.docs
+    return data.docs
+  } catch (error) {
+    console.error(`Failed to fetch latest opportunities (limit: ${limit}):`, error)
+    return []
+  }
 }
 
 // Get a single opportunity by ID
-export const getOpportunityById = async (id: number) => {
-  const payload = await getPayload({ config: configPromise })
-  
-  const data = await payload.findByID({
-    collection: 'opportunities',
-    id,
-    depth: 1,
-  })
+export const getOpportunityById = async (id: number): Promise<Opportunity | null> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.findByID({
+      collection: 'opportunities',
+      id,
+      depth: 1,
+    })
 
-  return data
+    return data
+  } catch (error) {
+    console.error(`Failed to fetch opportunity by ID (id: ${id}):`, error)
+    return null
+  }
 }
 
 // Helper to extract organization name from opportunity
@@ -68,55 +83,71 @@ export const getOpportunityCounts = async (): Promise<{
   fellowships: number
   partners: number
 }> => {
-  const payload = await getPayload({ config: configPromise })
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  // Count opportunities by category
-  const [jobsData, scholarshipsData, internshipsData, fellowshipsData, partnersData] =
-    await Promise.all([
-      payload.count({
-        collection: 'opportunities',
-        where: { category: { equals: 'jobs' } },
-      }),
-      payload.count({
-        collection: 'opportunities',
-        where: { category: { equals: 'scholarships' } },
-      }),
-      payload.count({
-        collection: 'opportunities',
-        where: { category: { equals: 'internships' } },
-      }),
-      payload.count({
-        collection: 'opportunities',
-        where: { category: { equals: 'fellowships' } },
-      }),
-      payload.count({
-        collection: 'partners',
-      }),
-    ])
+    // Count opportunities by category
+    const [jobsData, scholarshipsData, internshipsData, fellowshipsData, partnersData] =
+      await Promise.all([
+        payload.count({
+          collection: 'opportunities',
+          where: { category: { equals: 'jobs' } },
+        }),
+        payload.count({
+          collection: 'opportunities',
+          where: { category: { equals: 'scholarships' } },
+        }),
+        payload.count({
+          collection: 'opportunities',
+          where: { category: { equals: 'internships' } },
+        }),
+        payload.count({
+          collection: 'opportunities',
+          where: { category: { equals: 'fellowships' } },
+        }),
+        payload.count({
+          collection: 'partners',
+        }),
+      ])
 
-  return {
-    jobs: jobsData.totalDocs,
-    scholarships: scholarshipsData.totalDocs,
-    internships: internshipsData.totalDocs,
-    fellowships: fellowshipsData.totalDocs,
-    partners: partnersData.totalDocs,
+    return {
+      jobs: jobsData.totalDocs,
+      scholarships: scholarshipsData.totalDocs,
+      internships: internshipsData.totalDocs,
+      fellowships: fellowshipsData.totalDocs,
+      partners: partnersData.totalDocs,
+    }
+  } catch (error) {
+    console.error('Failed to fetch opportunity counts:', error)
+    return {
+      jobs: 0,
+      scholarships: 0,
+      internships: 0,
+      fellowships: 0,
+      partners: 0,
+    }
   }
 }
 
 // Get user's bookmarked opportunities
-export const getUserBookmarks = async (userId: number) => {
-  const payload = await getPayload({ config: configPromise })
+export const getUserBookmarks = async (userId: number): Promise<Bookmark[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  const data = await payload.find({
-    collection: 'bookmarks',
-    where: {
-      user: { equals: userId },
-    },
-    depth: 2, // Include opportunity details
-    sort: '-createdAt',
-  })
+    const data = await payload.find({
+      collection: 'bookmarks',
+      where: {
+        user: { equals: userId },
+      },
+      depth: 2, // Include opportunity details
+      sort: '-createdAt',
+    })
 
-  return data.docs
+    return data.docs
+  } catch (error) {
+    console.error(`Failed to fetch user bookmarks (userId: ${userId}):`, error)
+    return []
+  }
 }
 
 // Check if user has bookmarked a specific opportunity
@@ -124,17 +155,22 @@ export const isOpportunityBookmarked = async (
   userId: number,
   opportunityId: number
 ): Promise<boolean> => {
-  const payload = await getPayload({ config: configPromise })
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  const data = await payload.find({
-    collection: 'bookmarks',
-    where: {
-      and: [{ user: { equals: userId } }, { opportunity: { equals: opportunityId } }],
-    },
-    limit: 1,
-  })
+    const data = await payload.find({
+      collection: 'bookmarks',
+      where: {
+        and: [{ user: { equals: userId } }, { opportunity: { equals: opportunityId } }],
+      },
+      limit: 1,
+    })
 
-  return data.totalDocs > 0
+    return data.totalDocs > 0
+  } catch (error) {
+    console.error(`Failed to check bookmark status (userId: ${userId}, opportunityId: ${opportunityId}):`, error)
+    return false
+  }
 }
 
 // Get bookmark by user and opportunity
@@ -142,15 +178,20 @@ export const getBookmark = async (
   userId: number,
   opportunityId: number
 ): Promise<Bookmark | null> => {
-  const payload = await getPayload({ config: configPromise })
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  const data = await payload.find({
-    collection: 'bookmarks',
-    where: {
-      and: [{ user: { equals: userId } }, { opportunity: { equals: opportunityId } }],
-    },
-    limit: 1,
-  })
+    const data = await payload.find({
+      collection: 'bookmarks',
+      where: {
+        and: [{ user: { equals: userId } }, { opportunity: { equals: opportunityId } }],
+      },
+      limit: 1,
+    })
 
-  return data.docs[0] || null
+    return data.docs[0] || null
+  } catch (error) {
+    console.error(`Failed to fetch bookmark (userId: ${userId}, opportunityId: ${opportunityId}):`, error)
+    return null
+  }
 }
