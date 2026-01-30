@@ -4,6 +4,7 @@
 
 [![CI/CD Pipeline](https://github.com/ShemaM/alx-project-nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/ShemaM/alx-project-nexus/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ShemaM/alx-project-nexus&root-directory=byn-k-platform)
 
 ## 🌟 Overview
 
@@ -33,7 +34,7 @@ The **Banyamulenge Youth of Kenya (BYN-K) Platform** is the flagship implementat
 | **Database** | PostgreSQL via Supabase |
 | **Testing** | Playwright (E2E), Vitest (Integration) |
 | **CI/CD** | GitHub Actions with CodeQL security scanning |
-| **Deployment** | Docker |
+| **Deployment** | Vercel |
 
 ## 🚀 Quick Start
 
@@ -57,6 +58,21 @@ Visit:
 - **Frontend**: http://localhost:3000
 - **Admin Panel**: http://localhost:3000/admin
 
+## ☁️ Deploy to Vercel
+
+### One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ShemaM/alx-project-nexus&root-directory=byn-k-platform&env=DATABASE_URL,PAYLOAD_SECRET&envDescription=Database%20connection%20and%20Payload%20secret%20key)
+
+### Manual Deployment
+
+1. Install Vercel CLI: `npm i -g vercel`
+2. Navigate to platform: `cd byn-k-platform`
+3. Deploy: `vercel`
+4. Set environment variables in Vercel dashboard:
+   - `DATABASE_URL` - Your Supabase PostgreSQL connection string
+   - `PAYLOAD_SECRET` - A strong secret key (min 32 characters)
+
 ## 📁 Repository Structure
 
 ```
@@ -73,6 +89,7 @@ alx-project-nexus/
 │   │   ├── globals/       # Payload globals
 │   │   └── lib/           # Utilities
 │   ├── tests/             # Test suites
+│   ├── vercel.json        # Vercel configuration
 │   └── public/            # Static assets
 ├── SECURITY.md            # Security policy
 ├── CONTRIBUTING.md        # Contribution guidelines

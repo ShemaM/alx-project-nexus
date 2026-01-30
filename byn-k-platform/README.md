@@ -244,19 +244,49 @@ This project implements SSDLC (Secure Software Development Lifecycle) practices:
 
 ## 🚀 Deployment
 
-### Environment Variables (Production)
+### Deploy to Vercel (Recommended)
 
-```env
-DATABASE_URL=postgresql://user:pass@host:5432/db
-PAYLOAD_SECRET=strong-secret-minimum-32-characters
-NEXT_PUBLIC_SERVER_URL=https://yourdomain.com
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ShemaM/alx-project-nexus&root-directory=byn-k-platform&env=DATABASE_URL,PAYLOAD_SECRET&envDescription=Database%20connection%20and%20Payload%20secret%20key)
 
-# Optional
-GOOGLE_CLIENT_ID=your-google-oauth-id
-GOOGLE_CLIENT_SECRET=your-google-oauth-secret
+#### One-Click Deploy
+
+1. Click the "Deploy with Vercel" button above
+2. Connect your GitHub account
+3. Configure environment variables:
+   - `DATABASE_URL` - Your Supabase PostgreSQL connection string
+   - `PAYLOAD_SECRET` - A strong secret key (minimum 32 characters)
+4. Deploy!
+
+#### Manual Vercel Deployment
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy from the platform directory
+cd byn-k-platform
+vercel
+
+# For production deployment
+vercel --prod
 ```
 
-### Docker Production Build
+#### Environment Variables (Production)
+
+Set these in your Vercel project dashboard under **Settings > Environment Variables**:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DATABASE_URL` | PostgreSQL connection string (Supabase) | ✅ |
+| `PAYLOAD_SECRET` | Secret key for Payload CMS (min 32 chars) | ✅ |
+| `NEXT_PUBLIC_SERVER_URL` | Your production URL (e.g., `https://yourdomain.vercel.app`) | ✅ |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | ❌ |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth secret | ❌ |
+
+### Alternative: Docker Deployment
 
 ```bash
 # Build the image
