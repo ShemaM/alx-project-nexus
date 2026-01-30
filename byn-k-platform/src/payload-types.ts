@@ -68,10 +68,13 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
-    media: Media;
     opportunities: Opportunity;
     partners: Partner;
+    resources: Resource;
+    events: Event;
     bookmarks: Bookmark;
+    announcements: Announcement;
+    media: Media;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,10 +83,13 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
     opportunities: OpportunitiesSelect<false> | OpportunitiesSelect<true>;
     partners: PartnersSelect<false> | PartnersSelect<true>;
+    resources: ResourcesSelect<false> | ResourcesSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     bookmarks: BookmarksSelect<false> | BookmarksSelect<true>;
+    announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -93,8 +99,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -123,13 +133,46 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Platform users and administrators
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: number;
-  name?: string | null;
-  roles: ('admin' | 'user')[];
+  /**
+   * User's full name for display purposes
+   */
+  name: string;
+  /**
+   * User's profile picture (optional)
+   */
+  avatar?: (number | null) | Media;
+  /**
+   * Short biography (max 500 characters)
+   */
+  bio?: string | null;
+  /**
+   * User roles determine access permissions
+   */
+  roles: ('admin' | 'moderator' | 'user')[];
+  /**
+   * User settings and preferences
+   */
+  preferences?: {
+    /**
+     * Whether the user has completed the onboarding tour
+     */
+    hasCompletedTour?: boolean | null;
+    /**
+     * Receive email notifications for new opportunities
+     */
+    emailNotifications?: boolean | null;
+    /**
+     * Preferred opportunity categories for personalized recommendations
+     */
+    preferredCategories?: ('jobs' | 'internships' | 'scholarships' | 'fellowships')[] | null;
+  };
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -149,12 +192,21 @@ export interface User {
   password?: string | null;
 }
 /**
+ * Images, documents, and other uploaded files
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
+  /**
+   * Alternative text for accessibility (required for images)
+   */
   alt: string;
+  /**
+   * Optional caption for the media
+   */
+  caption?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -166,22 +218,73 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
+ * Jobs, scholarships, internships, and fellowship opportunities
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "opportunities".
  */
 export interface Opportunity {
   id: number;
+  /**
+   * The opportunity title - be clear and descriptive
+   */
   title: string;
+  /**
+   * The organization offering this opportunity
+   */
   organization: number | Partner;
+  /**
+   * The type of opportunity
+   */
   category: 'jobs' | 'internships' | 'scholarships' | 'fellowships';
   /**
-   * Which refugee IDs are accepted for this opportunity? (Optional - leave empty if not applicable)
+   * Application deadline
+   */
+  deadline: string;
+  /**
+   * Which refugee IDs are accepted for this opportunity? (Leave empty if not applicable)
    */
   documentation?: ('alien_card' | 'ctd' | 'passport' | 'waiting_slip' | 'any_id' | 'not_specified')[] | null;
-  deadline: string;
+  /**
+   * Indicates this opportunity has been verified by BYN-K admin
+   */
   isVerified?: boolean | null;
+  /**
+   * Show this opportunity in the featured section
+   */
+  isFeatured?: boolean | null;
+  /**
+   * Whether this opportunity is currently active
+   */
+  isActive?: boolean | null;
   /**
    * How should applicants apply for this opportunity?
    */
@@ -228,18 +331,219 @@ export interface Opportunity {
    * Upload a PDF or document containing the full opportunity details
    */
   opportunityDocument?: (number | null) | Media;
+  /**
+   * Number of times this opportunity has been viewed
+   */
+  viewCount?: number | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
+ * Organizations and partners offering opportunities
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "partners".
  */
 export interface Partner {
   id: number;
+  /**
+   * Organization name
+   */
   name: string;
+  /**
+   * Type of organization
+   */
+  type: 'company' | 'ngo' | 'education' | 'government' | 'other';
+  /**
+   * Brief description of the organization (max 500 characters)
+   */
+  description?: string | null;
+  /**
+   * Organization website URL
+   */
   website?: string | null;
+  /**
+   * Contact email for the organization
+   */
+  email?: string | null;
+  /**
+   * Organization location (city, country)
+   */
+  location?: string | null;
+  /**
+   * Organization logo (recommended: square image, min 200x200px)
+   */
   logo?: (number | null) | Media;
+  /**
+   * Whether this partner is currently active
+   */
+  isActive?: boolean | null;
+  /**
+   * Show in featured partners section
+   */
+  isFeatured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Guides, tutorials, and helpful resources for the community
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "resources".
+ */
+export interface Resource {
+  id: number;
+  /**
+   * Resource title
+   */
+  title: string;
+  /**
+   * URL-friendly identifier (auto-generated from title)
+   */
+  slug: string;
+  /**
+   * Resource category
+   */
+  category: 'career_guide' | 'cv_tips' | 'interview_prep' | 'scholarship_guide' | 'documentation' | 'skills' | 'other';
+  /**
+   * Brief summary of the resource (max 300 characters)
+   */
+  summary: string;
+  /**
+   * Type of resource content
+   */
+  contentType: 'article' | 'link' | 'file';
+  /**
+   * Full article content
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * URL to external resource
+   */
+  externalLink?: string | null;
+  /**
+   * Downloadable file (PDF, DOC, etc.)
+   */
+  file?: (number | null) | Media;
+  /**
+   * Featured image for the resource card
+   */
+  featuredImage?: (number | null) | Media;
+  /**
+   * Whether this resource is visible to the public
+   */
+  isPublished?: boolean | null;
+  /**
+   * Show in featured resources section
+   */
+  isFeatured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Community events, workshops, and webinars
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  /**
+   * Event title
+   */
+  title: string;
+  /**
+   * Type of event
+   */
+  eventType: 'workshop' | 'webinar' | 'career_fair' | 'networking' | 'training' | 'info_session' | 'other';
+  /**
+   * Full event description
+   */
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Event start date and time
+   */
+  startDate: string;
+  /**
+   * Event end date and time (optional)
+   */
+  endDate?: string | null;
+  /**
+   * Event timezone
+   */
+  timezone?: ('Africa/Nairobi' | 'Europe/Paris' | 'America/New_York' | 'America/Los_Angeles' | 'UTC') | null;
+  /**
+   * How will the event be held?
+   */
+  locationType: 'online' | 'in_person' | 'hybrid';
+  /**
+   * Physical location address
+   */
+  location?: string | null;
+  /**
+   * Link to join online (Zoom, Google Meet, etc.)
+   */
+  onlineLink?: string | null;
+  /**
+   * Does this event require registration?
+   */
+  requiresRegistration?: boolean | null;
+  /**
+   * Registration link
+   */
+  registrationLink?: string | null;
+  /**
+   * Registration deadline
+   */
+  registrationDeadline?: string | null;
+  /**
+   * Maximum number of attendees (leave empty for unlimited)
+   */
+  maxAttendees?: number | null;
+  /**
+   * Featured image for the event
+   */
+  featuredImage?: (number | null) | Media;
+  /**
+   * Organization hosting this event
+   */
+  organizer?: (number | null) | Partner;
+  /**
+   * Whether this event is visible to the public
+   */
+  isPublished?: boolean | null;
+  /**
+   * Show in featured events section
+   */
+  isFeatured?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -251,12 +555,77 @@ export interface Partner {
  */
 export interface Bookmark {
   id: number;
+  /**
+   * The user who created this bookmark
+   */
   user?: (number | null) | User;
+  /**
+   * The bookmarked opportunity
+   */
   opportunity: number | Opportunity;
   /**
-   * Add personal notes about this opportunity
+   * Add personal notes about this opportunity (max 1000 characters)
    */
   notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Site-wide announcements and notifications
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements".
+ */
+export interface Announcement {
+  id: number;
+  /**
+   * Announcement title
+   */
+  title: string;
+  /**
+   * Announcement message (max 500 characters)
+   */
+  message: string;
+  /**
+   * Type of announcement (affects styling)
+   */
+  type: 'info' | 'success' | 'warning' | 'alert' | 'feature';
+  /**
+   * Announcement priority (affects display order)
+   */
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  /**
+   * Where should this announcement be displayed?
+   */
+  displayLocation?: ('banner' | 'popup' | 'toast' | 'homepage')[] | null;
+  /**
+   * Allow users to dismiss this announcement
+   */
+  dismissible?: boolean | null;
+  /**
+   * Add a button/link to this announcement
+   */
+  hasAction?: boolean | null;
+  /**
+   * Button text (e.g., "Learn More", "View Details")
+   */
+  actionText?: string | null;
+  /**
+   * Button link URL
+   */
+  actionLink?: string | null;
+  /**
+   * When should this announcement start showing? (Leave empty for immediate)
+   */
+  startDate?: string | null;
+  /**
+   * When should this announcement stop showing? (Leave empty for indefinite)
+   */
+  endDate?: string | null;
+  /**
+   * Whether this announcement is currently active
+   */
+  isActive?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -289,10 +658,6 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'media';
-        value: number | Media;
-      } | null)
-    | ({
         relationTo: 'opportunities';
         value: number | Opportunity;
       } | null)
@@ -301,8 +666,24 @@ export interface PayloadLockedDocument {
         value: number | Partner;
       } | null)
     | ({
+        relationTo: 'resources';
+        value: number | Resource;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
         relationTo: 'bookmarks';
         value: number | Bookmark;
+      } | null)
+    | ({
+        relationTo: 'announcements';
+        value: number | Announcement;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -352,7 +733,16 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  avatar?: T;
+  bio?: T;
   roles?: T;
+  preferences?:
+    | T
+    | {
+        hasCompletedTour?: T;
+        emailNotifications?: T;
+        preferredCategories?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -372,33 +762,17 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
- */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "opportunities_select".
  */
 export interface OpportunitiesSelect<T extends boolean = true> {
   title?: T;
   organization?: T;
   category?: T;
-  documentation?: T;
   deadline?: T;
+  documentation?: T;
   isVerified?: T;
+  isFeatured?: T;
+  isActive?: T;
   applicationType?: T;
   applyLink?: T;
   applicationEmail?: T;
@@ -407,6 +781,7 @@ export interface OpportunitiesSelect<T extends boolean = true> {
   descriptionType?: T;
   description?: T;
   opportunityDocument?: T;
+  viewCount?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -416,8 +791,58 @@ export interface OpportunitiesSelect<T extends boolean = true> {
  */
 export interface PartnersSelect<T extends boolean = true> {
   name?: T;
+  type?: T;
+  description?: T;
   website?: T;
+  email?: T;
+  location?: T;
   logo?: T;
+  isActive?: T;
+  isFeatured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "resources_select".
+ */
+export interface ResourcesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  category?: T;
+  summary?: T;
+  contentType?: T;
+  content?: T;
+  externalLink?: T;
+  file?: T;
+  featuredImage?: T;
+  isPublished?: T;
+  isFeatured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  eventType?: T;
+  description?: T;
+  startDate?: T;
+  endDate?: T;
+  timezone?: T;
+  locationType?: T;
+  location?: T;
+  onlineLink?: T;
+  requiresRegistration?: T;
+  registrationLink?: T;
+  registrationDeadline?: T;
+  maxAttendees?: T;
+  featuredImage?: T;
+  organizer?: T;
+  isPublished?: T;
+  isFeatured?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -431,6 +856,79 @@ export interface BookmarksSelect<T extends boolean = true> {
   notes?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements_select".
+ */
+export interface AnnouncementsSelect<T extends boolean = true> {
+  title?: T;
+  message?: T;
+  type?: T;
+  priority?: T;
+  displayLocation?: T;
+  dismissible?: T;
+  hasAction?: T;
+  actionText?: T;
+  actionLink?: T;
+  startDate?: T;
+  endDate?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  caption?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -471,6 +969,161 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Global site configuration and settings
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * The name of the site
+   */
+  siteName: string;
+  /**
+   * Site tagline/slogan
+   */
+  tagline?: string | null;
+  /**
+   * Site description for SEO (max 300 characters)
+   */
+  description?: string | null;
+  /**
+   * Site logo
+   */
+  logo?: (number | null) | Media;
+  /**
+   * Site favicon (recommended: 32x32 or 64x64 PNG)
+   */
+  favicon?: (number | null) | Media;
+  contact?: {
+    /**
+     * Primary contact email
+     */
+    email?: string | null;
+    /**
+     * Contact phone number
+     */
+    phone?: string | null;
+    /**
+     * Physical address
+     */
+    address?: string | null;
+  };
+  social?: {
+    /**
+     * Facebook page URL
+     */
+    facebook?: string | null;
+    /**
+     * Twitter/X profile URL
+     */
+    twitter?: string | null;
+    /**
+     * Instagram profile URL
+     */
+    instagram?: string | null;
+    /**
+     * LinkedIn page URL
+     */
+    linkedin?: string | null;
+    /**
+     * YouTube channel URL
+     */
+    youtube?: string | null;
+    /**
+     * WhatsApp contact link
+     */
+    whatsapp?: string | null;
+  };
+  /**
+   * Enable or disable site features
+   */
+  features?: {
+    /**
+     * Show onboarding tour for first-time visitors
+     */
+    enableSiteTour?: boolean | null;
+    /**
+     * Show toast notifications to users
+     */
+    enableNotifications?: boolean | null;
+    /**
+     * Allow users to bookmark opportunities
+     */
+    enableBookmarks?: boolean | null;
+    /**
+     * Show community events on the site
+     */
+    enableEvents?: boolean | null;
+    /**
+     * Show resource library on the site
+     */
+    enableResources?: boolean | null;
+    /**
+     * Put the site in maintenance mode (only admins can access)
+     */
+    maintenanceMode?: boolean | null;
+  };
+  /**
+   * Analytics and tracking configuration
+   */
+  analytics?: {
+    /**
+     * Google Analytics ID (e.g., G-XXXXXXXXXX)
+     */
+    googleAnalyticsId?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  tagline?: T;
+  description?: T;
+  logo?: T;
+  favicon?: T;
+  contact?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+        address?: T;
+      };
+  social?:
+    | T
+    | {
+        facebook?: T;
+        twitter?: T;
+        instagram?: T;
+        linkedin?: T;
+        youtube?: T;
+        whatsapp?: T;
+      };
+  features?:
+    | T
+    | {
+        enableSiteTour?: T;
+        enableNotifications?: T;
+        enableBookmarks?: T;
+        enableEvents?: T;
+        enableResources?: T;
+        maintenanceMode?: T;
+      };
+  analytics?:
+    | T
+    | {
+        googleAnalyticsId?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
