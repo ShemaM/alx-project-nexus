@@ -86,7 +86,7 @@ export const Partners: CollectionConfig = {
       admin: {
         description: 'Organization website URL',
       },
-      validate: (value) => {
+      validate: (value: string | null | undefined) => {
         if (value) {
           try {
             new URL(value)

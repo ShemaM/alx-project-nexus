@@ -29,6 +29,7 @@ const transformOpportunity = (opp: Opportunity): TransformedOpportunity => ({
   documentation: opp.documentation || [],
   deadline: opp.deadline,
   isVerified: opp.isVerified ?? false,
+  location: opp.location || null,
   // Application method fields
   applicationType: opp.applicationType || 'link',
   applyLink: opp.applyLink,

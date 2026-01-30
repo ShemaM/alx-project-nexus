@@ -11,6 +11,7 @@ export const GET = async () => {
       collection: 'partners',
       data: {
         name: 'UNHCR Kenya',
+        type: 'ngo',
         website: 'https://www.unhcr.org/ke/',
       },
     })
@@ -19,6 +20,7 @@ export const GET = async () => {
       collection: 'partners',
       data: {
         name: 'Mastercard Foundation',
+        type: 'ngo',
         website: 'https://mastercardfdn.org/',
       },
     })
@@ -32,6 +34,7 @@ export const GET = async () => {
         category: 'scholarships',
         documentation: ['alien_card', 'ctd'],
         deadline: '2026-06-30',
+        location: 'kenya',
         isVerified: true,
         applicationType: 'link',
         applyLink: 'https://unhcr.org/dafi-apply',
@@ -47,6 +50,7 @@ export const GET = async () => {
         category: 'jobs',
         documentation: ['alien_card', 'waiting_slip'],
         deadline: '2026-03-15',
+        location: 'kenya',
         isVerified: true,
         applicationType: 'link',
         applyLink: 'https://mastercardfdn.org/digital-kenya',

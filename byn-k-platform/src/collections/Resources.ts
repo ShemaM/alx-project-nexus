@@ -142,7 +142,7 @@ export const Resources: CollectionConfig = {
         condition: (data) => data?.contentType === 'link',
         description: 'URL to external resource',
       },
-      validate: (value, { data }) => {
+      validate: (value: string | null | undefined, { data }: { data: Record<string, unknown> }) => {
         if (data?.contentType === 'link' && value) {
           try {
             new URL(value)

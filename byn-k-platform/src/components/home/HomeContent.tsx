@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { OpportunityCard } from '@/components/cards/OpportunityCard'
 import { SearchBar } from '@/components/home/SearchBar'
 import { FilterChips } from '@/components/home/FilterChips'
-import { FilterBottomSheet } from '@/components/home/FilterBottomSheet'
+import { FilterBottomSheet, FilterState } from '@/components/home/FilterBottomSheet'
 import { LatestOpportunitiesSidebar } from '@/components/home/LatestOpportunitiesSidebar'
 import { ArrowRight } from 'lucide-react'
 
@@ -19,6 +19,7 @@ export interface TransformedOpportunity {
   documentation: string[]
   deadline: string
   isVerified: boolean
+  location?: string | null
   // Application method fields
   applicationType: 'link' | 'email'
   applyLink?: string | null
@@ -36,29 +37,96 @@ interface HomeContentProps {
   latestOpportunities: TransformedOpportunity[]
 }
 
+// Helper function to check deadline status
+const getDeadlineStatus = (deadline: string): 'expired' | 'expiring_soon' | 'active' => {
+  const now = new Date()
+  const deadlineDate = new Date(deadline)
+  const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+  
+  if (deadlineDate < now) return 'expired'
+  if (deadlineDate <= sevenDaysFromNow) return 'expiring_soon'
+  return 'active'
+}
+
 export const HomeContent: React.FC<HomeContentProps> = ({ opportunities, latestOpportunities }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedFilter, setSelectedFilter] = useState('all')
+  const [selectedChipFilter, setSelectedChipFilter] = useState('all')
+  const [advancedFilters, setAdvancedFilters] = useState<FilterState>({
+    category: '',
+    documentation: [],
+    location: '',
+    deadlineStatus: 'all'
+  })
 
-  // Filter opportunities based on search and filters
-  const filteredOpportunities = opportunities.filter((opp) => {
-    // Filter by search query
-    if (searchQuery && !opp.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false
-    }
-    // Filter by documentation type (if not "all")
-    if (selectedFilter !== 'all' && selectedFilter !== 'scholarship') {
-      if (!opp.documentation.includes(selectedFilter)) {
+  // Filter opportunities based on search, chips, and advanced filters
+  const filteredOpportunities = useMemo(() => {
+    return opportunities.filter((opp) => {
+      // Filter by search query
+      if (searchQuery && !opp.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !opp.organizationName.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false
       }
+
+      // Quick chip filter (takes precedence for category/deadline filters)
+      if (selectedChipFilter !== 'all') {
+        // Category filters from chips
+        if (['job', 'scholarship', 'internship', 'fellowship'].includes(selectedChipFilter)) {
+          if (opp.category !== selectedChipFilter) return false
+        }
+        // Expiring soon filter from chips
+        if (selectedChipFilter === 'expiring_soon') {
+          const status = getDeadlineStatus(opp.deadline)
+          if (status !== 'expiring_soon') return false
+        }
+      }
+
+      // Advanced filters from bottom sheet
+      // Filter by category (if set and not already filtered by chip)
+      if (advancedFilters.category && selectedChipFilter === 'all') {
+        if (opp.category !== advancedFilters.category) return false
+      }
+
+      // Filter by documentation requirements
+      if (advancedFilters.documentation.length > 0) {
+        const hasMatchingDoc = advancedFilters.documentation.some(doc => 
+          opp.documentation.includes(doc) || opp.documentation.includes('any_id')
+        )
+        if (!hasMatchingDoc) return false
+      }
+
+      // Filter by location
+      if (advancedFilters.location) {
+        if (opp.location !== advancedFilters.location) return false
+      }
+
+      // Filter by deadline status
+      if (advancedFilters.deadlineStatus && advancedFilters.deadlineStatus !== 'all') {
+        const status = getDeadlineStatus(opp.deadline)
+        if (advancedFilters.deadlineStatus === 'active' && status === 'expired') return false
+        if (advancedFilters.deadlineStatus === 'expiring_soon' && status !== 'expiring_soon') return false
+        if (advancedFilters.deadlineStatus === 'expired' && status !== 'expired') return false
+      }
+
+      return true
+    })
+  }, [opportunities, searchQuery, selectedChipFilter, advancedFilters])
+
+  const handleAdvancedFilterApply = (filters: FilterState) => {
+    setAdvancedFilters(filters)
+    // Reset chip filter when advanced filters are applied
+    if (filters.category) {
+      setSelectedChipFilter('all')
     }
-    // Filter by scholarship category
-    if (selectedFilter === 'scholarship' && opp.category !== 'scholarship') {
-      return false
-    }
-    return true
-  })
+  }
+
+  // Count active filters for display
+  const activeFilterCount = [
+    advancedFilters.category ? 1 : 0,
+    advancedFilters.documentation.length > 0 ? 1 : 0,
+    advancedFilters.location ? 1 : 0,
+    advancedFilters.deadlineStatus && advancedFilters.deadlineStatus !== 'all' ? 1 : 0,
+  ].reduce((a, b) => a + b, 0)
 
   return (
     <>
@@ -89,10 +157,11 @@ export const HomeContent: React.FC<HomeContentProps> = ({ opportunities, latestO
         <SearchBar 
           onSearch={setSearchQuery} 
           onFilterClick={() => setIsFilterOpen(true)} 
+          filterCount={activeFilterCount}
         />
         <FilterChips 
-          onFilterChange={setSelectedFilter}
-          defaultSelected={selectedFilter}
+          onFilterChange={setSelectedChipFilter}
+          defaultSelected={selectedChipFilter}
         />
       </section>
       
@@ -141,6 +210,8 @@ export const HomeContent: React.FC<HomeContentProps> = ({ opportunities, latestO
       <FilterBottomSheet 
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
+        onApply={handleAdvancedFilterApply}
+        currentFilters={advancedFilters}
       />
     </>
   )
