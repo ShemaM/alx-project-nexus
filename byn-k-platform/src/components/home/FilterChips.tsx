@@ -4,10 +4,11 @@ import React, { useState } from 'react'
 
 const filterOptions = [
   { id: 'all', label: 'All Opportunities' },
-  { id: 'alien_card', label: 'Alien Card' },
-  { id: 'ctd', label: 'CTD' },
-  { id: 'passport', label: 'Passport' },
-  { id: 'scholarship', label: 'Scholarships Only' },
+  { id: 'job', label: 'Jobs' },
+  { id: 'scholarship', label: 'Scholarships' },
+  { id: 'internship', label: 'Internships' },
+  { id: 'fellowship', label: 'Fellowships' },
+  { id: 'expiring_soon', label: 'Expiring Soon' },
 ]
 
 interface FilterChipsProps {

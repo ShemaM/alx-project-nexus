@@ -89,6 +89,23 @@ export const Opportunities: CollectionConfig = {
         },
       },
     },
+    {
+      name: 'location',
+      type: 'select',
+      label: 'Location/Region',
+      required: false,
+      options: [
+        { label: 'Kenya', value: 'kenya' },
+        { label: 'Uganda', value: 'uganda' },
+        { label: 'Tanzania', value: 'tanzania' },
+        { label: 'Rwanda', value: 'rwanda' },
+        { label: 'Remote', value: 'remote' },
+        { label: 'Multiple Locations', value: 'multiple' },
+      ],
+      admin: {
+        description: 'Where is this opportunity located?',
+      },
+    },
     
     // ============================================
     // Documentation Requirements
@@ -172,7 +189,7 @@ export const Opportunities: CollectionConfig = {
         description: 'Direct URL to the application portal or website',
       },
       // Basic URL validation
-      validate: (value, { data }) => {
+      validate: (value: string | null | undefined, { data }: { data: Record<string, unknown> }) => {
         if (data?.applicationType === 'link' && value) {
           try {
             new URL(value)

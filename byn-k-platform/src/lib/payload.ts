@@ -129,6 +129,38 @@ export const getOpportunityCounts = async (): Promise<{
   }
 }
 
+// Get opportunities by category
+export const getOpportunitiesByCategory = async (category: string): Promise<Opportunity[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    // Map frontend category to database category
+    const categoryMap: Record<string, string> = {
+      'jobs': 'jobs',
+      'scholarships': 'scholarships',
+      'internships': 'internships',
+      'fellowships': 'fellowships',
+      'training': 'fellowships', // Map training to fellowships for backward compatibility
+    }
+    
+    const dbCategory = categoryMap[category] || category
+    
+    const data = await payload.find({
+      collection: 'opportunities',
+      depth: 1,
+      sort: '-createdAt',
+      where: {
+        category: { equals: dbCategory },
+      },
+    })
+
+    return data.docs
+  } catch (error) {
+    console.error(`Failed to fetch opportunities by category (${category}):`, error)
+    return []
+  }
+}
+
 // Get user's bookmarked opportunities
 export const getUserBookmarks = async (userId: number): Promise<Bookmark[]> => {
   try {

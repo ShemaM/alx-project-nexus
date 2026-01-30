@@ -270,6 +270,10 @@ export interface Opportunity {
    */
   deadline: string;
   /**
+   * Where is this opportunity located?
+   */
+  location?: ('kenya' | 'uganda' | 'tanzania' | 'rwanda' | 'remote' | 'multiple') | null;
+  /**
    * Which refugee IDs are accepted for this opportunity? (Leave empty if not applicable)
    */
   documentation?: ('alien_card' | 'ctd' | 'passport' | 'waiting_slip' | 'any_id' | 'not_specified')[] | null;
@@ -769,6 +773,7 @@ export interface OpportunitiesSelect<T extends boolean = true> {
   organization?: T;
   category?: T;
   deadline?: T;
+  location?: T;
   documentation?: T;
   isVerified?: T;
   isFeatured?: T;

@@ -6,43 +6,66 @@ interface FilterBottomSheetProps {
   isOpen: boolean
   onClose: () => void
   onApply?: (filters: FilterState) => void
+  currentFilters?: FilterState
 }
 
-interface FilterState {
+export interface FilterState {
   category: string
   documentation: string[]
   location: string
+  deadlineStatus: string
 }
 
 const categories = [
   { id: 'job', label: 'Jobs' },
   { id: 'scholarship', label: 'Scholarships' },
   { id: 'internship', label: 'Internships' },
-  { id: 'training', label: 'Training' },
+  { id: 'fellowship', label: 'Fellowships' },
 ]
 
 const documentationOptions = [
   { id: 'alien_card', label: 'Alien Card' },
   { id: 'ctd', label: 'CTD (Convention Travel Document)' },
   { id: 'passport', label: 'Passport' },
+  { id: 'waiting_slip', label: 'Waiting Slip' },
+  { id: 'any_id', label: 'Any ID Accepted' },
 ]
 
 const locations = [
   { id: 'kenya', label: 'Kenya', flag: '🇰🇪' },
   { id: 'uganda', label: 'Uganda', flag: '🇺🇬' },
   { id: 'tanzania', label: 'Tanzania', flag: '🇹🇿' },
+  { id: 'rwanda', label: 'Rwanda', flag: '🇷🇼' },
+  { id: 'remote', label: 'Remote', flag: '🌍' },
+  { id: 'multiple', label: 'Multiple Locations', flag: '📍' },
+]
+
+const deadlineStatusOptions = [
+  { id: 'all', label: 'All Deadlines' },
+  { id: 'active', label: 'Active Only' },
+  { id: 'expiring_soon', label: 'Expiring Soon (7 days)' },
+  { id: 'expired', label: 'Expired' },
 ]
 
 export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ 
   isOpen, 
   onClose, 
-  onApply 
+  onApply,
+  currentFilters
 }) => {
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters, setFilters] = useState<FilterState>(currentFilters || {
     category: '',
     documentation: [],
-    location: 'kenya'
+    location: '',
+    deadlineStatus: 'all'
   })
+
+  // Update filters when currentFilters prop changes
+  useEffect(() => {
+    if (currentFilters) {
+      setFilters(currentFilters)
+    }
+  }, [currentFilters])
 
   // Manage body scroll lock when sheet opens/closes
   useEffect(() => {
@@ -59,12 +82,16 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
     setFilters({
       category: '',
       documentation: [],
-      location: 'kenya'
+      location: '',
+      deadlineStatus: 'all'
     })
   }, [])
 
   const handleCategoryChange = useCallback((categoryId: string) => {
-    setFilters(prev => ({ ...prev, category: categoryId }))
+    setFilters(prev => ({ 
+      ...prev, 
+      category: prev.category === categoryId ? '' : categoryId 
+    }))
   }, [])
 
   const handleDocumentationToggle = useCallback((docId: string) => {
@@ -77,13 +104,28 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
   }, [])
 
   const handleLocationChange = useCallback((locationId: string) => {
-    setFilters(prev => ({ ...prev, location: locationId }))
+    setFilters(prev => ({ 
+      ...prev, 
+      location: prev.location === locationId ? '' : locationId 
+    }))
+  }, [])
+
+  const handleDeadlineStatusChange = useCallback((statusId: string) => {
+    setFilters(prev => ({ ...prev, deadlineStatus: statusId }))
   }, [])
 
   const handleApply = useCallback(() => {
     onApply?.(filters)
     onClose()
   }, [filters, onApply, onClose])
+
+  // Calculate active filter count
+  const activeFilterCount = [
+    filters.category ? 1 : 0,
+    filters.documentation.length > 0 ? 1 : 0,
+    filters.location ? 1 : 0,
+    filters.deadlineStatus && filters.deadlineStatus !== 'all' ? 1 : 0,
+  ].reduce((a, b) => a + b, 0)
 
   if (!isOpen) return null
 
@@ -192,6 +234,29 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
               ))}
             </div>
           </div>
+
+          {/* Deadline Status Section */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">Deadline Status</h3>
+            <div className="space-y-2">
+              {deadlineStatusOptions.map((status) => (
+                <label 
+                  key={status.id}
+                  className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50"
+                >
+                  <input
+                    type="radio"
+                    name="deadlineStatus"
+                    value={status.id}
+                    checked={filters.deadlineStatus === status.id}
+                    onChange={() => handleDeadlineStatusChange(status.id)}
+                    className="w-5 h-5 text-[#2D8FDD] border-slate-300 focus:ring-[#2D8FDD]"
+                  />
+                  <span className="text-slate-700">{status.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Apply Button */}
@@ -200,7 +265,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
             onClick={handleApply}
             className="w-full bg-[#F5D300] hover:bg-[#D4B500] text-[#1E6BB8] py-4 rounded-xl font-bold text-lg transition-colors"
           >
-            Show Results
+            Show Results {activeFilterCount > 0 && `(${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''})`}
           </button>
         </div>
       </div>
