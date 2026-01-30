@@ -33,7 +33,7 @@ export const getLatestOpportunities = async (limit: number = 5): Promise<Opportu
 
     return data.docs
   } catch (error) {
-    console.error('Failed to fetch latest opportunities:', error)
+    console.error(`Failed to fetch latest opportunities (limit: ${limit}):`, error)
     return []
   }
 }
@@ -51,7 +51,7 @@ export const getOpportunityById = async (id: number): Promise<Opportunity | null
 
     return data
   } catch (error) {
-    console.error('Failed to fetch opportunity by ID:', error)
+    console.error(`Failed to fetch opportunity by ID (id: ${id}):`, error)
     return null
   }
 }
@@ -145,7 +145,7 @@ export const getUserBookmarks = async (userId: number): Promise<Bookmark[]> => {
 
     return data.docs
   } catch (error) {
-    console.error('Failed to fetch user bookmarks:', error)
+    console.error(`Failed to fetch user bookmarks (userId: ${userId}):`, error)
     return []
   }
 }
@@ -168,7 +168,7 @@ export const isOpportunityBookmarked = async (
 
     return data.totalDocs > 0
   } catch (error) {
-    console.error('Failed to check bookmark status:', error)
+    console.error(`Failed to check bookmark status (userId: ${userId}, opportunityId: ${opportunityId}):`, error)
     return false
   }
 }
@@ -191,7 +191,7 @@ export const getBookmark = async (
 
     return data.docs[0] || null
   } catch (error) {
-    console.error('Failed to fetch bookmark:', error)
+    console.error(`Failed to fetch bookmark (userId: ${userId}, opportunityId: ${opportunityId}):`, error)
     return null
   }
 }
