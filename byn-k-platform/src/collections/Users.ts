@@ -65,7 +65,8 @@ export const Users: CollectionConfig = {
       name: 'name',
       type: 'text',
       label: 'Full Name',
-      required: true,
+      required: false,
+      defaultValue: '',
       admin: {
         description: 'User\'s full name for display purposes',
       },
