@@ -1,0 +1,46 @@
+version: 2
+updates:
+  # Maintain dependencies for npm packages
+  - package-ecosystem: "npm"
+    directory: "/byn-k-platform"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+    labels:
+      - "dependencies"
+      - "security"
+    groups:
+      production-dependencies:
+        patterns:
+          - "@payloadcms/*"
+          - "next"
+          - "react"
+          - "react-dom"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "typescript"
+          - "eslint*"
+          - "vitest"
+          - "@playwright/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "ci/cd"
+      - "dependencies"

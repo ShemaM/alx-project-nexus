@@ -1,5 +1,39 @@
 import { withPayload } from '@payloadcms/next/withPayload'
 
+// Security headers for production deployment
+const securityHeaders = [
+  {
+    // Prevent XSS attacks
+    key: 'X-XSS-Protection',
+    value: '1; mode=block',
+  },
+  {
+    // Prevent clickjacking
+    key: 'X-Frame-Options',
+    value: 'SAMEORIGIN',
+  },
+  {
+    // Prevent MIME type sniffing
+    key: 'X-Content-Type-Options',
+    value: 'nosniff',
+  },
+  {
+    // Control referrer information
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
+  {
+    // Enable strict transport security
+    key: 'Strict-Transport-Security',
+    value: 'max-age=31536000; includeSubDomains',
+  },
+  {
+    // Permissions policy
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=()',
+  },
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Your Next.js config here
@@ -11,6 +45,17 @@ const nextConfig = {
     }
 
     return webpackConfig
+  },
+
+  // Apply security headers to all routes
+  async headers() {
+    return [
+      {
+        // Apply to all routes
+        source: '/:path*',
+        headers: securityHeaders,
+      },
+    ]
   },
 }
 

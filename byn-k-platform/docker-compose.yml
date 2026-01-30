@@ -15,6 +15,19 @@ services:
       - postgres
     env_file:
       - .env
+    # Security: Run as non-root user
+    user: "1000:1000"
+    # Security: Read-only root filesystem where possible
+    read_only: false
+    # Security: Drop unnecessary capabilities
+    cap_drop:
+      - ALL
+    # Security: Limit resources
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
 
   # Ensure your DATABASE_URL uses 'mongo' as the hostname ie. mongodb://mongo/my-db-name
   # mongo:
@@ -36,6 +49,19 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    # Security: Use environment file for credentials
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-payload}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-payload}
+      - POSTGRES_DB=${POSTGRES_DB:-payload}
+    # Security: Limit resources
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
 
 volumes:
   # data:
