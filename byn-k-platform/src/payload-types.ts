@@ -143,7 +143,7 @@ export interface User {
   /**
    * User's full name for display purposes
    */
-  name: string;
+  name?: string | null;
   /**
    * User's profile picture (optional)
    */
