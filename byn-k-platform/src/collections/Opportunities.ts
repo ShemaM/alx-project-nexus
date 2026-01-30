@@ -1,26 +1,68 @@
+/**
+ * Opportunities Collection
+ * 
+ * Core collection for job opportunities, scholarships, internships, and fellowships.
+ * This is the main content type that users browse and apply to.
+ * 
+ * Features:
+ * - Support for different application methods (link or email)
+ * - Document or text-based descriptions
+ * - Verification status by admins
+ * - Documentation requirements tracking for refugee IDs
+ * 
+ * @module collections/Opportunities
+ */
 import { CollectionConfig } from 'payload'
 
 export const Opportunities: CollectionConfig = {
   slug: 'opportunities',
+  
+  // Admin panel configuration
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'category', 'organization', 'applicationType', 'isVerified'],
-    group: 'Management',
+    defaultColumns: ['title', 'category', 'organization', 'deadline', 'isVerified', 'isFeatured'],
+    group: 'Content Management',
+    description: 'Jobs, scholarships, internships, and fellowship opportunities',
   },
+  
+  // Access control
   access: {
-    read: () => true, // Publicly readable for your Next.js frontend
+    // Public read access for frontend
+    read: () => true,
+    // Only authenticated users can create
+    create: ({ req: { user } }) => Boolean(user),
+    // Admins and moderators can update
+    update: ({ req: { user } }) => {
+      const userRoles = user?.roles as string[] | undefined
+      return userRoles?.includes('admin') || userRoles?.includes('moderator') || false
+    },
+    // Only admins can delete
+    delete: ({ req: { user } }) => {
+      const userRoles = user?.roles as string[] | undefined
+      return userRoles?.includes('admin') ?? false
+    },
   },
+  
   fields: [
+    // ============================================
+    // Basic Information
+    // ============================================
     {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        description: 'The opportunity title - be clear and descriptive',
+      },
     },
     {
       name: 'organization',
       type: 'relationship',
       relationTo: 'partners',
       required: true,
+      admin: {
+        description: 'The organization offering this opportunity',
+      },
     },
     {
       name: 'category',
@@ -32,13 +74,31 @@ export const Opportunities: CollectionConfig = {
         { label: 'Scholarships', value: 'scholarships' },
         { label: 'Fellowships', value: 'fellowships' },
       ],
+      admin: {
+        description: 'The type of opportunity',
+      },
     },
+    {
+      name: 'deadline',
+      type: 'date',
+      required: true,
+      admin: {
+        description: 'Application deadline',
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+      },
+    },
+    
+    // ============================================
+    // Documentation Requirements
+    // ============================================
     {
       name: 'documentation',
       label: 'Accepted Documentation',
       type: 'select',
       hasMany: true,
-      required: false, // Made optional
+      required: false,
       options: [
         { label: 'Alien Card', value: 'alien_card' },
         { label: 'Convention Travel Document (CTD)', value: 'ctd' },
@@ -48,24 +108,47 @@ export const Opportunities: CollectionConfig = {
         { label: 'Not Specified', value: 'not_specified' },
       ],
       admin: {
-        description: 'Which refugee IDs are accepted for this opportunity? (Optional - leave empty if not applicable)',
+        description: 'Which refugee IDs are accepted for this opportunity? (Leave empty if not applicable)',
       },
     },
-    {
-      name: 'deadline',
-      type: 'date',
-      required: true,
-    },
+    
+    // ============================================
+    // Status & Visibility
+    // ============================================
     {
       name: 'isVerified',
       type: 'checkbox',
-      label: 'Verified by BYN-K Admin',
+      label: 'Verified by Admin',
       defaultValue: false,
       admin: {
         position: 'sidebar',
+        description: 'Indicates this opportunity has been verified by BYN-K admin',
       },
     },
-    // Application Method Section
+    {
+      name: 'isFeatured',
+      type: 'checkbox',
+      label: 'Featured Opportunity',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Show this opportunity in the featured section',
+      },
+    },
+    {
+      name: 'isActive',
+      type: 'checkbox',
+      label: 'Active',
+      defaultValue: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Whether this opportunity is currently active',
+      },
+    },
+    
+    // ============================================
+    // Application Method
+    // ============================================
     {
       name: 'applicationType',
       type: 'select',
@@ -87,6 +170,18 @@ export const Opportunities: CollectionConfig = {
       admin: {
         condition: (data) => data?.applicationType === 'link',
         description: 'Direct URL to the application portal or website',
+      },
+      // Basic URL validation
+      validate: (value, { data }) => {
+        if (data?.applicationType === 'link' && value) {
+          try {
+            new URL(value)
+            return true
+          } catch {
+            return 'Please enter a valid URL'
+          }
+        }
+        return true
       },
     },
     {
@@ -116,7 +211,10 @@ export const Opportunities: CollectionConfig = {
         description: 'List the documents applicants should attach (e.g., CV, Cover Letter, Certificates)',
       },
     },
-    // Description Section
+    
+    // ============================================
+    // Description Content
+    // ============================================
     {
       name: 'descriptionType',
       type: 'select',
@@ -150,5 +248,37 @@ export const Opportunities: CollectionConfig = {
         description: 'Upload a PDF or document containing the full opportunity details',
       },
     },
+    
+    // ============================================
+    // Metadata
+    // ============================================
+    {
+      name: 'viewCount',
+      type: 'number',
+      label: 'View Count',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Number of times this opportunity has been viewed',
+      },
+    },
   ],
+  
+  // Timestamps for tracking
+  timestamps: true,
+  
+  // Hooks for business logic
+  hooks: {
+    // Set default values and sanitize data before saving
+    beforeChange: [
+      async ({ data, operation }) => {
+        // Ensure viewCount starts at 0 for new opportunities
+        if (operation === 'create') {
+          data.viewCount = 0
+        }
+        return data
+      },
+    ],
+  },
 }
