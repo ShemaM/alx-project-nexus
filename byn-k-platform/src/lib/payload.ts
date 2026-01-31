@@ -2,6 +2,51 @@ import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
 import type { Opportunity, Partner, Bookmark } from '@/payload-types'
 
+// Track if schema warning has been shown (to avoid flooding logs)
+let schemaWarningShown = false
+
+// Helper to check if an error is a database schema error (missing tables/columns)
+const isDatabaseSchemaError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase()
+    // Check for specific database schema error patterns
+    return (
+      message.includes('relation') && message.includes('does not exist') ||
+      message.includes('table') && message.includes('does not exist') ||
+      message.includes('column') && message.includes('does not exist') ||
+      message.includes('failed query') && (
+        message.includes('opportunities') || 
+        message.includes('partners') || 
+        message.includes('bookmarks') ||
+        message.includes('users')
+      )
+    )
+  }
+  return false
+}
+
+// Log errors appropriately based on type and environment
+const logError = (context: string, error: unknown): void => {
+  const isSchemaError = isDatabaseSchemaError(error)
+  
+  if (isSchemaError) {
+    // Show schema warning once in any environment to alert about missing tables
+    if (!schemaWarningShown) {
+      schemaWarningShown = true
+      console.warn(
+        '[Payload] Database schema may not be initialized. ' +
+        'Run migrations or ensure the database is properly set up.'
+      )
+    }
+    return
+  }
+  
+  // Log other errors in development mode for debugging
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(`[Payload] ${context}:`, error)
+  }
+}
+
 export const getOpportunities = async (): Promise<Opportunity[]> => {
   try {
     const payload = await getPayload({ config: configPromise })
@@ -14,7 +59,7 @@ export const getOpportunities = async (): Promise<Opportunity[]> => {
 
     return data.docs
   } catch (error) {
-    console.error('Failed to fetch opportunities:', error)
+    logError('Failed to fetch opportunities', error)
     return []
   }
 }
@@ -33,7 +78,7 @@ export const getLatestOpportunities = async (limit: number = 5): Promise<Opportu
 
     return data.docs
   } catch (error) {
-    console.error(`Failed to fetch latest opportunities (limit: ${limit}):`, error)
+    logError(`Failed to fetch latest opportunities (limit: ${limit})`, error)
     return []
   }
 }
@@ -51,7 +96,7 @@ export const getOpportunityById = async (id: number): Promise<Opportunity | null
 
     return data
   } catch (error) {
-    console.error(`Failed to fetch opportunity by ID (id: ${id}):`, error)
+    logError(`Failed to fetch opportunity by ID (id: ${id})`, error)
     return null
   }
 }
@@ -118,7 +163,7 @@ export const getOpportunityCounts = async (): Promise<{
       partners: partnersData.totalDocs,
     }
   } catch (error) {
-    console.error('Failed to fetch opportunity counts:', error)
+    logError('Failed to fetch opportunity counts', error)
     return {
       jobs: 0,
       scholarships: 0,
@@ -156,7 +201,7 @@ export const getOpportunitiesByCategory = async (category: string): Promise<Oppo
 
     return data.docs
   } catch (error) {
-    console.error(`Failed to fetch opportunities by category (${category}):`, error)
+    logError(`Failed to fetch opportunities by category (${category})`, error)
     return []
   }
 }
@@ -177,7 +222,7 @@ export const getUserBookmarks = async (userId: number): Promise<Bookmark[]> => {
 
     return data.docs
   } catch (error) {
-    console.error(`Failed to fetch user bookmarks (userId: ${userId}):`, error)
+    logError(`Failed to fetch user bookmarks (userId: ${userId})`, error)
     return []
   }
 }
@@ -200,7 +245,7 @@ export const isOpportunityBookmarked = async (
 
     return data.totalDocs > 0
   } catch (error) {
-    console.error(`Failed to check bookmark status (userId: ${userId}, opportunityId: ${opportunityId}):`, error)
+    logError(`Failed to check bookmark status (userId: ${userId}, opportunityId: ${opportunityId})`, error)
     return false
   }
 }
@@ -223,7 +268,7 @@ export const getBookmark = async (
 
     return data.docs[0] || null
   } catch (error) {
-    console.error(`Failed to fetch bookmark (userId: ${userId}, opportunityId: ${opportunityId}):`, error)
+    logError(`Failed to fetch bookmark (userId: ${userId}, opportunityId: ${opportunityId})`, error)
     return null
   }
 }
@@ -246,7 +291,7 @@ export const getFeaturedOpportunities = async (limit: number = 5): Promise<Oppor
 
     return data.docs
   } catch (error) {
-    console.error(`Failed to fetch featured opportunities (limit: ${limit}):`, error)
+    logError(`Failed to fetch featured opportunities (limit: ${limit})`, error)
     return []
   }
 }
@@ -333,7 +378,7 @@ export const getAnalyticsOverview = async (): Promise<{
       recentActivity,
     }
   } catch (error) {
-    console.error('Failed to fetch analytics overview:', error)
+    logError('Failed to fetch analytics overview', error)
     return {
       totalOpportunities: 0,
       activeOpportunities: 0,
