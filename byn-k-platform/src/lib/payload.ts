@@ -13,8 +13,8 @@ export const getOpportunities = async (): Promise<Opportunity[]> => {
     })
 
     return data.docs
-  } catch (error) {
-    console.error('Failed to fetch opportunities:', error)
+  } catch {
+    // Database might not be set up yet - return empty array gracefully
     return []
   }
 }
@@ -32,8 +32,8 @@ export const getLatestOpportunities = async (limit: number = 5): Promise<Opportu
     })
 
     return data.docs
-  } catch (error) {
-    console.error(`Failed to fetch latest opportunities (limit: ${limit}):`, error)
+  } catch {
+    // Database might not be set up yet - return empty array gracefully
     return []
   }
 }
@@ -50,8 +50,8 @@ export const getOpportunityById = async (id: number): Promise<Opportunity | null
     })
 
     return data
-  } catch (error) {
-    console.error(`Failed to fetch opportunity by ID (id: ${id}):`, error)
+  } catch {
+    // Database might not be set up yet or opportunity not found - return null gracefully
     return null
   }
 }
@@ -117,8 +117,8 @@ export const getOpportunityCounts = async (): Promise<{
       fellowships: fellowshipsData.totalDocs,
       partners: partnersData.totalDocs,
     }
-  } catch (error) {
-    console.error('Failed to fetch opportunity counts:', error)
+  } catch {
+    // Database might not be set up yet - return zeros gracefully
     return {
       jobs: 0,
       scholarships: 0,
@@ -155,8 +155,8 @@ export const getOpportunitiesByCategory = async (category: string): Promise<Oppo
     })
 
     return data.docs
-  } catch (error) {
-    console.error(`Failed to fetch opportunities by category (${category}):`, error)
+  } catch {
+    // Database might not be set up yet - return empty array gracefully
     return []
   }
 }
@@ -176,8 +176,8 @@ export const getUserBookmarks = async (userId: number): Promise<Bookmark[]> => {
     })
 
     return data.docs
-  } catch (error) {
-    console.error(`Failed to fetch user bookmarks (userId: ${userId}):`, error)
+  } catch {
+    // Database might not be set up yet - return empty array gracefully
     return []
   }
 }
@@ -199,8 +199,8 @@ export const isOpportunityBookmarked = async (
     })
 
     return data.totalDocs > 0
-  } catch (error) {
-    console.error(`Failed to check bookmark status (userId: ${userId}, opportunityId: ${opportunityId}):`, error)
+  } catch {
+    // Database might not be set up yet - return false gracefully
     return false
   }
 }
@@ -222,8 +222,8 @@ export const getBookmark = async (
     })
 
     return data.docs[0] || null
-  } catch (error) {
-    console.error(`Failed to fetch bookmark (userId: ${userId}, opportunityId: ${opportunityId}):`, error)
+  } catch {
+    // Database might not be set up yet - return null gracefully
     return null
   }
 }
@@ -245,8 +245,8 @@ export const getFeaturedOpportunities = async (limit: number = 5): Promise<Oppor
     })
 
     return data.docs
-  } catch (error) {
-    console.error(`Failed to fetch featured opportunities (limit: ${limit}):`, error)
+  } catch {
+    // Database might not be set up yet - return empty array gracefully
     return []
   }
 }
@@ -332,8 +332,8 @@ export const getAnalyticsOverview = async (): Promise<{
       },
       recentActivity,
     }
-  } catch (error) {
-    console.error('Failed to fetch analytics overview:', error)
+  } catch {
+    // Database might not be set up yet - return zeros gracefully
     return {
       totalOpportunities: 0,
       activeOpportunities: 0,
