@@ -3,7 +3,7 @@
  * 
  * Dashboard view for administrators to see platform metrics.
  * 
- * @module app/(frontend)/admin/analytics
+ * @module app/(frontend)/dashboard/analytics
  */
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'

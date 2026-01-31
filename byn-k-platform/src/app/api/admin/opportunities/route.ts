@@ -6,7 +6,7 @@
  * @module api/admin/opportunities
  */
 import { NextRequest, NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 import configPromise from '@/payload.config'
 
 export const dynamic = 'force-dynamic'
@@ -25,38 +25,37 @@ export async function GET(request: NextRequest) {
     const isFeatured = searchParams.get('isFeatured')
     
     // Build where clause
-    interface WhereClause {
-      or?: Array<{ title: { contains: string } } | { 'organization.name': { contains: string } }>
-      category?: { equals: string }
-      isActive?: { equals: boolean }
-      isVerified?: { equals: boolean }
-      isFeatured?: { equals: boolean }
-    }
-    
-    const where: WhereClause = {}
+    const conditions: Where[] = []
     
     if (search) {
-      where.or = [
-        { title: { contains: search } },
-        { 'organization.name': { contains: search } },
-      ]
+      conditions.push({
+        or: [
+          { title: { contains: search } },
+        ]
+      })
     }
     
     if (category) {
-      where.category = { equals: category }
+      conditions.push({ category: { equals: category } })
     }
     
     if (isActive) {
-      where.isActive = { equals: isActive === 'true' }
+      conditions.push({ isActive: { equals: isActive === 'true' } })
     }
     
     if (isVerified) {
-      where.isVerified = { equals: isVerified === 'true' }
+      conditions.push({ isVerified: { equals: isVerified === 'true' } })
     }
     
     if (isFeatured) {
-      where.isFeatured = { equals: isFeatured === 'true' }
+      conditions.push({ isFeatured: { equals: isFeatured === 'true' } })
     }
+    
+    const where: Where | undefined = conditions.length > 0 
+      ? conditions.length === 1 
+        ? conditions[0] 
+        : { and: conditions }
+      : undefined
     
     const data = await payload.find({
       collection: 'opportunities',
@@ -64,7 +63,7 @@ export async function GET(request: NextRequest) {
       page,
       limit,
       sort: '-createdAt',
-      where: Object.keys(where).length > 0 ? where : undefined,
+      where,
     })
     
     return NextResponse.json(data)

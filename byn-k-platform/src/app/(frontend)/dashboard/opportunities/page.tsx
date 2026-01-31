@@ -3,7 +3,7 @@
  * 
  * Management view for administrators to perform CRUD operations on opportunities.
  * 
- * @module app/(frontend)/admin/opportunities
+ * @module app/(frontend)/dashboard/opportunities
  */
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'

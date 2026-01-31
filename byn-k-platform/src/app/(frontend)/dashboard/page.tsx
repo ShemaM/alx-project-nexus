@@ -3,7 +3,7 @@
  * 
  * Main admin entry point with quick access to management features.
  * 
- * @module app/(frontend)/admin
+ * @module app/(frontend)/dashboard
  */
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
@@ -29,14 +29,14 @@ const adminLinks = [
   {
     title: 'Analytics',
     description: 'View platform metrics and statistics',
-    href: '/admin/analytics',
+    href: '/dashboard/analytics',
     icon: BarChart3,
     color: 'bg-blue-500',
   },
   {
     title: 'Opportunities',
     description: 'Manage jobs, scholarships, internships',
-    href: '/admin/opportunities',
+    href: '/dashboard/opportunities',
     icon: Briefcase,
     color: 'bg-amber-500',
   },
