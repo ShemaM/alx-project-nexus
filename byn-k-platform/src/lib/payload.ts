@@ -2,6 +2,31 @@ import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
 import type { Opportunity, Partner, Bookmark } from '@/payload-types'
 
+// Helper to check if an error is a database schema error (missing tables/columns)
+const isDatabaseSchemaError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase()
+    return (
+      message.includes('does not exist') ||
+      message.includes('relation') ||
+      message.includes('column') ||
+      message.includes('failed query')
+    )
+  }
+  return false
+}
+
+// Log errors only in development and only for non-schema errors
+const logError = (context: string, error: unknown): void => {
+  // Skip logging for database schema errors (expected during initial setup)
+  if (isDatabaseSchemaError(error)) return
+  
+  // Log other errors in development mode for debugging
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(`[Payload] ${context}:`, error)
+  }
+}
+
 export const getOpportunities = async (): Promise<Opportunity[]> => {
   try {
     const payload = await getPayload({ config: configPromise })
@@ -13,8 +38,8 @@ export const getOpportunities = async (): Promise<Opportunity[]> => {
     })
 
     return data.docs
-  } catch {
-    // Database might not be set up yet - return empty array gracefully
+  } catch (error) {
+    logError('Failed to fetch opportunities', error)
     return []
   }
 }
@@ -32,8 +57,8 @@ export const getLatestOpportunities = async (limit: number = 5): Promise<Opportu
     })
 
     return data.docs
-  } catch {
-    // Database might not be set up yet - return empty array gracefully
+  } catch (error) {
+    logError(`Failed to fetch latest opportunities (limit: ${limit})`, error)
     return []
   }
 }
@@ -50,8 +75,8 @@ export const getOpportunityById = async (id: number): Promise<Opportunity | null
     })
 
     return data
-  } catch {
-    // Database might not be set up yet or opportunity not found - return null gracefully
+  } catch (error) {
+    logError(`Failed to fetch opportunity by ID (id: ${id})`, error)
     return null
   }
 }
@@ -117,8 +142,8 @@ export const getOpportunityCounts = async (): Promise<{
       fellowships: fellowshipsData.totalDocs,
       partners: partnersData.totalDocs,
     }
-  } catch {
-    // Database might not be set up yet - return zeros gracefully
+  } catch (error) {
+    logError('Failed to fetch opportunity counts', error)
     return {
       jobs: 0,
       scholarships: 0,
@@ -155,8 +180,8 @@ export const getOpportunitiesByCategory = async (category: string): Promise<Oppo
     })
 
     return data.docs
-  } catch {
-    // Database might not be set up yet - return empty array gracefully
+  } catch (error) {
+    logError(`Failed to fetch opportunities by category (${category})`, error)
     return []
   }
 }
@@ -176,8 +201,8 @@ export const getUserBookmarks = async (userId: number): Promise<Bookmark[]> => {
     })
 
     return data.docs
-  } catch {
-    // Database might not be set up yet - return empty array gracefully
+  } catch (error) {
+    logError(`Failed to fetch user bookmarks (userId: ${userId})`, error)
     return []
   }
 }
@@ -199,8 +224,8 @@ export const isOpportunityBookmarked = async (
     })
 
     return data.totalDocs > 0
-  } catch {
-    // Database might not be set up yet - return false gracefully
+  } catch (error) {
+    logError(`Failed to check bookmark status (userId: ${userId}, opportunityId: ${opportunityId})`, error)
     return false
   }
 }
@@ -222,8 +247,8 @@ export const getBookmark = async (
     })
 
     return data.docs[0] || null
-  } catch {
-    // Database might not be set up yet - return null gracefully
+  } catch (error) {
+    logError(`Failed to fetch bookmark (userId: ${userId}, opportunityId: ${opportunityId})`, error)
     return null
   }
 }
@@ -245,8 +270,8 @@ export const getFeaturedOpportunities = async (limit: number = 5): Promise<Oppor
     })
 
     return data.docs
-  } catch {
-    // Database might not be set up yet - return empty array gracefully
+  } catch (error) {
+    logError(`Failed to fetch featured opportunities (limit: ${limit})`, error)
     return []
   }
 }
@@ -332,8 +357,8 @@ export const getAnalyticsOverview = async (): Promise<{
       },
       recentActivity,
     }
-  } catch {
-    // Database might not be set up yet - return zeros gracefully
+  } catch (error) {
+    logError('Failed to fetch analytics overview', error)
     return {
       totalOpportunities: 0,
       activeOpportunities: 0,
