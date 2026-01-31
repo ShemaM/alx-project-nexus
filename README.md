@@ -55,9 +55,9 @@ pnpm dev
 ```
 
 Visit:
--**Frontend**: http://localhost:3000
+-**Frontend**: <http://localhost:3000>
 
-- **Admin Panel**: http://localhost:3000/admin
+- **Admin Panel**: <http://localhost:3000/admin>
 
 ## ☁️ Deploy to Vercel
 
@@ -124,4 +124,3 @@ This project is licensed under the MIT License - see the [LICENSE](./byn-k-platf
 ## 📖 Documentation
 
 For detailed documentation, see the [BYN-K Platform README](./byn-k-platform/README.md).
-
