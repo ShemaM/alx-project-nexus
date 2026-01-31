@@ -10,8 +10,17 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password } = body
 
-    // Validate required fields
-    if (!email || !password) {
+    // Validate required fields - ensure they are strings first
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return NextResponse.json(
+        { error: 'Email and password are required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate that email and password are not empty
+    // Note: password is not trimmed to allow spaces within passwords, but empty string is rejected
+    if (email.trim() === '' || password.length === 0) {
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }

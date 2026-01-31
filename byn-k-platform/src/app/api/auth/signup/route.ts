@@ -10,17 +10,28 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password, name } = body
 
-    // Validate required fields
-    if (!email || !password) {
+    // Validate required fields - ensure they are strings first
+    if (typeof email !== 'string' || typeof password !== 'string') {
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
       )
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    // Validate that email and password are not empty
+    // Note: password is not trimmed to allow spaces within passwords, but empty string is rejected
+    if (email.trim() === '' || password.length === 0) {
+      return NextResponse.json(
+        { error: 'Email and password are required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate email format using a simpler, linear-time regex to prevent ReDoS
+    // This regex avoids backtracking by not using nested quantifiers
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    // Limit email length to prevent excessive processing
+    if (email.length > 254 || !emailRegex.test(email)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
