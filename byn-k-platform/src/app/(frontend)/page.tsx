@@ -42,15 +42,27 @@ const transformOpportunity = (opp: Opportunity): TransformedOpportunity => ({
   createdAt: opp.createdAt,
 })
 
+// Valid category values for FeaturedOpportunity
+const validFeaturedCategories = ['job', 'scholarship', 'internship', 'fellowship'] as const
+type ValidFeaturedCategory = typeof validFeaturedCategories[number]
+
 // Transform opportunity to featured format for hero carousel
-const transformToFeatured = (opp: Opportunity): FeaturedOpportunity => ({
-  id: String(opp.id),
-  title: opp.title,
-  organization: getOrganizationName(opp),
-  category: mapCategoryForDisplay(opp.category) as FeaturedOpportunity['category'],
-  deadline: opp.deadline,
-  isHot: opp.isFeatured ?? false,
-})
+const transformToFeatured = (opp: Opportunity): FeaturedOpportunity => {
+  const mappedCategory = mapCategoryForDisplay(opp.category)
+  // Validate category is a valid featured category
+  const category: ValidFeaturedCategory = validFeaturedCategories.includes(mappedCategory as ValidFeaturedCategory)
+    ? (mappedCategory as ValidFeaturedCategory)
+    : 'job' // Default to 'job' if invalid
+  
+  return {
+    id: String(opp.id),
+    title: opp.title,
+    organization: getOrganizationName(opp),
+    category,
+    deadline: opp.deadline,
+    isHot: opp.isFeatured ?? false,
+  }
+}
 
 export default async function HomePage() {
   // Fetch real opportunities from Payload CMS

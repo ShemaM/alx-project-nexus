@@ -251,7 +251,9 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
                     <div className="flex items-center gap-2 text-blue-200">
                       <Clock size={16} />
                       <span className="text-sm">
-                        Deadline: {new Date(currentFeatured?.deadline || '').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        Deadline: {currentFeatured?.deadline 
+                          ? new Date(currentFeatured.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                          : 'TBD'}
                       </span>
                     </div>
                   </div>
