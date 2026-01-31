@@ -2,24 +2,44 @@ import { getPayload } from 'payload'
 import configPromise from '@/payload.config'
 import type { Opportunity, Partner, Bookmark } from '@/payload-types'
 
+// Track if schema warning has been shown (to avoid flooding logs)
+let schemaWarningShown = false
+
 // Helper to check if an error is a database schema error (missing tables/columns)
 const isDatabaseSchemaError = (error: unknown): boolean => {
   if (error instanceof Error) {
     const message = error.message.toLowerCase()
+    // Check for specific database schema error patterns
     return (
-      message.includes('does not exist') ||
-      message.includes('relation') ||
-      message.includes('column') ||
-      message.includes('failed query')
+      message.includes('relation') && message.includes('does not exist') ||
+      message.includes('table') && message.includes('does not exist') ||
+      message.includes('column') && message.includes('does not exist') ||
+      message.includes('failed query') && (
+        message.includes('opportunities') || 
+        message.includes('partners') || 
+        message.includes('bookmarks') ||
+        message.includes('users')
+      )
     )
   }
   return false
 }
 
-// Log errors only in development and only for non-schema errors
+// Log errors appropriately based on type and environment
 const logError = (context: string, error: unknown): void => {
-  // Skip logging for database schema errors (expected during initial setup)
-  if (isDatabaseSchemaError(error)) return
+  const isSchemaError = isDatabaseSchemaError(error)
+  
+  if (isSchemaError) {
+    // Show schema warning once in any environment to alert about missing tables
+    if (!schemaWarningShown) {
+      schemaWarningShown = true
+      console.warn(
+        '[Payload] Database schema may not be initialized. ' +
+        'Run migrations or ensure the database is properly set up.'
+      )
+    }
+    return
+  }
   
   // Log other errors in development mode for debugging
   if (process.env.NODE_ENV === 'development') {
