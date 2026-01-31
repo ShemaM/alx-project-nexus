@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
+import { isDatabaseError, type PayloadError } from '@/lib/error-utils'
 
 type ErrorProps = {
-  error: Error & { digest?: string; payloadInitError?: boolean }
+  error: PayloadError
   reset: () => void
 }
 
@@ -14,18 +15,12 @@ type ErrorProps = {
  */
 export default function AdminError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // Log the error to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Admin panel error:', error)
-    }
+    // Log the error to an error reporting service in production
+    // For now, we log to console in both environments for visibility
+    console.error('Admin panel error:', error)
   }, [error])
 
-  // Check if this is a database connection error
-  const isDatabaseError =
-    error.message?.includes('cannot connect to Postgres') ||
-    error.message?.includes('database') ||
-    error.message?.includes('ECONNREFUSED') ||
-    error.payloadInitError === true
+  const isDbError = isDatabaseError(error)
 
   return (
     <div
@@ -58,7 +53,7 @@ export default function AdminError({ error, reset }: ErrorProps) {
             fontSize: '1.5rem',
           }}
         >
-          {isDatabaseError ? 'Database Connection Error' : 'Something went wrong'}
+          {isDbError ? 'Database Connection Error' : 'Something went wrong'}
         </h1>
 
         <p
@@ -68,7 +63,7 @@ export default function AdminError({ error, reset }: ErrorProps) {
             lineHeight: 1.6,
           }}
         >
-          {isDatabaseError
+          {isDbError
             ? 'Unable to connect to the database. Please ensure the database server is running and the connection settings are correct.'
             : 'An unexpected error occurred while loading the admin panel.'}
         </p>

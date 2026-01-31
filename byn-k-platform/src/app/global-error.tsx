@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
+import { isDatabaseError, type PayloadError } from '@/lib/error-utils'
 
 type GlobalErrorProps = {
-  error: Error & { digest?: string; payloadInitError?: boolean }
+  error: PayloadError
   reset: () => void
 }
 
@@ -13,16 +14,12 @@ type GlobalErrorProps = {
  */
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
   useEffect(() => {
-    // Log the error to console
+    // Log the error to an error reporting service in production
+    // For now, we log to console in both environments for visibility
     console.error('Global error:', error)
   }, [error])
 
-  // Check if this is a database connection error
-  const isDatabaseError =
-    error.message?.includes('cannot connect to Postgres') ||
-    error.message?.includes('database') ||
-    error.message?.includes('ECONNREFUSED') ||
-    error.payloadInitError === true
+  const isDbError = isDatabaseError(error)
 
   return (
     <html>
@@ -57,7 +54,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 fontSize: '1.5rem',
               }}
             >
-              {isDatabaseError ? 'Database Connection Error' : 'Something went wrong'}
+              {isDbError ? 'Database Connection Error' : 'Something went wrong'}
             </h1>
 
             <p
@@ -67,7 +64,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 lineHeight: 1.6,
               }}
             >
-              {isDatabaseError
+              {isDbError
                 ? 'Unable to connect to the database. Please ensure the database server is running and the connection settings are correct.'
                 : 'An unexpected error occurred while loading the application.'}
             </p>
