@@ -55,7 +55,8 @@ pnpm dev
 ```
 
 Visit:
-- **Frontend**: http://localhost:3000
+-**Frontend**: http://localhost:3000
+
 - **Admin Panel**: http://localhost:3000/admin
 
 ## ☁️ Deploy to Vercel
