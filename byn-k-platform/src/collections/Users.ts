@@ -34,9 +34,6 @@ export const Users: CollectionConfig = {
     maxLoginAttempts: 5,
     // Lockout duration in seconds (15 minutes)
     lockTime: 60 * 15,
-    // Disable session-based auth - use JWT tokens only
-    // This prevents the need for users_sessions table in the database
-    useSessions: false,
   },
   
   // Access control for the collection
