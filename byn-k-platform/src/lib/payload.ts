@@ -227,3 +227,120 @@ export const getBookmark = async (
     return null
   }
 }
+
+// Get featured opportunities for hero carousel
+export const getFeaturedOpportunities = async (limit: number = 5): Promise<Opportunity[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.find({
+      collection: 'opportunities',
+      depth: 1,
+      sort: '-createdAt',
+      limit,
+      where: {
+        isFeatured: { equals: true },
+        isActive: { equals: true },
+      },
+    })
+
+    return data.docs
+  } catch (error) {
+    console.error(`Failed to fetch featured opportunities (limit: ${limit}):`, error)
+    return []
+  }
+}
+
+// ============================================
+// Analytics Data Functions
+// ============================================
+
+// Get analytics overview for admin dashboard
+export const getAnalyticsOverview = async (): Promise<{
+  totalOpportunities: number
+  activeOpportunities: number
+  totalPartners: number
+  totalUsers: number
+  opportunitiesByCategory: Record<string, number>
+  recentActivity: { date: string; count: number }[]
+}> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+
+    const [
+      totalOpportunities,
+      activeOpportunities,
+      totalPartners,
+      totalUsers,
+      jobsCount,
+      scholarshipsCount,
+      internshipsCount,
+      fellowshipsCount,
+    ] = await Promise.all([
+      payload.count({ collection: 'opportunities' }),
+      payload.count({ collection: 'opportunities', where: { isActive: { equals: true } } }),
+      payload.count({ collection: 'partners' }),
+      payload.count({ collection: 'users' }),
+      payload.count({ collection: 'opportunities', where: { category: { equals: 'jobs' } } }),
+      payload.count({ collection: 'opportunities', where: { category: { equals: 'scholarships' } } }),
+      payload.count({ collection: 'opportunities', where: { category: { equals: 'internships' } } }),
+      payload.count({ collection: 'opportunities', where: { category: { equals: 'fellowships' } } }),
+    ])
+
+    // Get recent opportunities for activity chart (last 7 days)
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    
+    const recentOpportunities = await payload.find({
+      collection: 'opportunities',
+      where: {
+        createdAt: { greater_than: sevenDaysAgo.toISOString() },
+      },
+      limit: 100,
+    })
+
+    // Group by date
+    const activityMap = new Map<string, number>()
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
+      activityMap.set(date.toISOString().split('T')[0], 0)
+    }
+
+    recentOpportunities.docs.forEach((opp) => {
+      const date = new Date(opp.createdAt).toISOString().split('T')[0]
+      if (activityMap.has(date)) {
+        activityMap.set(date, (activityMap.get(date) || 0) + 1)
+      }
+    })
+
+    const recentActivity = Array.from(activityMap.entries()).map(([date, count]) => ({
+      date,
+      count,
+    }))
+
+    return {
+      totalOpportunities: totalOpportunities.totalDocs,
+      activeOpportunities: activeOpportunities.totalDocs,
+      totalPartners: totalPartners.totalDocs,
+      totalUsers: totalUsers.totalDocs,
+      opportunitiesByCategory: {
+        jobs: jobsCount.totalDocs,
+        scholarships: scholarshipsCount.totalDocs,
+        internships: internshipsCount.totalDocs,
+        fellowships: fellowshipsCount.totalDocs,
+      },
+      recentActivity,
+    }
+  } catch (error) {
+    console.error('Failed to fetch analytics overview:', error)
+    return {
+      totalOpportunities: 0,
+      activeOpportunities: 0,
+      totalPartners: 0,
+      totalUsers: 0,
+      opportunitiesByCategory: { jobs: 0, scholarships: 0, internships: 0, fellowships: 0 },
+      recentActivity: [],
+    }
+  }
+}
