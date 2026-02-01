@@ -389,3 +389,152 @@ export const getAnalyticsOverview = async (): Promise<{
     }
   }
 }
+
+// ============================================
+// Partners Data Functions
+// ============================================
+
+// Get all partners
+export const getPartners = async (): Promise<Partner[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.find({
+      collection: 'partners',
+      depth: 1,
+      sort: 'name',
+      where: {
+        isActive: { equals: true },
+      },
+    })
+
+    return data.docs
+  } catch (error) {
+    logError('Failed to fetch partners', error)
+    return []
+  }
+}
+
+// Get featured partners
+export const getFeaturedPartners = async (limit: number = 6): Promise<Partner[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.find({
+      collection: 'partners',
+      depth: 1,
+      sort: 'name',
+      limit,
+      where: {
+        isActive: { equals: true },
+        isFeatured: { equals: true },
+      },
+    })
+
+    return data.docs
+  } catch (error) {
+    logError(`Failed to fetch featured partners (limit: ${limit})`, error)
+    return []
+  }
+}
+
+// Get opportunity count for a specific partner
+export const getOpportunityCountByPartner = async (partnerId: number): Promise<number> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.count({
+      collection: 'opportunities',
+      where: {
+        organization: { equals: partnerId },
+        isActive: { equals: true },
+      },
+    })
+
+    return data.totalDocs
+  } catch (error) {
+    logError(`Failed to fetch opportunity count for partner (partnerId: ${partnerId})`, error)
+    return 0
+  }
+}
+
+// Get opportunities by partner ID
+export const getOpportunitiesByPartner = async (partnerId: number): Promise<Opportunity[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.find({
+      collection: 'opportunities',
+      depth: 1,
+      sort: '-createdAt',
+      where: {
+        organization: { equals: partnerId },
+        isActive: { equals: true },
+      },
+    })
+
+    return data.docs
+  } catch (error) {
+    logError(`Failed to fetch opportunities by partner (partnerId: ${partnerId})`, error)
+    return []
+  }
+}
+
+// Get all partners with their opportunity counts
+export const getPartnersWithOpportunityCounts = async (): Promise<Array<Partner & { opportunitiesCount: number }>> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    // Fetch all active partners
+    const partnersData = await payload.find({
+      collection: 'partners',
+      depth: 1,
+      sort: 'name',
+      where: {
+        isActive: { equals: true },
+      },
+      limit: 100,
+    })
+
+    // For each partner, count their opportunities
+    const partnersWithCounts = await Promise.all(
+      partnersData.docs.map(async (partner) => {
+        const countData = await payload.count({
+          collection: 'opportunities',
+          where: {
+            organization: { equals: partner.id },
+            isActive: { equals: true },
+          },
+        })
+
+        return {
+          ...partner,
+          opportunitiesCount: countData.totalDocs,
+        }
+      })
+    )
+
+    return partnersWithCounts
+  } catch (error) {
+    logError('Failed to fetch partners with opportunity counts', error)
+    return []
+  }
+}
+
+// Get a single partner by ID
+export const getPartnerById = async (id: number): Promise<Partner | null> => {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    
+    const data = await payload.findByID({
+      collection: 'partners',
+      id,
+      depth: 1,
+    })
+
+    return data
+  } catch (error) {
+    logError(`Failed to fetch partner by ID (id: ${id})`, error)
+    return null
+  }
+}
