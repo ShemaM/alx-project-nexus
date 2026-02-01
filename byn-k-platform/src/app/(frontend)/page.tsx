@@ -5,7 +5,7 @@ import { CategoriesSection } from '@/components/home/CategoriesSection'
 import { HomeContent, TransformedOpportunity } from '@/components/home/HomeContent'
 import { PartnersSection } from '@/components/home/PartnersSection'
 import Footer from '@/components/layout/Footer'
-import { getOpportunities, getLatestOpportunities, getOrganizationName, mapCategoryForDisplay, getOpportunityCounts, getFeaturedOpportunities } from '@/lib/payload'
+import { getOpportunities, getLatestOpportunities, getOrganizationName, mapCategoryForDisplay, getOpportunityCounts, getFeaturedOpportunities, getPartnersWithOpportunityCounts } from '@/lib/payload'
 import { generateSlug } from '@/types'
 import type { Opportunity, Media } from '@/payload-types'
 
@@ -66,11 +66,12 @@ const transformToFeatured = (opp: Opportunity): FeaturedOpportunity => {
 
 export default async function HomePage() {
   // Fetch real opportunities from Payload CMS
-  const [opportunities, latestOpportunities, counts, featuredOpportunities] = await Promise.all([
+  const [opportunities, latestOpportunities, counts, featuredOpportunities, partnersWithCounts] = await Promise.all([
     getOpportunities(),
     getLatestOpportunities(5),
     getOpportunityCounts(),
     getFeaturedOpportunities(5),
+    getPartnersWithOpportunityCounts(),
   ])
 
   // Transform to client-safe format
@@ -89,7 +90,7 @@ export default async function HomePage() {
         opportunities={transformedOpportunities} 
         latestOpportunities={transformedLatestOpportunities}
       />
-      <PartnersSection />
+      <PartnersSection partners={partnersWithCounts} />
       <Footer />
     </div>
   )
