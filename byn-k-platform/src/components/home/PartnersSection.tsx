@@ -2,7 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Building2, ArrowRight, CheckCircle2 } from 'lucide-react'
-import type { Media, Partner } from '@/payload-types'
+import type { Partner } from '@/payload-types'
+import { getLogoUrl, getPartnerTypeLabel } from '@/lib/partner-utils'
 
 // Partner with opportunity count type
 export interface PartnerWithCount extends Partner {
@@ -11,25 +12,6 @@ export interface PartnerWithCount extends Partner {
 
 interface PartnersSectionProps {
   partners?: PartnerWithCount[]
-}
-
-// Helper to get logo URL from partner
-const getLogoUrl = (logo: number | Media | null | undefined): string | null => {
-  if (!logo) return null
-  if (typeof logo === 'number') return null
-  return (logo as Media).url || null
-}
-
-// Map partner type to display label
-const getPartnerTypeLabel = (type: Partner['type']): string => {
-  const typeLabels: Record<string, string> = {
-    company: 'Company',
-    ngo: 'NGO',
-    education: 'Educational Institution',
-    government: 'Government',
-    other: 'Organization',
-  }
-  return typeLabels[type] || 'Organization'
 }
 
 export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) => {

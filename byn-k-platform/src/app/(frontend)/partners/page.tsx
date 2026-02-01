@@ -5,7 +5,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Building2, CheckCircle2, ArrowRight } from 'lucide-react'
 import { getPartnersWithOpportunityCounts } from '@/lib/payload'
-import type { Media, Partner } from '@/payload-types'
+import { getLogoUrl, getPartnerTypeLabel } from '@/lib/partner-utils'
 
 export const metadata = {
   title: 'Our Partners | BYN-K Opportunity Platform',
@@ -14,25 +14,6 @@ export const metadata = {
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
-
-// Helper to get logo URL from partner
-const getLogoUrl = (logo: number | Media | null | undefined): string | null => {
-  if (!logo) return null
-  if (typeof logo === 'number') return null
-  return (logo as Media).url || null
-}
-
-// Map partner type to display label
-const getPartnerTypeLabel = (type: Partner['type']): string => {
-  const typeLabels: Record<string, string> = {
-    company: 'Company',
-    ngo: 'NGO',
-    education: 'Educational Institution',
-    government: 'Government',
-    other: 'Organization',
-  }
-  return typeLabels[type] || 'Organization'
-}
 
 export default async function PartnersPage() {
   // Fetch partners with their opportunity counts from Payload CMS

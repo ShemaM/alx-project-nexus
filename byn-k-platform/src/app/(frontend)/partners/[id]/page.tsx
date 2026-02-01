@@ -4,61 +4,13 @@ import Image from 'next/image'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { OpportunityCard } from '@/components/cards/OpportunityCard'
-import { getPartnerById, getOpportunitiesByPartner, getOrganizationName, mapCategoryForDisplay } from '@/lib/payload'
-import { generateSlug } from '@/types'
+import { getPartnerById, getOpportunitiesByPartner } from '@/lib/payload'
+import { getLogoUrl, getPartnerTypeLabel } from '@/lib/partner-utils'
+import { transformOpportunity } from '@/lib/opportunity-utils'
 import { Building2, Globe, ExternalLink, CheckCircle2, ArrowLeft, Briefcase } from 'lucide-react'
 import { notFound } from 'next/navigation'
-import type { Media, Opportunity } from '@/payload-types'
-import type { TransformedOpportunity } from '@/components/home/HomeContent'
 
 export const dynamic = 'force-dynamic'
-
-// Helper to get logo URL
-const getLogoUrl = (logo: number | Media | null | undefined): string | null => {
-  if (!logo) return null
-  if (typeof logo === 'number') return null
-  return (logo as Media).url || null
-}
-
-// Helper to get document URL
-const getDocumentUrl = (doc: Opportunity['opportunityDocument']): string | null => {
-  if (!doc) return null
-  if (typeof doc === 'number') return null
-  return (doc as Media).url || null
-}
-
-// Transform Payload opportunity to client-safe format
-const transformOpportunity = (opp: Opportunity): TransformedOpportunity => ({
-  id: String(opp.id),
-  slug: generateSlug(opp.title),
-  title: opp.title,
-  organizationName: getOrganizationName(opp),
-  category: mapCategoryForDisplay(opp.category) as TransformedOpportunity['category'],
-  documentation: opp.documentation || [],
-  deadline: opp.deadline,
-  isVerified: opp.isVerified ?? false,
-  location: opp.location || null,
-  applicationType: opp.applicationType || 'link',
-  applyLink: opp.applyLink,
-  applicationEmail: opp.applicationEmail,
-  emailSubjectLine: opp.emailSubjectLine,
-  requiredDocuments: opp.requiredDocuments,
-  descriptionType: opp.descriptionType || 'text',
-  opportunityDocumentUrl: getDocumentUrl(opp.opportunityDocument),
-  createdAt: opp.createdAt,
-})
-
-// Map partner type to display label
-const getPartnerTypeLabel = (type: string): string => {
-  const typeLabels: Record<string, string> = {
-    company: 'Company',
-    ngo: 'NGO',
-    education: 'Educational Institution',
-    government: 'Government',
-    other: 'Organization',
-  }
-  return typeLabels[type] || 'Organization'
-}
 
 interface PartnerPageProps {
   params: Promise<{ id: string }>
