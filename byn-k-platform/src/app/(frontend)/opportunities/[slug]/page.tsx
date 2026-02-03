@@ -285,17 +285,21 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
             <div className="p-6 md:p-8 border-b border-[#E2E8F0]">
               <h2 className="text-lg font-bold text-slate-900 mb-4">Preparation Checklist</h2>
               <ul className="space-y-2">
-                {opportunity.prep_checklist.map((item, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <CheckCircle2 size={18} className="text-[#27AE60] mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">
-                      {typeof item === 'string' ? item : item.item}
-                      {typeof item !== 'string' && item.required && (
-                        <span className="text-red-500 ml-1">*</span>
-                      )}
-                    </span>
-                  </li>
-                ))}
+                {opportunity.prep_checklist.map((item, index) => {
+                  const itemText = typeof item === 'string' ? item : (item && typeof item === 'object' ? item.item : String(item))
+                  const isRequired = typeof item === 'object' && item !== null && 'required' in item && item.required
+                  return (
+                    <li key={index} className="flex items-start gap-2">
+                      <CheckCircle2 size={18} className="text-[#27AE60] mt-0.5 flex-shrink-0" />
+                      <span className="text-slate-700">
+                        {itemText}
+                        {isRequired && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </span>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           )}

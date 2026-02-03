@@ -162,7 +162,8 @@ LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/admin/login/'
 
-# Security settings (enabled in production)
+# Security settings (enabled in production when DEBUG=False)
+# IMPORTANT: Ensure DEBUG=False is set in production deployment
 if not DEBUG:
     # HTTPS/SSL settings
     SECURE_SSL_REDIRECT = True
@@ -183,7 +184,9 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     
-    # HSTS settings (enable once HTTPS is confirmed working)
+    # TODO: Enable HSTS after confirming HTTPS works correctly in production.
+    # HSTS (HTTP Strict Transport Security) prevents downgrade attacks.
+    # Enable these settings once HTTPS is verified working:
     # SECURE_HSTS_SECONDS = 31536000  # 1 year
     # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     # SECURE_HSTS_PRELOAD = True
