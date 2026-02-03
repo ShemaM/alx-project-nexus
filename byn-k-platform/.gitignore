@@ -50,3 +50,15 @@ node_modules/
 /playwright/.cache/
 
 .vercel
+
+# Python (for backend)
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
