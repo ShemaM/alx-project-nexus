@@ -1,9 +1,14 @@
 {
   "name": "byn-k-platform",
   "version": "1.0.0",
+  "packageManager": "pnpm@9.15.4",
   "description": "A Next.js frontend with a Django backend.",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=20.10.0",
+    "pnpm": ">=9"
+  },
   "scripts": {
     "build": "next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
@@ -45,10 +50,6 @@
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "3.2.3"
-  },
-  "engines": {
-    "node": "^18.20.2 || >=20.9.0",
-    "pnpm": "^9 || ^10"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
