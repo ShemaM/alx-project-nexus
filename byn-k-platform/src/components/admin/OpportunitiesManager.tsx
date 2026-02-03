@@ -85,14 +85,22 @@ export async function OpportunitiesManager() {
             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <select className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+        <select
+          aria-label="Filter opportunities by category"
+          title="Filter opportunities by category"
+          className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">All Categories</option>
           <option value="jobs">Jobs</option>
           <option value="scholarships">Scholarships</option>
           <option value="internships">Internships</option>
           <option value="fellowships">Fellowships</option>
         </select>
-        <select className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+        <select
+          aria-label="Filter opportunities by status"
+          title="Filter opportunities by status"
+          className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">All Statuses</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>

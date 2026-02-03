@@ -71,7 +71,7 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) =>
               >
                 {/* Logo and Verified Badge */}
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-xl flex items-center justify-center overflow-hidden p-2">
+                  <div className="w-20 h-20 bg-linear-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-xl flex items-center justify-center overflow-hidden p-2">
                     {partner.logo ? (
                       <Image 
                         src={partner.logo} 

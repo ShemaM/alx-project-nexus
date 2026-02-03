@@ -49,7 +49,7 @@ interface PageProps {
   params: Promise<{ category: string }>
 }
 
-export default async function CategoryPage({ params }: PageProps) {
+export default async function CategoryPage({ params }: Readonly<PageProps>) {
   const { category } = await params
   
   const meta = categoryMeta[category]
@@ -88,7 +88,7 @@ export default async function CategoryPage({ params }: PageProps) {
       <Navbar />
       
       {/* Category Header */}
-      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-12 md:py-16">
+      <section className="bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-4">
           <Link href="/" className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-6 transition-colors">
             <ArrowLeft size={18} />

@@ -1,6 +1,6 @@
 # BYN-K Platform - Django Backend
 
-This is the Django REST Framework backend for the BYN-K Platform, a Gateway Service that curates opportunities from WhatsApp/PDFs and redirects users to external NGO portals.
+This is the Django REST Framework backend for the BYN-K Platform. It provides a robust API for managing opportunities, user authentication, and other platform data.
 
 ## Overview
 

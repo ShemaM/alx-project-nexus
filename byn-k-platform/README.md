@@ -45,7 +45,7 @@ This repository is the first implementation of the Project Nexus vision—a dedi
 |---------|-------------|
 | ✅ **Verification** | Admin-verified opportunities badge |
 | ⭐ **Featured Content** | Highlight important opportunities and partners |
-| 🎛️ **Site Settings** | Global configuration via Payload admin |
+| 🎛️ **Site Settings** | Global configuration |
 | 🚧 **Maintenance Mode** | Quick toggle for site maintenance |
 | 📊 **Analytics Ready** | Google Analytics integration support |
 
@@ -61,32 +61,11 @@ The technologies for Project Nexus were chosen to prioritize developer experienc
 |-------|------------|---------|
 | **Frontend** | Next.js 15, React 19 | Server-side rendering, App Router |
 | **Styling** | Tailwind CSS 4 | Utility-first CSS framework |
-| **Backend/CMS** | Payload CMS 3.72 | Headless CMS with admin panel |
-| **Database** | PostgreSQL | Relational database via Supabase |
+| **Backend** | Django 5, Django REST Framework | Robust API for data management |
+| **Database** | PostgreSQL | Relational database |
 | **Testing** | Playwright, Vitest | E2E and integration testing |
 | **CI/CD** | GitHub Actions | Automated testing and security scanning |
 | **Security** | CodeQL, Dependabot | Static analysis and dependency updates |
-
-### Why Payload CMS?
-
-Payload was chosen as our content management system and application framework for several key reasons:
-
-- **Code-First & TypeScript-Native:** Unlike traditional CMSs, Payload allows us to define our data structures directly in TypeScript code. This provides strong typing from the database to the frontend, reducing errors and improving developer productivity.
-- **Extensible & Customizable:** It's built to be a developer-first platform. We can easily extend its core functionality, customize the admin UI with our own React components, and integrate it seamlessly into our Next.js application.
-- **Self-Hosted & Scalable:** Being able to self-host gives us full control over our data and infrastructure. It runs as a standard Node.js application, which can be easily containerized and scaled.
-- **Powerful Features Out-of-the-Box:** Payload provides a rich feature set, including a flexible field editor, authentication, file uploads, and a robust GraphQL API.
-
-*Alternatives considered: Strapi, Contentful. Payload's deep React integration and code-first approach made it ideal.*
-
-### Why Supabase?
-
-Supabase serves as our backend-as-a-service (BaaS) platform, primarily for its PostgreSQL database:
-
-- **Open Source & PostgreSQL-Based:** Reliable, powerful SQL database with excellent documentation.
-- **More than a Database:** Offers authentication, storage, and auto-generated APIs for future growth.
-- **Excellent Developer Experience:** Clean dashboard, easy-to-use client libraries.
-
-*Alternatives considered: AWS RDS, PlanetScale. Supabase offers better DX for rapid development.*
 
 ---
 
@@ -96,7 +75,8 @@ Supabase serves as our backend-as-a-service (BaaS) platform, primarily for its P
 
 - **Node.js**: v18.20.2 or >=20.9.0
 - **pnpm**: v9 or v10
-- **Docker**: Optional, for local PostgreSQL
+- **Python**: 3.x
+- **pip**: Python package installer
 
 ### Installation
 
@@ -106,45 +86,32 @@ Supabase serves as our backend-as-a-service (BaaS) platform, primarily for its P
    cd alx-project-nexus/byn-k-platform
    ```
 
-2. **Install dependencies:**
+2. **Install frontend dependencies:**
    ```bash
    pnpm install
    ```
 
-3. **Set up environment variables:**
+3. **Set up frontend environment variables:**
    ```bash
    cp .env.example .env
    ```
    
    Configure the following in `.env`:
    ```env
-   DATABASE_URL=postgresql://user:pass@host:5432/db
-   PAYLOAD_SECRET=your-secret-key-min-32-chars
-   NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+   NEXT_PUBLIC_API_URL=http://localhost:8000/api/  # Your Django backend API URL
    ```
 
-4. **Run the development server:**
+4. **Start frontend development server:**
    ```bash
    pnpm dev
    ```
 
-5. **Access the application:**
+5. **Access the frontend application:**
    - **Frontend**: [http://localhost:3000](http://localhost:3000)
-   - **Admin Panel**: [http://localhost:3000/admin](http://localhost:3000/admin)
-   - **GraphQL Playground**: [http://localhost:3000/api/graphql-playground](http://localhost:3000/api/graphql-playground)
 
-### Using Docker for Local Development
+### Backend Setup (Separate Project)
 
-```bash
-# Start PostgreSQL container
-docker-compose up -d
-
-# Update .env
-DATABASE_URL=postgresql://payload:payload@localhost:5432/payload
-
-# Run development server
-pnpm dev
-```
+Please refer to the `backend/README.md` for instructions on setting up and running the Django backend. Ensure the backend is running and accessible at the `NEXT_PUBLIC_API_URL` specified in your frontend `.env` file.
 
 ---
 
@@ -155,16 +122,7 @@ byn-k-platform/
 ├── src/
 │   ├── app/
 │   │   ├── (frontend)/       # Public pages (home, opportunities, etc.)
-│   │   └── (payload)/        # Payload admin panel and API
-│   ├── collections/          # Payload CMS data models
-│   │   ├── Announcements.ts  # Site-wide notifications
-│   │   ├── Bookmarks.ts      # User saved opportunities
-│   │   ├── Events.ts         # Community events
-│   │   ├── Media.ts          # File uploads
-│   │   ├── Opportunities.ts  # Jobs, scholarships, etc.
-│   │   ├── Partners.ts       # Partner organizations
-│   │   ├── Resources.ts      # Guides and tutorials
-│   │   └── Users.ts          # User accounts with RBAC
+│   │   └── api/              # Frontend API routes (e.g., for data fetching from external API)
 │   ├── components/
 │   │   ├── cards/            # Card components
 │   │   ├── home/             # Homepage sections
@@ -173,16 +131,13 @@ byn-k-platform/
 │   ├── contexts/             # React contexts
 │   │   ├── NotificationContext.tsx
 │   │   └── SiteTourContext.tsx
-│   ├── globals/
-│   │   └── SiteSettings.ts   # Global site configuration
 │   ├── lib/
-│   │   └── payload.ts        # Payload utility functions
-│   └── payload.config.ts     # Main Payload configuration
+│   │   └── api.ts            # Frontend API utility functions
+│   └── types/                # TypeScript type definitions
 ├── tests/
 │   ├── e2e/                  # Playwright E2E tests
 │   └── int/                  # Vitest integration tests
 ├── public/                   # Static assets
-├── docker-compose.yml        # Docker configuration
 └── package.json
 ```
 
@@ -190,24 +145,20 @@ byn-k-platform/
 
 ## 📊 Data Model
 
-### Collections
+Data is managed by the Django backend. The frontend consumes data via API calls.
 
-| Collection | Purpose | Access |
-|------------|---------|--------|
-| **Users** | User accounts with roles (admin, moderator, user) | Self + Admin |
-| **Opportunities** | Jobs, scholarships, internships, fellowships | Public read |
-| **Partners** | Organizations offering opportunities | Public read |
-| **Resources** | Guides, tutorials, templates | Public (published) |
-| **Events** | Workshops, webinars, career fairs | Public (published) |
-| **Announcements** | Site-wide notifications | Public (active) |
-| **Bookmarks** | User's saved opportunities | Owner only |
-| **Media** | Images and documents | Public read |
+### Key Data Entities (Managed by Backend)
 
-### Globals
-
-| Global | Purpose |
-|--------|---------|
-| **SiteSettings** | Site name, contact info, social links, feature flags |
+| Entity | Purpose |
+|------------|---------|
+| **Users** | User accounts with roles (admin, moderator, user) |
+| **Opportunities** | Jobs, scholarships, internships, fellowships |
+| **Partners** | Organizations offering opportunities |
+| **Resources** | Guides, tutorials, templates |
+| **Events** | Workshops, webinars, career fairs |
+| **Announcements** | Site-wide notifications |
+| **Bookmarks** | User's saved opportunities |
+| **Media** | Images and documents |
 
 ---
 
@@ -233,28 +184,26 @@ pnpm lint
 
 This project implements SSDLC (Secure Software Development Lifecycle) practices:
 
-- **Authentication**: JWT-based with role-based access control (RBAC)
-- **Authorization**: Field-level and collection-level access control
-- **Input Validation**: Server-side validation on all fields
-- **Security Headers**: HSTS, X-Frame-Options, X-Content-Type-Options
-- **Rate Limiting**: Login attempt throttling (5 attempts, 15-min lockout)
+- **Frontend Security**: Measures implemented within the Next.js application (e.g., input sanitization, secure client-side storage).
+- **Backend Security**: All API authentication, authorization, input validation, and database security are handled by the Django backend.
 - **CI/CD Security**: CodeQL analysis, npm audit, Dependabot
 
 ---
 
 ## 🚀 Deployment
 
-### Deploy to Vercel (Recommended)
+The frontend is deployed independently.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ShemaM/alx-project-nexus&root-directory=byn-k-platform&env=DATABASE_URL,PAYLOAD_SECRET&envDescription=Database%20connection%20and%20Payload%20secret%20key)
+### Deploy to Vercel (Recommended for Frontend)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ShemaM/alx-project-nexus&root-directory=byn-k-platform&env=NEXT_PUBLIC_API_URL&envDescription=The%20URL%20of%20your%20deployed%20Django%20backend%20API)
 
 #### One-Click Deploy
 
 1. Click the "Deploy with Vercel" button above
 2. Connect your GitHub account
 3. Configure environment variables:
-   - `DATABASE_URL` - Your Supabase PostgreSQL connection string
-   - `PAYLOAD_SECRET` - A strong secret key (minimum 32 characters)
+   - `NEXT_PUBLIC_API_URL` - The URL of your deployed Django backend API (e.g., `https://your-backend-api.com/api/`)
 4. Deploy!
 
 #### Manual Vercel Deployment
@@ -280,21 +229,11 @@ Set these in your Vercel project dashboard under **Settings > Environment Variab
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string (Supabase) | ✅ |
-| `PAYLOAD_SECRET` | Secret key for Payload CMS (min 32 chars) | ✅ |
-| `NEXT_PUBLIC_SERVER_URL` | Your production URL (e.g., `https://yourdomain.vercel.app`) | ✅ |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID | ❌ |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth secret | ❌ |
+| `NEXT_PUBLIC_API_URL` | The URL of your deployed Django backend API | ✅ |
 
-### Alternative: Docker Deployment
+### Backend Deployment
 
-```bash
-# Build the image
-docker build -t byn-k-platform .
-
-# Run the container
-docker run -p 3000:3000 --env-file .env byn-k-platform
-```
+For deploying the Django backend, refer to the instructions in the main [README.md](../README.md) file, specifically the "Backend (Render)" section.
 
 ---
 
@@ -322,5 +261,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 - **Banyamulenge Youth of Kenya** - For inspiring this platform
 - **ALX Software Engineering** - For the learning opportunity
-- **Payload CMS** - For the excellent headless CMS
-- **Supabase** - For the developer-friendly database platform
+- **Django & Django REST Framework** - For the robust backend framework
+- **Next.js** - For the excellent frontend framework
