@@ -3,7 +3,7 @@
 This guide documents the deployment configuration for the BYN-K Platform split-stack monorepo:
 
 - **Frontend**: Next.js app in `/byn-k-platform/` → **Vercel**
-- **Backend**: Node.js/Express app in `/backend/` → **Render**
+- **Backend**: App in `/backend/` → **Render**
 - **Database**: **Supabase** (PostgreSQL)
 
 ---
@@ -19,9 +19,11 @@ This guide documents the deployment configuration for the BYN-K Platform split-s
 
 ## 1. Backend CORS Configuration
 
-To allow cross-origin requests from your Vercel-deployed frontend to the Render-deployed backend, use the following middleware code:
+To allow cross-origin requests from your Vercel-deployed frontend to the Render-deployed backend, configure CORS appropriately.
 
 ### Node.js/Express Example
+
+If using Node.js/Express for the backend:
 
 ```javascript
 const cors = require('cors');
@@ -34,6 +36,20 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+```
+
+### Django Example
+
+If using Django for the backend, configure `django-cors-headers` in `settings.py`:
+
+```python
+import os
+
+CORS_ALLOWED_ORIGINS = [
+    os.environ.get('FRONTEND_URL', 'http://localhost:3000'),
+]
+
+CORS_ALLOW_CREDENTIALS = True
 ```
 
 ### Key Points
@@ -51,11 +67,13 @@ app.use(cors(corsOptions));
 | Setting | Value |
 | --- | --- |
 | **Root Directory** | `byn-k-platform` |
-| **Build Command** | `npm run build` |
-| **Install Command** | `npm install` (or `pnpm install` if using pnpm) |
+| **Build Command** | `npm run build` (or `pnpm build`) |
+| **Install Command** | `npm install` (or `pnpm install`) |
 | **Framework Preset** | Next.js (auto-detected) |
 
 ### Render (Backend)
+
+#### For Node.js/Express Backend
 
 | Setting | Value |
 | --- | --- |
@@ -63,6 +81,15 @@ app.use(cors(corsOptions));
 | **Build Command** | `npm install` |
 | **Start Command** | `node server.js` (or your start script) |
 | **Environment** | Node |
+
+#### For Django Backend (Current Implementation)
+
+| Setting | Value |
+| --- | --- |
+| **Root Directory** | `backend` |
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `gunicorn config.wsgi:application` |
+| **Environment** | Python 3 |
 
 ### Important Notes
 
