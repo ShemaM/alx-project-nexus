@@ -1,7 +1,4 @@
-import { getPayload } from 'payload'
-import configPromise from '@/payload.config'
 import { NextRequest, NextResponse } from 'next/server'
-import type { User } from '@/payload-types'
 
 interface GoogleTokenResponse {
   access_token: string
@@ -20,6 +17,9 @@ interface GoogleUserInfo {
   family_name?: string
   picture?: string
 }
+
+// Base API URL for Django backend
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '')
 
 // GET /api/auth/google/callback - Handle Google OAuth callback
 export async function GET(request: NextRequest) {
@@ -102,88 +102,42 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/login?error=no_email', request.url))
     }
 
-    // Initialize Payload
-    const payload = await getPayload({ config: configPromise })
-
-    // Check if user exists
-    const existingUsers = await payload.find({
-      collection: 'users',
-      where: {
-        email: { equals: googleUser.email.toLowerCase() },
+    // Send Google user info to Django backend for authentication/registration
+    const djangoAuthResponse = await fetch(`${API_BASE_URL}/auth/google/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      limit: 1,
+      body: JSON.stringify({
+        email: googleUser.email.toLowerCase(),
+        name: googleUser.name || '',
+        google_id: googleUser.id,
+        picture: googleUser.picture || null,
+      }),
     })
 
-    let user: User
-
-    if (existingUsers.totalDocs > 0) {
-      // User exists, update their info if needed
-      user = existingUsers.docs[0]
-      
-      // Update name if not set
-      if (!user.name && googleUser.name) {
-        await payload.update({
-          collection: 'users',
-          id: user.id,
-          data: {
-            name: googleUser.name,
-          },
-        })
-      }
-    } else {
-      // Create new user
-      // Generate a cryptographically secure random password for Google users
-      // They won't use it since they'll sign in with Google
-      const randomBytes = new Uint8Array(64)
-      crypto.getRandomValues(randomBytes)
-      const randomPassword = Array.from(randomBytes, b => b.toString(16).padStart(2, '0')).join('')
-      
-      user = await payload.create({
-        collection: 'users',
-        data: {
-          email: googleUser.email.toLowerCase(),
-          password: randomPassword,
-          name: googleUser.name || null,
-          roles: ['user'],
-        },
-      })
+    if (!djangoAuthResponse.ok) {
+      // If Django doesn't have Google OAuth endpoint, redirect to login with a message
+      console.error('Django auth failed:', await djangoAuthResponse.text())
+      return NextResponse.redirect(new URL('/login?error=google_not_supported&message=Please use email/password to login', request.url))
     }
 
-    // For Google OAuth users, we create a JWT token directly
-    // since we don't have their password for a standard login
-    
-    // Get the full user data with collection info needed for token
-    const fullUser = await payload.findByID({
-      collection: 'users',
-      id: user.id,
-    })
-    
-    // Generate token using JWT
-    const jwt = await import('jsonwebtoken')
-    const payloadConfig = await configPromise
-    const secret = payloadConfig.secret
-    
-    const token = jwt.default.sign(
-      {
-        id: fullUser.id,
-        email: fullUser.email,
-        collection: 'users',
-      },
-      secret,
-      { expiresIn: '7d' }
-    )
+    // Get session/token from Django response
+    const authData = await djangoAuthResponse.json()
 
     // Create response with redirect
     const response = NextResponse.redirect(new URL(redirectUrl, request.url))
 
-    // Set the auth token as a cookie
-    response.cookies.set('payload-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    })
+    // If Django returns a session token, set it as a cookie
+    if (authData.token) {
+      response.cookies.set('auth-token', authData.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      })
+    }
 
     return response
   } catch (error) {

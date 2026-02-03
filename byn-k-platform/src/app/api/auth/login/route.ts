@@ -1,12 +1,11 @@
-import { getPayload } from 'payload'
-import configPromise from '@/payload.config'
 import { NextRequest, NextResponse } from 'next/server'
 
-// POST /api/auth/login - Log in a user
+// Base API URL for Django backend
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '')
+
+// POST /api/auth/login - Log in a user via Django backend
 export async function POST(request: NextRequest) {
   try {
-    const payload = await getPayload({ config: configPromise })
-
     const body = await request.json()
     const { email, password } = body
 
@@ -18,19 +17,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Attempt to login
-    const result = await payload.login({
-      collection: 'users',
-      data: {
-        email: email.toLowerCase(),
-        password,
+    // Forward the login request to Django backend
+    const djangoResponse = await fetch(`${API_BASE_URL}/auth/login/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        username: email.toLowerCase(),
+        password,
+      }),
     })
 
-    if (!result.user) {
+    const responseData = await djangoResponse.json()
+
+    if (!djangoResponse.ok) {
       return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
+        { error: responseData.detail || 'Invalid email or password' },
+        { status: djangoResponse.status }
       )
     }
 
@@ -38,17 +42,18 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
-      user: {
-        id: result.user.id,
-        email: result.user.email,
-        name: result.user.name || null,
-        roles: result.user.roles || ['user'],
+      user: responseData.user || {
+        id: responseData.id,
+        email: responseData.email,
+        username: responseData.username,
+        is_admin: responseData.is_admin,
+        is_staff: responseData.is_staff,
       },
     })
 
-    // Set the auth token as a cookie
-    if (result.token) {
-      response.cookies.set('payload-token', result.token, {
+    // Set auth token cookie if returned by Django
+    if (responseData.token) {
+      response.cookies.set('auth-token', responseData.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -57,13 +62,18 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Forward any cookies from Django response
+    const setCookieHeader = djangoResponse.headers.get('set-cookie')
+    if (setCookieHeader) {
+      response.headers.set('set-cookie', setCookieHeader)
+    }
+
     return response
   } catch (error) {
     console.error('Error logging in:', error)
-    // Payload throws an error for invalid credentials
     return NextResponse.json(
-      { error: 'Invalid email or password' },
-      { status: 401 }
+      { error: 'Failed to authenticate' },
+      { status: 500 }
     )
   }
 }

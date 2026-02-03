@@ -3,14 +3,27 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { getCurrentUser } from '@/lib/api';
 import { redirect } from 'next/navigation';
 
+interface User {
+  is_admin?: boolean;
+  is_staff?: boolean;
+  roles?: string[];
+}
+
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser() as User | null;
 
-  if (!user || !user.roles.includes('admin')) {
+  // Check for admin access - support both Django's is_admin/is_staff and roles array
+  const isAdmin = user && (
+    user.is_admin === true || 
+    user.is_staff === true || 
+    (Array.isArray(user.roles) && user.roles.includes('admin'))
+  );
+
+  if (!user || !isAdmin) {
     redirect('/login');
   }
 

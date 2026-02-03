@@ -6,8 +6,16 @@ Custom admin forms for quick content entry from WhatsApp messages.
 """
 
 from django.contrib import admin
+from django.conf import settings
 from django import forms
 from .models import Job, ClickAnalytics
+
+# ============================================
+# Admin Site Customization
+# ============================================
+admin.site.site_header = getattr(settings, 'ADMIN_SITE_HEADER', 'BYN-K Platform Administration')
+admin.site.site_title = getattr(settings, 'ADMIN_SITE_TITLE', 'BYN-K Admin')
+admin.site.index_title = getattr(settings, 'ADMIN_INDEX_TITLE', 'Platform Management')
 
 
 class JobAdminForm(forms.ModelForm):

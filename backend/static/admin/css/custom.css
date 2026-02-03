@@ -1,0 +1,288 @@
+/**
+ * BYN-K Platform Admin Custom Styles
+ * 
+ * Custom branding for Django Admin interface
+ * Brand Colors:
+ * - Primary Blue: #2D8FDD
+ * - Secondary Yellow: #F5D300
+ * - Dark Blue: #1E3A5F
+ */
+
+/* ============================================
+   Header & Branding
+   ============================================ */
+#header {
+    background: linear-gradient(135deg, #1E3A5F 0%, #2D8FDD 100%);
+    color: #ffffff;
+}
+
+#header a:link, 
+#header a:visited {
+    color: #ffffff;
+}
+
+#branding h1 {
+    color: #F5D300;
+    font-weight: 700;
+}
+
+#branding h1 a:link,
+#branding h1 a:visited {
+    color: #F5D300;
+}
+
+/* User tools (top right) */
+#user-tools {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+#user-tools a {
+    color: #F5D300;
+    border-bottom-color: #F5D300;
+}
+
+#user-tools a:hover {
+    color: #ffffff;
+}
+
+/* ============================================
+   Navigation & Modules
+   ============================================ */
+.module h2, 
+.module caption, 
+.inline-group h2 {
+    background: #2D8FDD;
+    color: #ffffff;
+}
+
+/* App list module headers */
+.app-listings.module caption a,
+.app-users.module caption a,
+.app-auth.module caption a {
+    color: #ffffff;
+}
+
+/* ============================================
+   Buttons & Links
+   ============================================ */
+.submit-row input[type="submit"],
+input[type="submit"],
+button[type="submit"],
+.button {
+    background: #2D8FDD;
+    border-color: #1E6BB8;
+}
+
+.submit-row input[type="submit"]:hover,
+input[type="submit"]:hover,
+button[type="submit"]:hover,
+.button:hover {
+    background: #1E6BB8;
+}
+
+/* Default save button */
+.submit-row input.default {
+    background: #F5D300;
+    color: #1E3A5F;
+    border-color: #D4B800;
+}
+
+.submit-row input.default:hover {
+    background: #D4B800;
+}
+
+/* Delete button */
+.submit-row input[name="delete"] {
+    background: #D52B2B;
+    border-color: #B82424;
+}
+
+/* Links */
+a:link, a:visited {
+    color: #2D8FDD;
+}
+
+a:hover {
+    color: #1E6BB8;
+}
+
+/* ============================================
+   Breadcrumbs
+   ============================================ */
+div.breadcrumbs {
+    background: #1E3A5F;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+div.breadcrumbs a:link,
+div.breadcrumbs a:visited {
+    color: #F5D300;
+}
+
+/* ============================================
+   Object Tools (Add/Change buttons)
+   ============================================ */
+.object-tools a:link,
+.object-tools a:visited {
+    background: #2D8FDD;
+}
+
+.object-tools a:hover {
+    background: #1E6BB8;
+}
+
+.object-tools a.addlink {
+    background: #2D8FDD;
+}
+
+/* ============================================
+   Calendar & Date Widgets
+   ============================================ */
+.calendar caption,
+.calendarbox h2 {
+    background: #2D8FDD;
+    color: #ffffff;
+}
+
+.calendar td a:hover,
+.timelist a:hover {
+    background: #F5D300;
+    color: #1E3A5F;
+}
+
+/* ============================================
+   Filter Sidebar
+   ============================================ */
+#changelist-filter h2 {
+    background: #2D8FDD;
+    color: #ffffff;
+}
+
+#changelist-filter h3 {
+    color: #1E3A5F;
+}
+
+#changelist-filter li.selected a {
+    color: #2D8FDD;
+    font-weight: bold;
+}
+
+/* ============================================
+   Login Page
+   ============================================ */
+body.login {
+    background: linear-gradient(135deg, #1E3A5F 0%, #0F2847 100%);
+}
+
+body.login #header {
+    background: transparent;
+    padding: 20px 0;
+}
+
+body.login #header h1 a {
+    color: #F5D300;
+}
+
+body.login #content {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+}
+
+body.login .submit-row input {
+    background: #F5D300;
+    color: #1E3A5F;
+    border: none;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 6px;
+    width: 100%;
+    cursor: pointer;
+}
+
+body.login .submit-row input:hover {
+    background: #D4B800;
+}
+
+body.login input[type="text"],
+body.login input[type="password"] {
+    border-radius: 6px;
+    border: 2px solid #E2E8F0;
+    padding: 12px;
+}
+
+body.login input[type="text"]:focus,
+body.login input[type="password"]:focus {
+    border-color: #2D8FDD;
+    outline: none;
+}
+
+/* ============================================
+   Change List (Table views)
+   ============================================ */
+#changelist-filter {
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+#changelist table thead th {
+    background: #1E3A5F;
+    color: #ffffff;
+}
+
+#changelist table thead th a:link,
+#changelist table thead th a:visited {
+    color: #ffffff;
+}
+
+.row1 {
+    background: #ffffff;
+}
+
+.row2 {
+    background: #f8f9fa;
+}
+
+#changelist table tbody tr:hover {
+    background: #e8f4fc;
+}
+
+/* ============================================
+   Dashboard Modules
+   ============================================ */
+.dashboard .module table th {
+    background: #2D8FDD;
+    color: #ffffff;
+}
+
+/* ============================================
+   Messages
+   ============================================ */
+.messagelist li.success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.messagelist li.warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa8;
+}
+
+.messagelist li.error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+@media (max-width: 767px) {
+    #header {
+        padding: 15px;
+    }
+    
+    #branding h1 {
+        font-size: 18px;
+    }
+}
