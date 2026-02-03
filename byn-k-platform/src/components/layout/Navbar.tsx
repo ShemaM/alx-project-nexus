@@ -5,6 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X, ChevronDown, Bookmark, LogOut } from 'lucide-react'
 
+import { getCurrentUser } from '@/lib/api'
+
 const categories = [
   { href: '/categories/jobs', label: 'Jobs' },
   { href: '/categories/scholarships', label: 'Scholarships' },
@@ -29,11 +31,8 @@ export const Navbar = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/me')
-        const data = await response.json()
-        if (data.authenticated && data.user) {
-          setUser(data.user)
-        }
+        const currentUser = await getCurrentUser()
+        setUser(currentUser)
       } catch (error) {
         console.error('Error checking auth:', error)
       } finally {

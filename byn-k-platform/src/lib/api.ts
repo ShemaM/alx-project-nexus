@@ -1,14 +1,12 @@
 /**
  * Django API Service
- * 
- * Client for connecting to the Django REST Framework backend.
- * This replaces the Payload CMS data layer.
+ * * Client for connecting to the Django REST Framework backend.
  */
 
-import { Job, JobFilterParams, APIResponse, transformJobToOpportunityCard, OpportunityCardProps } from '@/types'
+import { Opportunity, OpportunityFilterParams, APIResponse } from '@/types'
 
-// API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+// 1. Fixed: Use 127.0.0.1 and ensure no trailing slash here to prevent // bugs
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
 
 /**
  * Generic fetch wrapper with error handling
@@ -17,6 +15,7 @@ async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  // 2. Fixed: endpoint should start with / so this becomes .../api/endpoint
   const url = `${API_BASE_URL}${endpoint}`
   
   const response = await fetch(url, {
@@ -25,10 +24,12 @@ async function apiFetch<T>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
-    credentials: 'include', // Include session cookies
+    credentials: 'include',
   })
   
   if (!response.ok) {
+    // Helpful for debugging: logs the exact URL that failed
+    console.error(`Fetch failed for ${url}: ${response.status}`);
     throw new Error(`API Error: ${response.status} ${response.statusText}`)
   }
   
@@ -38,7 +39,7 @@ async function apiFetch<T>(
 /**
  * Build query string from filter parameters
  */
-function buildQueryString(params: JobFilterParams): string {
+function buildQueryString(params: OpportunityFilterParams): string {
   const searchParams = new URLSearchParams()
   
   if (params.docs) searchParams.set('docs', params.docs)
@@ -50,163 +51,93 @@ function buildQueryString(params: JobFilterParams): string {
   }
   
   const query = searchParams.toString()
-  return query ? `?${query}` : ''
+  // 3. Fixed: Added a slash before the ? because Django is strict
+  return query ? `/?${query}` : '/'
 }
 
 // ============================================
-// Job Listings API
+// Opportunity Listings API
 // ============================================
 
-/**
- * Fetch all active job listings
- */
-export async function getJobs(filters?: JobFilterParams): Promise<APIResponse<Job[]>> {
-  const queryString = filters ? buildQueryString(filters) : ''
-  return apiFetch<APIResponse<Job[]>>(`/jobs/${queryString}`)
-}
-
-/**
- * Fetch a single job by ID
- */
-export async function getJobById(id: number): Promise<Job> {
-  return apiFetch<Job>(`/jobs/${id}/`)
-}
-
-/**
- * Fetch featured jobs for hero carousel
- */
-export async function getFeaturedJobs(): Promise<APIResponse<Job[]>> {
-  return apiFetch<APIResponse<Job[]>>('/jobs/featured/')
-}
-
-/**
- * Get jobs as OpportunityCardProps (for frontend components)
- */
-export async function getOpportunitiesFromDjango(
-  filters?: JobFilterParams
-): Promise<OpportunityCardProps[]> {
-  try {
-    const response = await getJobs(filters)
-    const jobs = response.data || (response as unknown as { results: Job[] }).results || []
-    return jobs.map(transformJobToOpportunityCard)
-  } catch (error) {
-    console.error('Failed to fetch opportunities from Django:', error)
-    return []
+export async function getOpportunities(filters?: OpportunityFilterParams): Promise<APIResponse<Opportunity[]>> {
+  const queryString = filters ? buildQueryString(filters) : '/'
+  const response = await apiFetch<APIResponse<Opportunity[]>>(`/opportunities${queryString}`)
+  return {
+    ...response,
+    data: (response as unknown as { results: Opportunity[] }).results || [],
   }
 }
 
+export async function getOpportunityById(id: number): Promise<Opportunity> {
+  return apiFetch<Opportunity>(`/opportunities/${id}/`)
+}
+
+export async function getFeaturedOpportunities(): Promise<APIResponse<Opportunity[]>> {
+  // 4. Fixed: Added trailing slash before query params
+  const response = await apiFetch<APIResponse<Opportunity[]>>('/opportunities/?is_featured=true')
+  return {
+    ...response,
+    data: (response as unknown as { results: Opportunity[] }).results || [],
+  }
+}
+
+
+
 // ============================================
-// Click Tracking API
+// Click Tracking, Analytics, Auth (Endpoints updated with slashes)
 // ============================================
 
-/**
- * Track a user click/redirect
- */
 export async function trackClick(
-  jobId: number,
+  opportunityId: number,
   clickType: 'apply' | 'view_brochure' | 'compose_email' | 'view_details'
 ): Promise<{ success: boolean; click_count: number }> {
   return apiFetch('/track-click/', {
     method: 'POST',
     body: JSON.stringify({
-      job_id: jobId,
+      opportunity_id: opportunityId,
       click_type: clickType,
     }),
   })
 }
 
-// ============================================
-// Brochure API
-// ============================================
-
-/**
- * Get protected brochure URL
- */
-export function getBrochureUrl(jobId: number): string {
-  return `${API_BASE_URL}/jobs/${jobId}/brochure/`
+export function getBrochureUrl(opportunityId: number): string {
+  return `${API_BASE_URL}/opportunities/${opportunityId}/brochure/`
 }
 
-// ============================================
-// Analytics API (Admin only)
-// ============================================
+export interface AnalyticsOverview {
+  [key: string]: unknown
+}
 
-/**
- * Fetch analytics overview (admin only)
- */
-export async function getAnalyticsOverview(): Promise<{
-  total_jobs: number
-  verified_jobs: number
-  featured_jobs: number
-  top_clicked: Array<{
-    id: number
-    title: string
-    organization: string
-    total_clicks: number
-  }>
-  disclaimer: string
-}> {
+export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
   return apiFetch('/analytics/')
 }
 
-// ============================================
-// Auth API
-// ============================================
+type AuthResponse = Record<string, unknown>
+type AuthUser = Record<string, unknown>
 
-/**
- * Login user
- */
-export async function login(username: string, password: string): Promise<{
-  id: number
-  username: string
-  email: string
-  is_admin: boolean
-}> {
-  return apiFetch('/auth/login/', {
+export async function login(username: string, password: string): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>('/auth/login/', {
     method: 'POST',
     body: JSON.stringify({ username, password }),
   })
 }
 
-/**
- * Logout user
- */
 export async function logout(): Promise<{ message: string }> {
   return apiFetch('/auth/logout/', {
     method: 'POST',
   })
 }
 
-/**
- * Get current user
- */
-export async function getCurrentUser(): Promise<{
-  id: number
-  username: string
-  email: string
-  is_admin: boolean
-} | null> {
+export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
-    return await apiFetch('/auth/me/')
+    return await apiFetch<AuthUser>('/auth/me/')
   } catch {
     return null
   }
 }
 
-/**
- * Register new user
- */
-export async function register(data: {
-  username: string
-  email: string
-  password: string
-  first_name?: string
-  last_name?: string
-}): Promise<{
-  id: number
-  username: string
-  email: string
-}> {
-  return apiFetch('/auth/register/', {
+export async function register(data: Record<string, unknown>): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>('/auth/register/', {
     method: 'POST',
     body: JSON.stringify(data),
   })

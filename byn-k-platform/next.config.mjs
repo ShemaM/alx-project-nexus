@@ -1,4 +1,3 @@
-import { withPayload } from '@payloadcms/next/withPayload'
 
 // Security headers for production deployment
 const securityHeaders = [
@@ -54,4 +53,5 @@ const nextConfig = {
   },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+export default nextConfig
+

@@ -1,5 +1,8 @@
-import { PageLoader } from '@/components/ui/PageLoader'
-
 export default function Loading() {
-  return <PageLoader message="Loading opportunities..." />
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-2xl font-bold text-gray-500">Loading...</div>
+    </div>
+  );
 }
+

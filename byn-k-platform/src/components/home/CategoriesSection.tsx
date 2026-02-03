@@ -16,55 +16,53 @@ import React from 'react'
 import Link from 'next/link'
 import { Briefcase, GraduationCap, Building, BookOpen, ArrowRight } from 'lucide-react'
 
-export interface CategoriesSectionProps {
-  counts?: {
-    jobs: number
-    scholarships: number
-    internships: number
-    fellowships: number
-  }
+type CategoryCounts = {
+  jobs: number
+  scholarships: number
+  internships: number
+  fellowships: number
+  partners?: number
 }
 
-/**
- * Category configuration with colors and icons
- */
-const getCategoryConfig = (counts?: CategoriesSectionProps['counts']) => [
-  {
-    href: '/categories/jobs',
-    icon: Briefcase,
-    title: 'Jobs',
-    description: 'Find verified job opportunities for your skills',
-    count: counts?.jobs ?? 0,
-    color: 'bg-yellow-50 text-[#F5D300] border-yellow-200'
-  },
-  {
-    href: '/categories/scholarships',
-    icon: GraduationCap,
-    title: 'Scholarships',
-    description: 'Educational funding opportunities for students',
-    count: counts?.scholarships ?? 0,
-    color: 'bg-purple-50 text-purple-600 border-purple-200'
-  },
-  {
-    href: '/categories/internships',
-    icon: Building,
-    title: 'Internships',
-    description: 'Gain experience with internship programs',
-    count: counts?.internships ?? 0,
-    color: 'bg-blue-50 text-[#2D8FDD] border-blue-200'
-  },
-  {
-    href: '/categories/fellowships',
-    icon: BookOpen,
-    title: 'Fellowships',
-    description: 'Fellowship programs and opportunities',
-    count: counts?.fellowships ?? 0,
-    color: 'bg-green-50 text-green-600 border-green-200'
-  }
-]
+type CategoriesSectionProps = {
+  counts: CategoryCounts
+}
 
 export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
-  const categories = getCategoryConfig(counts)
+  const categories = [
+    {
+      href: '/categories/jobs',
+      icon: Briefcase,
+      title: 'Jobs',
+      description: 'Find verified job opportunities for your skills',
+      count: counts.jobs ?? 0,
+      color: 'bg-yellow-50 text-[#F5D300] border-yellow-200'
+    },
+    {
+      href: '/categories/scholarships',
+      icon: GraduationCap,
+      title: 'Scholarships',
+      description: 'Educational funding opportunities for students',
+      count: counts.scholarships ?? 0,
+      color: 'bg-purple-50 text-purple-600 border-purple-200'
+    },
+    {
+      href: '/categories/internships',
+      icon: Building,
+      title: 'Internships',
+      description: 'Gain experience with internship programs',
+      count: counts.internships ?? 0,
+      color: 'bg-blue-50 text-[#2D8FDD] border-blue-200'
+    },
+    {
+      href: '/categories/fellowships',
+      icon: BookOpen,
+      title: 'Fellowships',
+      description: 'Fellowship programs and opportunities',
+      count: counts.fellowships ?? 0,
+      color: 'bg-green-50 text-green-600 border-green-200'
+    }
+  ];
   
   return (
     <section data-tour="categories" className="py-12 bg-white">

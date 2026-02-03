@@ -70,7 +70,6 @@ class Job(models.Model):
         max_length=50,
         choices=LOCATION_CHOICES,
         blank=True,
-        null=True,
         help_text="Where is this opportunity located?"
     )
     category = models.CharField(
@@ -107,7 +106,6 @@ class Job(models.Model):
     email_subject_line = models.CharField(
         max_length=255,
         blank=True,
-        null=True,
         help_text="Suggested subject line for email applications"
     )
     brochure_upload = models.FileField(
@@ -148,7 +146,6 @@ class Job(models.Model):
     # Admin "WhatsApp-to-Web" Efficiency (Phase 4)
     raw_data = models.TextField(
         blank=True,
-        null=True,
         help_text="Raw text pasted from WhatsApp (for admin convenience)"
     )
     
@@ -226,7 +223,7 @@ class ClickAnalytics(models.Model):
     @classmethod
     def track_click(cls, job_id, click_type):
         """Increment click counter for a job."""
-        analytics, created = cls.objects.get_or_create(
+        analytics, _ = cls.objects.get_or_create(
             job_id=job_id,
             click_type=click_type,
             defaults={'click_count': 0}

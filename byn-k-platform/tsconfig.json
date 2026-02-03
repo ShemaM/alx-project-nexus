@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "lib": [
       "DOM",
       "DOM.Iterable",
@@ -25,9 +26,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@payload-config": [
-        "./src/payload.config.ts"
       ]
     },
     "target": "ES2022",

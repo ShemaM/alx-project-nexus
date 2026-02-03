@@ -2,9 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { OpportunityCard } from '@/components/cards/OpportunityCard'
 import { ArrowLeft, Briefcase, GraduationCap, Building, Award } from 'lucide-react'
-import { getOpportunitiesByCategory, getOrganizationName, mapCategoryForDisplay } from '@/lib/payload'
 import { generateSlug } from '@/types'
 import type { Opportunity, Media } from '@/payload-types'
 
@@ -43,31 +41,7 @@ const categoryMeta: Record<string, { title: string; description: string; icon: R
   }
 }
 
-// Helper to get document URL
-const getDocumentUrl = (doc: Opportunity['opportunityDocument']): string | null => {
-  if (!doc) return null
-  if (typeof doc === 'number') return null
-  return (doc as Media).url || null
-}
 
-// Transform opportunity for display
-const transformOpportunity = (opp: Opportunity) => ({
-  id: String(opp.id),
-  slug: generateSlug(opp.title),
-  title: opp.title,
-  organizationName: getOrganizationName(opp),
-  category: mapCategoryForDisplay(opp.category),
-  documentation: opp.documentation || [],
-  deadline: opp.deadline,
-  isVerified: opp.isVerified ?? false,
-  applicationType: opp.applicationType || 'link',
-  applyLink: opp.applyLink,
-  applicationEmail: opp.applicationEmail,
-  emailSubjectLine: opp.emailSubjectLine,
-  requiredDocuments: opp.requiredDocuments,
-  descriptionType: opp.descriptionType || 'text',
-  opportunityDocumentUrl: getDocumentUrl(opp.opportunityDocument),
-})
 
 interface PageProps {
   params: Promise<{ category: string }>
@@ -96,8 +70,7 @@ export default async function CategoryPage({ params }: PageProps) {
   }
 
   // Fetch real opportunities from Payload CMS
-  const opportunities = await getOpportunitiesByCategory(category)
-  const transformedOpportunities = opportunities.map(transformOpportunity)
+  const transformedOpportunities = [];
 
   const Icon = meta.icon
 
@@ -136,22 +109,10 @@ export default async function CategoryPage({ params }: PageProps) {
         <div className="flex flex-col gap-4">
           {transformedOpportunities.length > 0 ? (
             transformedOpportunities.map((opp) => (
-              <OpportunityCard
-                key={opp.id}
-                id={opp.id}
-                slug={opp.slug}
-                title={opp.title}
-                organizationName={opp.organizationName}
-                category={opp.category as 'job' | 'scholarship' | 'internship' | 'training' | 'fellowship'}
-                documentation={opp.documentation as string[]}
-                deadline={opp.deadline}
-                isVerified={opp.isVerified}
-                applicationType={opp.applicationType as 'link' | 'email'}
-                applyLink={opp.applyLink}
-                applicationEmail={opp.applicationEmail}
-                emailSubjectLine={opp.emailSubjectLine}
-                requiredDocuments={opp.requiredDocuments}
-              />
+              <div key={opp.id} className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-bold">{opp.title}</h2>
+                <p className="text-gray-600">{opp.organizationName}</p>
+              </div>
             ))
           ) : (
             <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-[#E2E8F0]">

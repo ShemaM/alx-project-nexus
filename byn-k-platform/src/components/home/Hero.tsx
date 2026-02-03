@@ -14,10 +14,11 @@
  */
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Sparkles, TrendingUp, Clock, ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import styles from './Hero.module.css'
 
 export interface FeaturedOpportunity {
   id: string
@@ -26,64 +27,76 @@ export interface FeaturedOpportunity {
   category: 'job' | 'scholarship' | 'internship' | 'fellowship'
   deadline: string
   isHot?: boolean
+  slug?: string
+}
+
+type CategoryCounts = {
+  jobs: number
+  scholarships: number
+  internships: number
+  fellowships: number
+  partners?: number
 }
 
 export interface HeroProps {
-  counts?: {
-    jobs: number
-    scholarships: number
-    internships: number
-    partners: number
-  }
   featuredOpportunities?: FeaturedOpportunity[]
+  counts?: CategoryCounts
 }
 
-// Sample featured opportunities for the ad center
-const defaultFeatured: FeaturedOpportunity[] = [
-  { id: '1', title: 'Software Developer Opportunity', organization: 'RefugePoint', category: 'job', deadline: '2024-03-15', isHot: true },
-  { id: '2', title: 'Full Scholarship Program 2024', organization: 'IKEA Foundation', category: 'scholarship', deadline: '2024-04-01', isHot: true },
-  { id: '3', title: 'Youth Leadership Fellowship', organization: 'Amahoro Coalition', category: 'fellowship', deadline: '2024-03-30' },
-]
-
-const categoryColors = {
-  job: 'from-amber-400 to-orange-500',
-  scholarship: 'from-purple-400 to-indigo-500',
-  internship: 'from-blue-400 to-cyan-500',
-  fellowship: 'from-emerald-400 to-teal-500',
+const categoryColors: Record<FeaturedOpportunity['category'], string> = {
+  job: 'from-yellow-400 to-amber-500',
+  scholarship: 'from-purple-500 to-fuchsia-500',
+  internship: 'from-blue-500 to-cyan-500',
+  fellowship: 'from-emerald-500 to-green-500',
 }
 
-const categoryLabels = {
-  job: '💼 Job',
-  scholarship: '🎓 Scholarship',
-  internship: '🏢 Internship',
-  fellowship: '📚 Fellowship',
+const categoryLabels: Record<FeaturedOpportunity['category'], string> = {
+  job: 'Job Opportunity',
+  scholarship: 'Scholarship',
+  internship: 'Internship',
+  fellowship: 'Fellowship',
 }
 
-export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroProps) => {
+export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
 
+  const totalSlides = featuredOpportunities.length
+  const hasSlides = totalSlides > 0
+
+  const currentFeatured = useMemo(
+    () => (hasSlides ? featuredOpportunities[currentSlide] : undefined),
+    [featuredOpportunities, currentSlide, hasSlides]
+  )
+
   const nextSlide = useCallback(() => {
-    if (isAnimating) return
+    if (!hasSlides || isAnimating) return
     setIsAnimating(true)
-    setCurrentSlide((prev) => (prev + 1) % featuredOpportunities.length)
+    setCurrentSlide((prev) => (prev + 1) % totalSlides)
     setTimeout(() => setIsAnimating(false), 500)
-  }, [isAnimating, featuredOpportunities.length])
+  }, [hasSlides, isAnimating, totalSlides])
 
   const prevSlide = useCallback(() => {
-    if (isAnimating) return
+    if (!hasSlides || isAnimating) return
     setIsAnimating(true)
-    setCurrentSlide((prev) => (prev - 1 + featuredOpportunities.length) % featuredOpportunities.length)
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
     setTimeout(() => setIsAnimating(false), 500)
-  }, [isAnimating, featuredOpportunities.length])
+  }, [hasSlides, isAnimating, totalSlides])
 
   // Auto-advance carousel
   useEffect(() => {
+    if (!hasSlides) return
     const timer = setInterval(nextSlide, 5000)
     return () => clearInterval(timer)
-  }, [nextSlide])
+  }, [nextSlide, hasSlides])
 
-  const currentFeatured = featuredOpportunities[currentSlide]
+  const totalActive =
+    (counts?.jobs ?? 0) +
+    (counts?.scholarships ?? 0) +
+    (counts?.internships ?? 0) +
+    (counts?.fellowships ?? 0)
+
+  const particleIndices = useMemo(() => Array.from({ length: 20 }, (_, i) => i + 1), [])
 
   return (
     <header 
@@ -91,7 +104,7 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
       className="relative min-h-[85vh] md:min-h-[90vh] flex items-center overflow-hidden"
     >
       {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#1E3A5F] to-[#0F2847]" />
+      <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-[#1E3A5F] to-[#0F2847]" />
       
       {/* Animated mesh gradient overlay */}
       <div className="absolute inset-0 opacity-30">
@@ -102,22 +115,25 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
 
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-white/20 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${5 + Math.random() * 10}s`,
-            }}
-          />
-        ))}
+        {particleIndices.map((particleId) => {
+          const particleKey = `particle${particleId}` as keyof typeof styles
+          const particleClassName = [
+            'absolute w-2 h-2 bg-white/20 rounded-full animate-float',
+            styles.particle,
+            styles[particleKey],
+          ].join(' ')
+
+          return (
+            <div
+              key={particleId}
+              className={particleClassName}
+            />
+          )
+        })}
       </div>
 
       {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtOS45NDEgMC0xOCA4LjA1OS0xOCAxOHM4LjA1OSAxOCAxOCAxOCAxOC04LjA1OSAxOC0xOC04LjA1OS0xOC0xOC0xOHptMCAzMmMtNy43MzIgMC0xNC02LjI2OC0xNC0xNHM2LjI2OC0xNCAxNC0xNCAxNCA2LjI2OCAxNCAxNC02LjI2OCAxNC0xNCAxNHoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4wMyIvPjwvZz48L3N2Zz4=')] opacity-40" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtOS45NDEgMC0xOCA4LjA1OS0xOCAxOHM4LjA1OSAxOCAxOCAxOCAxOC04LjA1OSAxOC0xOC04LjA1OS0xOC0xOC-18HptMCAzMmMtNy43MzIgMC0xNC02LjI2OC0xNC0xNHM2LjI2OC0xNCAxNC0xNCAxNCA2LjI2OCAxNCAxNC-6LjI2OCAxNC-14 14H0Z' stroke='#fff' stroke-opacity='.03'/></g></svg>')] opacity-40" />
       
       <div className="max-w-7xl mx-auto px-4 relative z-10 w-full py-12">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
@@ -126,7 +142,7 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
             {/* Logo with glow effect */}
             <div className="flex justify-center lg:justify-start mb-4">
               <div className="relative group">
-                <div className="absolute -inset-4 bg-gradient-to-r from-[#2D8FDD] to-[#F5D300] rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+                <div className="absolute -inset-4 bg-linear-to-r from-[#2D8FDD] to-[#F5D300] rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
                 <div className="relative bg-white p-4 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
                   <Image 
                     src="/images/logo.png" 
@@ -150,7 +166,7 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1]">
                 Empowering{' '}
                 <span className="relative">
-                  <span className="bg-gradient-to-r from-[#F5D300] via-[#FFE066] to-[#F5D300] bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+                  <span className="bg-linear-to-r from-[#F5D300] via-[#FFE066] to-[#F5D300] bg-clip-text text-transparent animate-gradient bg-size-[200%_auto]">
                     Banyamulenge
                   </span>
                   <svg className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 12" preserveAspectRatio="none">
@@ -169,7 +185,7 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
             <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
               <Link 
                 href="/categories/jobs"
-                className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-[#F5D300] to-[#FFE066] text-slate-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-[#F5D300]/25 hover:shadow-xl hover:shadow-[#F5D300]/30 transition-all duration-300 transform hover:-translate-y-1"
+                className="group relative inline-flex items-center gap-2 bg-linear-to-r from-[#F5D300] to-[#FFE066] text-slate-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-[#F5D300]/25 hover:shadow-xl hover:shadow-[#F5D300]/30 transition-all duration-300 transform hover:-translate-y-1"
               >
                 <span>Explore Opportunities</span>
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -189,7 +205,7 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
                   <TrendingUp size={20} className="text-[#F5D300]" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-white">{(counts?.jobs ?? 0) + (counts?.scholarships ?? 0) + (counts?.internships ?? 0)}+</div>
+                  <div className="text-2xl font-bold text-white">{totalActive}+</div>
                   <div className="text-xs text-blue-200">Active Opportunities</div>
                 </div>
               </div>
@@ -210,7 +226,7 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
             {/* Featured Opportunity Card */}
             <div className="relative">
               {/* Glow effect behind card */}
-              <div className={`absolute -inset-4 bg-gradient-to-r ${categoryColors[currentFeatured?.category || 'job']} rounded-3xl blur-2xl opacity-20 transition-all duration-500`} />
+              <div className={`absolute -inset-4 bg-linear-to-r ${categoryColors[currentFeatured?.category || 'job']} rounded-3xl blur-2xl opacity-20 transition-all duration-500`} />
               
               {/* Main Card */}
               <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
@@ -221,30 +237,30 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
                     <span className="text-sm font-semibold text-white uppercase tracking-wider">Featured Opportunity</span>
                   </div>
                   {currentFeatured?.isHot && (
-                    <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1 rounded-full text-xs font-bold text-white">
+                    <div className="flex items-center gap-1 bg-linear-to-r from-orange-500 to-red-500 px-3 py-1 rounded-full text-xs font-bold text-white">
                       🔥 Hot
                     </div>
                   )}
                 </div>
 
                 {/* Carousel Content */}
-                <div className="min-h-[200px]">
+                <div className="min-h-50">
                   <div 
                     className={`transition-all duration-500 ${isAnimating ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}
                   >
                     {/* Category Badge */}
-                    <div className={`inline-flex items-center gap-2 bg-gradient-to-r ${categoryColors[currentFeatured?.category || 'job']} px-4 py-2 rounded-xl text-white text-sm font-semibold mb-4`}>
+                    <div className={`inline-flex items-center gap-2 bg-linear-to-r ${categoryColors[currentFeatured?.category || 'job']} px-4 py-2 rounded-xl text-white text-sm font-semibold mb-4`}>
                       {categoryLabels[currentFeatured?.category || 'job']}
                     </div>
                     
                     {/* Title */}
                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-                      {currentFeatured?.title}
+                      {currentFeatured?.title ?? 'Featured opportunity'}
                     </h3>
                     
                     {/* Organization */}
                     <p className="text-blue-200 text-lg mb-4">
-                      by <span className="text-white font-semibold">{currentFeatured?.organization}</span>
+                      by <span className="text-white font-semibold">{currentFeatured?.organization ?? 'Unknown'}</span>
                     </p>
                     
                     {/* Deadline */}
@@ -261,7 +277,7 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
 
                 {/* CTA Button */}
                 <Link 
-                  href={`/opportunities/${currentFeatured?.id}`}
+                  href={currentFeatured?.slug ? `/opportunities/${currentFeatured.slug}` : '/opportunities'}
                   className="group flex items-center justify-center gap-2 w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg hover:bg-[#F5D300] transition-all duration-300 mt-6"
                 >
                   <span>Apply Now</span>
@@ -269,36 +285,38 @@ export const Hero = ({ counts, featuredOpportunities = defaultFeatured }: HeroPr
                 </Link>
 
                 {/* Carousel Controls */}
-                <div className="flex items-center justify-between mt-6">
-                  <div className="flex gap-2">
-                    {featuredOpportunities.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentSlide(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          index === currentSlide ? 'w-8 bg-[#F5D300]' : 'w-2 bg-white/30 hover:bg-white/50'
-                        }`}
-                        aria-label={`Go to slide ${index + 1}`}
-                      />
-                    ))}
+                {hasSlides && (
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="flex gap-2">
+                      {featuredOpportunities.map((opportunity, index) => (
+                        <button
+                          key={opportunity.slug ?? opportunity.id}
+                          onClick={() => setCurrentSlide(index)}
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            index === currentSlide ? 'w-8 bg-[#F5D300]' : 'w-2 bg-white/30 hover:bg-white/50'
+                          }`}
+                          aria-label={`Go to slide ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={prevSlide}
+                        className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
+                        aria-label="Previous opportunity"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button 
+                        onClick={nextSlide}
+                        className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
+                        aria-label="Next opportunity"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={prevSlide}
-                      className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
-                      aria-label="Previous opportunity"
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
-                    <button 
-                      onClick={nextSlide}
-                      className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
-                      aria-label="Next opportunity"
-                    >
-                      <ChevronRight size={20} />
-                    </button>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 

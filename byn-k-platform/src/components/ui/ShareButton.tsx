@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { getCurrentUser } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { Share2 } from 'lucide-react'
 
@@ -30,9 +31,8 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/me')
-        const data = await response.json()
-        setIsAuthenticated(data.authenticated)
+        const user = await getCurrentUser()
+        setIsAuthenticated(!!user)
       } catch (error) {
         console.error('Error checking auth:', error)
       } finally {

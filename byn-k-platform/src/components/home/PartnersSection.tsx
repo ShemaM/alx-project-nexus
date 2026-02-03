@@ -1,9 +1,16 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Building2, ArrowRight, CheckCircle2 } from 'lucide-react'
-import type { Partner } from '@/payload-types'
-import { getLogoUrl, getPartnerTypeLabel } from '@/lib/partner-utils'
+import { Building2, ArrowRight } from 'lucide-react'
+
+// Define a minimal Partner interface based on Django API
+export interface Partner {
+  id: number
+  name: string
+  website?: string
+  logo?: string // URL to the logo image
+  is_featured?: boolean
+}
 
 // Partner with opportunity count type
 export interface PartnerWithCount extends Partner {
@@ -11,7 +18,7 @@ export interface PartnerWithCount extends Partner {
 }
 
 interface PartnersSectionProps {
-  partners?: PartnerWithCount[]
+  partners: PartnerWithCount[]
 }
 
 export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) => {
@@ -56,8 +63,6 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) =>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {partners.slice(0, 6).map((partner) => {
-            const logoUrl = getLogoUrl(partner.logo)
-            
             return (
               <Link 
                 key={partner.id}
@@ -67,9 +72,9 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) =>
                 {/* Logo and Verified Badge */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-20 h-20 bg-gradient-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-xl flex items-center justify-center overflow-hidden p-2">
-                    {logoUrl ? (
+                    {partner.logo ? (
                       <Image 
-                        src={logoUrl} 
+                        src={partner.logo} 
                         alt={`${partner.name} logo`}
                         width={64}
                         height={64}
@@ -79,26 +84,12 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) =>
                       <Building2 size={32} className="text-[#2D8FDD]" />
                     )}
                   </div>
-                  {partner.isActive && (
-                    <div className="flex items-center gap-1 bg-emerald-50 text-[#27AE60] px-2 py-1 rounded-full text-xs font-semibold">
-                      <CheckCircle2 size={12} />
-                      Verified
-                    </div>
-                  )}
                 </div>
 
                 {/* Partner Info */}
                 <h3 className="text-lg font-bold text-[#2D8FDD] mb-1 group-hover:text-[#1E6BB8] transition-colors">
                   {partner.name}
                 </h3>
-                <span className="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-xs font-medium mb-3">
-                  {getPartnerTypeLabel(partner.type)}
-                </span>
-                {partner.description && (
-                  <p className="text-slate-600 text-sm line-clamp-2 mb-3">
-                    {partner.description}
-                  </p>
-                )}
                 
                 {/* Opportunities count */}
                 <div className="flex items-center justify-between pt-3 border-t border-[#E2E8F0]">
