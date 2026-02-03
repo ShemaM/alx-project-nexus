@@ -149,13 +149,19 @@ class ProtectedBrochureView(APIView):
         # Track the brochure view
         ClickAnalytics.track_click(job_id, 'view_brochure')
         
-        # Serve the file
+        # Serve the file using FileResponse which handles file closing
+        # FileResponse accepts a file object and manages its lifecycle
         file_path = job.brochure_upload.path
+        # Get the filename from the path for the Content-Disposition header
+        filename = job.brochure_upload.name.split('/')[-1]
+        
+        # FileResponse handles closing the file automatically
         response = FileResponse(
             open(file_path, 'rb'),
+            as_attachment=False,
+            filename=filename,
             content_type='application/pdf'
         )
-        response['Content-Disposition'] = f'inline; filename="{job.brochure_upload.name}"'
         
         return response
 

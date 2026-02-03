@@ -5,7 +5,7 @@
  * This replaces the Payload CMS data layer.
  */
 
-import { Job, JobFilterParams, APIResponse, ClickAnalytics, transformJobToOpportunityCard, OpportunityCardProps } from '@/types'
+import { Job, JobFilterParams, APIResponse, transformJobToOpportunityCard, OpportunityCardProps } from '@/types'
 
 // API configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'

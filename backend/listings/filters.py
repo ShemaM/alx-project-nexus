@@ -7,6 +7,7 @@ Implements django-filter to allow frontend queries like:
 """
 
 import django_filters
+from django.db import models
 from .models import Job
 
 
@@ -70,12 +71,15 @@ class JobFilter(django_filters.FilterSet):
         Filter jobs by required document type.
         
         Checks if the document is in the required_documents JSONField array.
+        Uses a JSON-compatible approach that works with SQLite and PostgreSQL.
         """
         if not value:
             return queryset
         
-        # Filter where the document type is in the required_documents array
-        return queryset.filter(required_documents__contains=value)
+        # Use icontains for SQLite compatibility
+        # This will search for the value string within the JSON array
+        # For production with PostgreSQL, you could use __contains lookup
+        return queryset.filter(required_documents__icontains=value)
     
     def filter_by_search(self, queryset, name, value):
         """
@@ -98,7 +102,3 @@ class JobFilter(django_filters.FilterSet):
         
         from django.utils import timezone
         return queryset.filter(deadline__gte=timezone.now())
-
-
-# Import models for Q object
-from django.db import models
