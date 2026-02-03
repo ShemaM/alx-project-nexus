@@ -50,3 +50,17 @@ node_modules/
 /playwright/.cache/
 
 .vercel
+
+# Python (for backend)
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
+# Auto-generated test files
+src/app/test-card/layout.tsx
