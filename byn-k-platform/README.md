@@ -233,7 +233,17 @@ Set these in your Vercel project dashboard under **Settings > Environment Variab
 
 ### Backend Deployment
 
-For deploying the Django backend, refer to the instructions in the main [README.md](../README.md) file, specifically the "Backend (Render)" section.
+For deploying the backend, refer to the instructions in the main [README.md](../README.md) file.
+
+### Comprehensive Deployment Guide
+
+For detailed deployment documentation including:
+- CORS configuration for cross-origin requests
+- Vercel and Render platform settings
+- Supabase connection string encoding
+- Environment variable security mapping
+
+See the [Deployment Guide](./docs/DEPLOYMENT.md).
 
 ---
 
