@@ -3,16 +3,15 @@ import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { ArrowLeft, Calendar, CheckCircle2, MapPin, Building2, FileText, Mail, Download, Paperclip } from 'lucide-react'
-import { generateSlug } from '@/types'
-import { getOpportunities, getOrganizationName, mapCategoryForDisplay } from '@/lib/payload'
-import type { Opportunity, Media } from '@/payload-types'
+import { getOpportunityById, getBrochureUrl } from '@/lib/api'
 import OpportunityActions from '@/components/ui/OpportunityActions'
 
 // Force dynamic rendering to fetch data at runtime (requires database connection)
 export const dynamic = 'force-dynamic'
 
 // Helper function to calculate days remaining
-const getDaysRemaining = (deadline: string) => {
+const getDaysRemaining = (deadline: string | null) => {
+  if (!deadline) return null
   const now = new Date()
   const deadlineDate = new Date(deadline)
   const diffTime = deadlineDate.getTime() - now.getTime()
@@ -41,7 +40,8 @@ const getCategoryColor = (category: string) => {
   }
 }
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return 'TBD'
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -49,53 +49,10 @@ const formatDate = (dateString: string) => {
   })
 }
 
-// Helper to extract plain text from rich text content
-const extractTextFromRichText = (description: Opportunity['description']): string => {
-  if (!description || !description.root || !description.root.children) {
-    return 'No description available.'
-  }
-  
-  // Type guard for text node
-  const isTextNode = (node: unknown): node is { text: string } => {
-    return typeof node === 'object' && node !== null && 'text' in node && typeof (node as { text: unknown }).text === 'string'
-  }
-  
-  // Type guard for node with children
-  const hasChildren = (node: unknown): node is { children: unknown[] } => {
-    return typeof node === 'object' && node !== null && 'children' in node && Array.isArray((node as { children: unknown }).children)
-  }
-  
-  const extractText = (children: unknown[]): string => {
-    return children.map((child: unknown) => {
-      if (isTextNode(child)) {
-        return child.text
-      }
-      if (hasChildren(child)) {
-        return extractText(child.children)
-      }
-      return ''
-    }).join('')
-  }
-  
-  return description.root.children.map((paragraph: unknown) => {
-    if (hasChildren(paragraph)) {
-      return extractText(paragraph.children)
-    }
-    return ''
-  }).filter(Boolean).join('\n\n')
-}
-
 // Helper to generate mailto link
 const generateMailtoLink = (email: string, subject?: string | null) => {
   const subjectParam = subject ? `?subject=${encodeURIComponent(subject)}` : ''
   return `mailto:${email}${subjectParam}`
-}
-
-// Helper to get document URL
-const getDocumentUrl = (doc: Opportunity['opportunityDocument']): string | null => {
-  if (!doc) return null
-  if (typeof doc === 'number') return null
-  return (doc as Media).url || null
 }
 
 interface PageProps {
@@ -105,9 +62,18 @@ interface PageProps {
 export default async function OpportunityDetailPage({ params }: PageProps) {
   const { slug } = await params
   
-  // Fetch all opportunities and find by slug
-  const opportunities = await getOpportunities()
-  const opportunity = opportunities.find(opp => generateSlug(opp.title) === slug)
+  // Try to parse slug as ID (Django uses numeric IDs)
+  const opportunityId = parseInt(slug, 10)
+  
+  let opportunity = null
+  
+  try {
+    if (!isNaN(opportunityId)) {
+      opportunity = await getOpportunityById(opportunityId)
+    }
+  } catch (error) {
+    console.error('Error fetching opportunity:', error)
+  }
 
   if (!opportunity) {
     return (
@@ -126,21 +92,20 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
     )
   }
 
-  const daysRemaining = getDaysRemaining(opportunity.deadline)
-  const displayCategory = mapCategoryForDisplay(opportunity.category)
+  const daysRemaining = getDaysRemaining(opportunity.deadline || null)
+  const displayCategory = opportunity.category || 'job'
   const categoryColorClass = getCategoryColor(displayCategory)
-  const organizationName = getOrganizationName(opportunity)
-  const descriptionText = extractTextFromRichText(opportunity.description)
+  const organizationName = opportunity.organization_name
   
   // Application method handling
-  const isEmailApplication = opportunity.applicationType === 'email'
+  const isEmailApplication = opportunity.application_type === 'email'
   const applyUrl = isEmailApplication 
-    ? (opportunity.applicationEmail ? generateMailtoLink(opportunity.applicationEmail, opportunity.emailSubjectLine) : '#')
-    : (opportunity.applyLink || '#')
+    ? (opportunity.application_email ? generateMailtoLink(opportunity.application_email, opportunity.email_subject_line) : '#')
+    : (opportunity.external_url || '#')
   
   // Document handling
-  const hasUploadedDocument = opportunity.descriptionType === 'document' && opportunity.opportunityDocument
-  const documentUrl = getDocumentUrl(opportunity.opportunityDocument)
+  const hasBrochure = opportunity.application_type === 'pdf' && opportunity.brochure_url
+  const brochureUrl = hasBrochure ? getBrochureUrl(opportunity.id) : null
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -165,7 +130,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
               <span className={`text-xs px-3 py-1.5 rounded-full font-semibold uppercase border ${categoryColorClass}`}>
                 {displayCategory}
               </span>
-              {opportunity.isVerified && (
+              {opportunity.is_verified && (
                 <div className="flex items-center gap-1 bg-emerald-50 text-[#27AE60] px-3 py-1.5 rounded-full text-xs font-semibold border border-emerald-200">
                   <CheckCircle2 size={14} />
                   Verified
@@ -189,10 +154,12 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
                 <Building2 size={18} className="text-slate-400" />
                 <span className="font-medium">{organizationName}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin size={18} className="text-slate-400" />
-                <span>Kenya</span>
-              </div>
+              {opportunity.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin size={18} className="text-slate-400" />
+                  <span className="capitalize">{opportunity.location}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -204,16 +171,18 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-1">Deadline</p>
-                <p className={`font-semibold ${daysRemaining <= 7 ? 'text-[#D52B2B]' : 'text-slate-900'}`}>
-                  {formatDate(opportunity.deadline)}
+                <p className={`font-semibold ${daysRemaining !== null && daysRemaining <= 7 ? 'text-[#D52B2B]' : 'text-slate-900'}`}>
+                  {formatDate(opportunity.deadline || null)}
                 </p>
-                <p className={`text-sm ${daysRemaining <= 7 ? 'text-[#D52B2B]' : 'text-slate-500'}`}>
-                  {daysRemaining > 0 ? `${daysRemaining} days remaining` : 'Deadline passed'}
-                </p>
+                {daysRemaining !== null && (
+                  <p className={`text-sm ${daysRemaining <= 7 ? 'text-[#D52B2B]' : 'text-slate-500'}`}>
+                    {daysRemaining > 0 ? `${daysRemaining} days remaining` : 'Deadline passed'}
+                  </p>
+                )}
               </div>
             </div>
             
-            {opportunity.documentation && opportunity.documentation.length > 0 && (
+            {opportunity.required_documents && opportunity.required_documents.length > 0 && (
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-[#2D8FDD]/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <FileText size={20} className="text-[#2D8FDD]" />
@@ -221,7 +190,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
                 <div>
                   <p className="text-xs text-slate-500 mb-1">Accepted Documents</p>
                   <div className="flex flex-wrap gap-1">
-                    {opportunity.documentation.map((doc) => (
+                    {opportunity.required_documents.map((doc) => (
                       <span 
                         key={doc}
                         className="bg-white text-[#2D8FDD] border border-[#2D8FDD]/20 px-2 py-0.5 rounded text-xs font-medium"
@@ -241,52 +210,39 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
               <div>
                 <p className="text-xs text-slate-500 mb-1">Posted</p>
                 <p className="font-semibold text-slate-900">
-                  {formatDate(opportunity.createdAt)}
+                  {formatDate(opportunity.created_at)}
                 </p>
               </div>
             </div>
           </div>
 
           {/* Email Application Requirements */}
-          {isEmailApplication && (opportunity.requiredDocuments || opportunity.applicationEmail) && (
+          {isEmailApplication && opportunity.application_email && (
             <div className="p-6 md:p-8 border-b border-[#E2E8F0] bg-blue-50/50">
               <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <Mail size={20} className="text-[#2D8FDD]" />
                 How to Apply
               </h2>
               <div className="space-y-4">
-                {opportunity.applicationEmail && (
-                  <div className="flex items-start gap-3">
-                    <Paperclip size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-medium text-slate-700">Send your application to:</p>
-                      <a 
-                        href={`mailto:${opportunity.applicationEmail}`}
-                        className="text-[#2D8FDD] hover:underline font-semibold"
-                      >
-                        {opportunity.applicationEmail}
-                      </a>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <Paperclip size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-slate-700">Send your application to:</p>
+                    <a 
+                      href={`mailto:${opportunity.application_email}`}
+                      className="text-[#2D8FDD] hover:underline font-semibold"
+                    >
+                      {opportunity.application_email}
+                    </a>
                   </div>
-                )}
-                {opportunity.emailSubjectLine && (
+                </div>
+                {opportunity.email_subject_line && (
                   <div className="flex items-start gap-3">
                     <FileText size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-slate-700">Subject Line:</p>
                       <p className="text-slate-600 bg-white px-3 py-1.5 rounded border border-slate-200 inline-block mt-1">
-                        {opportunity.emailSubjectLine}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {opportunity.requiredDocuments && (
-                  <div className="flex items-start gap-3">
-                    <FileText size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-medium text-slate-700 mb-2">Required Documents:</p>
-                      <p className="text-slate-600 whitespace-pre-wrap bg-white p-3 rounded border border-slate-200">
-                        {opportunity.requiredDocuments}
+                        {opportunity.email_subject_line}
                       </p>
                     </div>
                   </div>
@@ -295,13 +251,11 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Description */}
-          <div className="p-6 md:p-8">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">About this opportunity</h2>
-            
-            {/* Show document download if available */}
-            {hasUploadedDocument && documentUrl && (
-              <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+          {/* PDF Brochure Download */}
+          {hasBrochure && brochureUrl && (
+            <div className="p-6 md:p-8 border-b border-[#E2E8F0]">
+              <h2 className="text-lg font-bold text-slate-900 mb-4">Opportunity Details</h2>
+              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-[#2D8FDD]/10 rounded-lg flex items-center justify-center">
@@ -313,7 +267,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <a 
-                    href={documentUrl}
+                    href={brochureUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
@@ -323,17 +277,32 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
                   </a>
                 </div>
               </div>
-            )}
-            
-            {/* Show text description */}
-            <div className="prose prose-slate max-w-none">
-              {descriptionText.split('\n').map((paragraph, index) => (
-                <p key={index} className="text-slate-600 mb-4 last:mb-0 whitespace-pre-wrap">
-                  {paragraph}
-                </p>
-              ))}
             </div>
-          </div>
+          )}
+
+          {/* Prep Checklist */}
+          {opportunity.prep_checklist && opportunity.prep_checklist.length > 0 && (
+            <div className="p-6 md:p-8 border-b border-[#E2E8F0]">
+              <h2 className="text-lg font-bold text-slate-900 mb-4">Preparation Checklist</h2>
+              <ul className="space-y-2">
+                {opportunity.prep_checklist.map((item, index) => {
+                  const itemText = typeof item === 'string' ? item : (item && typeof item === 'object' ? item.item : String(item))
+                  const isRequired = typeof item === 'object' && item !== null && 'required' in item && item.required
+                  return (
+                    <li key={index} className="flex items-start gap-2">
+                      <CheckCircle2 size={18} className="text-[#27AE60] mt-0.5 flex-shrink-0" />
+                      <span className="text-slate-700">
+                        {itemText}
+                        {isRequired && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
 
           {/* Actions */}
           <OpportunityActions 

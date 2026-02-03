@@ -15,9 +15,12 @@ const categories = [
 ]
 
 interface UserData {
-  id: number
-  email: string
+  id?: number | string
+  email?: string
   name?: string | null
+  username?: string | null
+  is_admin?: boolean
+  is_staff?: boolean
   roles?: string[]
 }
 
@@ -32,7 +35,8 @@ export const Navbar = () => {
     const checkAuth = async () => {
       try {
         const currentUser = await getCurrentUser()
-        setUser(currentUser)
+        // Cast to UserData type since getCurrentUser returns Record<string, unknown>
+        setUser(currentUser as UserData | null)
       } catch (error) {
         console.error('Error checking auth:', error)
       } finally {
@@ -129,7 +133,7 @@ export const Navbar = () => {
                         className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#2D8FDD] transition-colors"
                       >
                         <div className="w-8 h-8 bg-[#2D8FDD] text-white rounded-full flex items-center justify-center">
-                          {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+                          {(user.name || user.username || user.email || 'U')[0].toUpperCase()}
                         </div>
                         <ChevronDown size={16} className={`transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                       </button>
@@ -141,8 +145,8 @@ export const Navbar = () => {
                           />
                           <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-[#E2E8F0] py-2 z-20">
                             <div className="px-4 py-2 border-b border-[#E2E8F0]">
-                              <p className="text-sm font-medium text-slate-700 truncate">{user.name || 'User'}</p>
-                              <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                              <p className="text-sm font-medium text-slate-700 truncate">{user.name || user.username || 'User'}</p>
+                              <p className="text-xs text-slate-500 truncate">{user.email || ''}</p>
                             </div>
                             <Link
                               href="/bookmarks"
@@ -239,11 +243,11 @@ export const Navbar = () => {
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 py-2">
                         <div className="w-10 h-10 bg-[#2D8FDD] text-white rounded-full flex items-center justify-center font-semibold">
-                          {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+                          {(user.name || user.username || user.email || 'U')[0].toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-slate-700">{user.name || 'User'}</p>
-                          <p className="text-sm text-slate-500">{user.email}</p>
+                          <p className="font-medium text-slate-700">{user.name || user.username || 'User'}</p>
+                          <p className="text-sm text-slate-500">{user.email || ''}</p>
                         </div>
                       </div>
                       <Link 

@@ -15,25 +15,33 @@ async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  // 2. Fixed: endpoint should start with / so this becomes .../api/endpoint
+  // endpoint should start with / so this becomes .../api/endpoint
   const url = `${API_BASE_URL}${endpoint}`
   
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: 'include',
-  })
-  
-  if (!response.ok) {
-    // Helpful for debugging: logs the exact URL that failed
-    console.error(`Fetch failed for ${url}: ${response.status}`);
-    throw new Error(`API Error: ${response.status} ${response.statusText}`)
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      credentials: 'include',
+      // Add timeout for fetch during build time
+      signal: AbortSignal.timeout(5000),
+    })
+    
+    if (!response.ok) {
+      // Helpful for debugging: logs the exact URL that failed
+      console.error(`Fetch failed for ${url}: ${response.status}`);
+      throw new Error(`API Error: ${response.status} ${response.statusText}`)
+    }
+    
+    return response.json()
+  } catch (error) {
+    // Log but don't crash on network errors (e.g., during build)
+    console.error(`API fetch error for ${url}:`, error)
+    throw error
   }
-  
-  return response.json()
 }
 
 /**

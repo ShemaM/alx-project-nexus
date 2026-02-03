@@ -1,35 +1,48 @@
-import { getPayload } from 'payload'
-import configPromise from '@/payload.config'
 import { NextRequest, NextResponse } from 'next/server'
 
+// Base API URL for Django backend
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '')
+
 // GET /api/bookmarks - List user's bookmarks
+// Note: Bookmarks feature is not yet implemented in Django backend
 export async function GET(request: NextRequest) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    // Get auth token from cookies
+    const authToken = request.cookies.get('auth-token')?.value
 
-    // Get user from session/headers (Payload handles this via cookies)
-    const { user } = await payload.auth({ headers: request.headers })
-
-    if (!user) {
+    if (!authToken) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       )
     }
 
-    const bookmarks = await payload.find({
-      collection: 'bookmarks',
-      where: {
-        user: { equals: user.id },
-      },
-      depth: 2, // Include opportunity and organization details
-      sort: '-createdAt',
-    })
+    // Try to get bookmarks from Django backend
+    try {
+      const djangoResponse = await fetch(`${API_BASE_URL}/bookmarks/`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      })
 
+      if (djangoResponse.ok) {
+        const data = await djangoResponse.json()
+        return NextResponse.json({
+          success: true,
+          bookmarks: data.results || data.bookmarks || [],
+          totalDocs: data.count || data.total || 0,
+        })
+      }
+    } catch {
+      // Bookmarks endpoint may not exist yet
+    }
+
+    // Default response if bookmarks not implemented
     return NextResponse.json({
       success: true,
-      bookmarks: bookmarks.docs,
-      totalDocs: bookmarks.totalDocs,
+      bookmarks: [],
+      totalDocs: 0,
+      message: 'Bookmarks feature coming soon',
     })
   } catch (error) {
     console.error('Error fetching bookmarks:', error)
@@ -43,12 +56,10 @@ export async function GET(request: NextRequest) {
 // POST /api/bookmarks - Add a bookmark
 export async function POST(request: NextRequest) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    // Get auth token from cookies
+    const authToken = request.cookies.get('auth-token')?.value
 
-    // Get user from session
-    const { user } = await payload.auth({ headers: request.headers })
-
-    if (!user) {
+    if (!authToken) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -65,52 +76,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if opportunity exists
-    const opportunity = await payload.findByID({
-      collection: 'opportunities',
-      id: opportunityId,
-    })
+    // Try to create bookmark via Django backend
+    try {
+      const djangoResponse = await fetch(`${API_BASE_URL}/bookmarks/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          opportunity_id: opportunityId,
+          notes: notes || null,
+        }),
+      })
 
-    if (!opportunity) {
-      return NextResponse.json(
-        { error: 'Opportunity not found' },
-        { status: 404 }
-      )
+      if (djangoResponse.ok) {
+        const bookmark = await djangoResponse.json()
+        return NextResponse.json({
+          success: true,
+          bookmark,
+        }, { status: 201 })
+      }
+
+      if (djangoResponse.status === 409) {
+        return NextResponse.json(
+          { error: 'Opportunity already bookmarked' },
+          { status: 409 }
+        )
+      }
+    } catch {
+      // Bookmarks endpoint may not exist yet
     }
 
-    // Check if already bookmarked
-    const existing = await payload.find({
-      collection: 'bookmarks',
-      where: {
-        and: [
-          { user: { equals: user.id } },
-          { opportunity: { equals: opportunityId } },
-        ],
-      },
-      limit: 1,
-    })
-
-    if (existing.totalDocs > 0) {
-      return NextResponse.json(
-        { error: 'Opportunity already bookmarked' },
-        { status: 409 }
-      )
-    }
-
-    // Create bookmark
-    const bookmark = await payload.create({
-      collection: 'bookmarks',
-      data: {
-        user: user.id,
-        opportunity: opportunityId,
-        notes: notes || null,
-      },
-    })
-
-    return NextResponse.json({
-      success: true,
-      bookmark,
-    }, { status: 201 })
+    // Default response if bookmarks not implemented
+    return NextResponse.json(
+      { error: 'Bookmarks feature coming soon' },
+      { status: 501 }
+    )
   } catch (error) {
     console.error('Error creating bookmark:', error)
     return NextResponse.json(
@@ -123,12 +125,10 @@ export async function POST(request: NextRequest) {
 // DELETE /api/bookmarks - Remove a bookmark
 export async function DELETE(request: NextRequest) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    // Get auth token from cookies
+    const authToken = request.cookies.get('auth-token')?.value
 
-    // Get user from session
-    const { user } = await payload.auth({ headers: request.headers })
-
-    if (!user) {
+    if (!authToken) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -153,34 +153,40 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Find and delete the bookmark
-    const existing = await payload.find({
-      collection: 'bookmarks',
-      where: {
-        and: [
-          { user: { equals: user.id } },
-          { opportunity: { equals: opportunityIdNum } },
-        ],
-      },
-      limit: 1,
-    })
-
-    if (existing.totalDocs === 0) {
-      return NextResponse.json(
-        { error: 'Bookmark not found' },
-        { status: 404 }
+    // Try to delete bookmark via Django backend
+    try {
+      const djangoResponse = await fetch(
+        `${API_BASE_URL}/bookmarks/?opportunity_id=${opportunityIdNum}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        }
       )
+
+      if (djangoResponse.ok) {
+        return NextResponse.json({
+          success: true,
+          message: 'Bookmark removed',
+        })
+      }
+
+      if (djangoResponse.status === 404) {
+        return NextResponse.json(
+          { error: 'Bookmark not found' },
+          { status: 404 }
+        )
+      }
+    } catch {
+      // Bookmarks endpoint may not exist yet
     }
 
-    await payload.delete({
-      collection: 'bookmarks',
-      id: existing.docs[0].id,
-    })
-
-    return NextResponse.json({
-      success: true,
-      message: 'Bookmark removed',
-    })
+    // Default response if bookmarks not implemented
+    return NextResponse.json(
+      { error: 'Bookmarks feature coming soon' },
+      { status: 501 }
+    )
   } catch (error) {
     console.error('Error deleting bookmark:', error)
     return NextResponse.json(

@@ -1,16 +1,16 @@
-import { getPayload } from 'payload'
-import configPromise from '@/payload.config'
 import { NextRequest, NextResponse } from 'next/server'
 
+// Base API URL for Django backend
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '')
+
 // GET /api/bookmarks/check?opportunityId=123 - Check if opportunity is bookmarked
+// Note: Bookmarks feature is not yet implemented in Django backend
 export async function GET(request: NextRequest) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    // Get auth token from cookies
+    const authToken = request.cookies.get('auth-token')?.value
 
-    // Get user from session
-    const { user } = await payload.auth({ headers: request.headers })
-
-    if (!user) {
+    if (!authToken) {
       return NextResponse.json({
         isBookmarked: false,
         authenticated: false,
@@ -35,21 +35,35 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const existing = await payload.find({
-      collection: 'bookmarks',
-      where: {
-        and: [
-          { user: { equals: user.id } },
-          { opportunity: { equals: opportunityIdNum } },
-        ],
-      },
-      limit: 1,
-    })
+    // Try to check bookmark status via Django backend
+    try {
+      const djangoResponse = await fetch(
+        `${API_BASE_URL}/bookmarks/check/?opportunity_id=${opportunityIdNum}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        }
+      )
 
+      if (djangoResponse.ok) {
+        const data = await djangoResponse.json()
+        return NextResponse.json({
+          isBookmarked: data.is_bookmarked || false,
+          authenticated: true,
+          bookmarkId: data.bookmark_id || null,
+        })
+      }
+    } catch {
+      // Bookmarks endpoint may not exist yet in Django
+    }
+
+    // Default response if bookmarks not implemented
     return NextResponse.json({
-      isBookmarked: existing.totalDocs > 0,
+      isBookmarked: false,
       authenticated: true,
-      bookmarkId: existing.docs[0]?.id || null,
+      bookmarkId: null,
+      message: 'Bookmarks feature coming soon',
     })
   } catch (error) {
     console.error('Error checking bookmark:', error)

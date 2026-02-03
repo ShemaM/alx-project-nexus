@@ -3,45 +3,47 @@ import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { ArrowLeft, Briefcase, GraduationCap, Building, Award } from 'lucide-react'
-import { generateSlug } from '@/types'
-import type { Opportunity, Media } from '@/payload-types'
+import { getOpportunities } from '@/lib/api'
 
 // Force dynamic rendering to fetch data at runtime
 export const dynamic = 'force-dynamic'
 
+// Map URL category to Django model category
+const categoryUrlToDb: Record<string, string> = {
+  jobs: 'job',
+  scholarships: 'scholarship',
+  internships: 'internship',
+  fellowships: 'fellowship',
+  training: 'training',
+}
+
 // Category metadata
-const categoryMeta: Record<string, { title: string; description: string; icon: React.ElementType; color: string; dbCategory: string }> = {
+const categoryMeta: Record<string, { title: string; description: string; icon: React.ElementType; color: string }> = {
   jobs: {
     title: 'Jobs',
     description: 'Find verified job opportunities suitable for your documentation status',
     icon: Briefcase,
     color: 'bg-yellow-50 text-[#F5D300]',
-    dbCategory: 'jobs'
   },
   scholarships: {
     title: 'Scholarships',
     description: 'Discover scholarship programs for refugees and displaced youth',
     icon: GraduationCap,
     color: 'bg-purple-50 text-purple-600',
-    dbCategory: 'scholarships'
   },
   internships: {
     title: 'Internships',
     description: 'Gain valuable work experience through internship programs',
     icon: Building,
     color: 'bg-blue-50 text-[#2D8FDD]',
-    dbCategory: 'internships'
   },
   fellowships: {
     title: 'Fellowships',
     description: 'Access fellowship opportunities for professional development',
     icon: Award,
     color: 'bg-green-50 text-green-600',
-    dbCategory: 'fellowships'
   }
 }
-
-
 
 interface PageProps {
   params: Promise<{ category: string }>
@@ -69,8 +71,15 @@ export default async function CategoryPage({ params }: PageProps) {
     )
   }
 
-  // Fetch real opportunities from Payload CMS
-  const transformedOpportunities = [];
+  // Fetch opportunities from Django API filtered by category
+  let opportunities: Array<{ id: number; title: string; organization_name: string; deadline?: string | null }> = []
+  try {
+    const dbCategory = categoryUrlToDb[category] || category
+    const response = await getOpportunities({ category: dbCategory as 'job' | 'scholarship' | 'internship' | 'fellowship' | 'training' })
+    opportunities = response?.data || []
+  } catch (error) {
+    console.error('Error fetching opportunities:', error)
+  }
 
   const Icon = meta.icon
 
@@ -98,7 +107,7 @@ export default async function CategoryPage({ params }: PageProps) {
           </p>
           <div className="mt-6">
             <span className="text-[#F5D300] font-bold text-lg">
-              {transformedOpportunities.length} {transformedOpportunities.length === 1 ? 'opportunity' : 'opportunities'} available
+              {opportunities.length} {opportunities.length === 1 ? 'opportunity' : 'opportunities'} available
             </span>
           </div>
         </div>
@@ -107,17 +116,29 @@ export default async function CategoryPage({ params }: PageProps) {
       {/* Opportunities List */}
       <section className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex flex-col gap-4">
-          {transformedOpportunities.length > 0 ? (
-            transformedOpportunities.map((opp) => (
-              <div key={opp.id} className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-bold">{opp.title}</h2>
-                <p className="text-gray-600">{opp.organizationName}</p>
-              </div>
+          {opportunities.length > 0 ? (
+            opportunities.map((opp) => (
+              <Link 
+                key={opp.id} 
+                href={`/opportunities/${opp.id}`}
+                className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+              >
+                <h2 className="text-xl font-bold text-[#2D8FDD]">{opp.title}</h2>
+                <p className="text-gray-600">{opp.organization_name}</p>
+                {opp.deadline && (
+                  <p className="text-sm text-slate-500 mt-2">
+                    Deadline: {new Date(opp.deadline).toLocaleDateString()}
+                  </p>
+                )}
+              </Link>
             ))
           ) : (
             <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-[#E2E8F0]">
-              <p className="text-lg">No {meta.title.toLowerCase()} found</p>
-              <p className="text-sm mt-2">Check back later for new listings</p>
+              <div className={`w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 ${meta.color}`}>
+                <Icon size={32} />
+              </div>
+              <p className="text-lg font-medium">No {meta.title.toLowerCase()} found</p>
+              <p className="text-sm mt-2">Check back later for new listings or add them via Django Admin</p>
             </div>
           )}
         </div>

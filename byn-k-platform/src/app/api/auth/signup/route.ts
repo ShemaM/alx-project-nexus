@@ -1,12 +1,11 @@
-import { getPayload } from 'payload'
-import configPromise from '@/payload.config'
 import { NextRequest, NextResponse } from 'next/server'
 
-// POST /api/auth/signup - Register a new user
+// Base API URL for Django backend
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '')
+
+// POST /api/auth/signup - Register a new user via Django backend
 export async function POST(request: NextRequest) {
   try {
-    const payload = await getPayload({ config: configPromise })
-
     const body = await request.json()
     const { email, password, name } = body
 
@@ -35,57 +34,51 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already exists
-    const existingUser = await payload.find({
-      collection: 'users',
-      where: {
-        email: { equals: email.toLowerCase() },
+    // Forward the registration request to Django backend
+    const djangoResponse = await fetch(`${API_BASE_URL}/auth/register/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      limit: 1,
+      body: JSON.stringify({
+        email: email.toLowerCase(),
+        username: email.toLowerCase().split('@')[0], // Use email prefix as username
+        password,
+        first_name: name?.split(' ')[0] || '',
+        last_name: name?.split(' ').slice(1).join(' ') || '',
+      }),
     })
 
-    if (existingUser.totalDocs > 0) {
+    const responseData = await djangoResponse.json()
+
+    if (!djangoResponse.ok) {
+      // Handle Django validation errors
+      const errorMessage = responseData.detail || 
+        responseData.email?.[0] || 
+        responseData.username?.[0] || 
+        responseData.password?.[0] || 
+        'Failed to create account'
+      
       return NextResponse.json(
-        { error: 'An account with this email already exists' },
-        { status: 409 }
+        { error: errorMessage },
+        { status: djangoResponse.status }
       )
     }
 
-    // Create the new user
-    const user = await payload.create({
-      collection: 'users',
-      data: {
-        email: email.toLowerCase(),
-        password,
-        name: name || null,
-        roles: ['user'], // Default role
-      },
-    })
-
-    // Log the user in after registration
-    const loginResult = await payload.login({
-      collection: 'users',
-      data: {
-        email: email.toLowerCase(),
-        password,
-      },
-    })
-
-    // Create response with auth token cookie
+    // Create response with user data
     const response = NextResponse.json({
       success: true,
       message: 'Account created successfully',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name || null,
-        roles: user.roles,
+      user: responseData.user || {
+        id: responseData.id,
+        email: responseData.email,
+        username: responseData.username,
       },
     }, { status: 201 })
 
-    // Set the auth token as a cookie
-    if (loginResult.token) {
-      response.cookies.set('payload-token', loginResult.token, {
+    // Set auth token cookie if returned by Django
+    if (responseData.token) {
+      response.cookies.set('auth-token', responseData.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',

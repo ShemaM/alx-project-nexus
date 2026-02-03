@@ -144,7 +144,7 @@ class JobAPITests(TestCase):
     
     def test_list_jobs(self):
         """Test listing active jobs."""
-        response = self.client.get('/api/jobs/')
+        response = self.client.get('/api/opportunities/')
         
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -158,7 +158,7 @@ class JobAPITests(TestCase):
     
     def test_filter_by_category(self):
         """Test filtering by category."""
-        response = self.client.get('/api/jobs/?category=scholarship')
+        response = self.client.get('/api/opportunities/?category=scholarship')
         
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -168,7 +168,7 @@ class JobAPITests(TestCase):
     
     def test_filter_by_docs(self):
         """Test filtering by required documents."""
-        response = self.client.get('/api/jobs/?docs=ctd')
+        response = self.client.get('/api/opportunities/?docs=ctd')
         
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -178,7 +178,7 @@ class JobAPITests(TestCase):
     
     def test_search_filter(self):
         """Test search functionality."""
-        response = self.client.get('/api/jobs/?search=software')
+        response = self.client.get('/api/opportunities/?search=software')
         
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -188,7 +188,7 @@ class JobAPITests(TestCase):
     
     def test_job_detail(self):
         """Test retrieving a single job."""
-        response = self.client.get(f'/api/jobs/{self.job1.id}/')
+        response = self.client.get(f'/api/opportunities/{self.job1.id}/')
         
         self.assertEqual(response.status_code, 200)
         data = response.json()
