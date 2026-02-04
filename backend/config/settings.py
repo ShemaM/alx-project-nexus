@@ -24,6 +24,10 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 
 # Application definition
 INSTALLED_APPS = [
+    # Django Unfold Admin Theme (must be before django.contrib.admin)
+    'unfold',
+    'unfold.contrib.filters',
+    # Django core apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

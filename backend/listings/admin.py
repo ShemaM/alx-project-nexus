@@ -3,11 +3,13 @@ Listings Admin Configuration.
 
 Phase 4: Admin "WhatsApp-to-Web" Efficiency
 Custom admin forms for quick content entry from WhatsApp messages.
+Uses Django Unfold for modern, Tailwind-based SaaS look.
 """
 
 from django.contrib import admin
 from django.conf import settings
 from django import forms
+from unfold.admin import ModelAdmin
 from .models import Job, ClickAnalytics
 
 # ============================================
@@ -55,8 +57,15 @@ class JobAdminForm(forms.ModelForm):
 
 
 @admin.register(Job)
-class JobAdmin(admin.ModelAdmin):
-    """Admin configuration for Job listings."""
+class JobAdmin(ModelAdmin):
+    """
+    Admin configuration for Job listings using Django Unfold.
+    
+    Provides a modern, Tailwind-based admin interface with:
+    - Search capabilities for Title and Organization
+    - Filters for application_type, location, and is_verified (WhatsApp verified)
+    - Fieldsets organized into collapsible sections
+    """
     
     form = JobAdminForm
     
@@ -72,16 +81,18 @@ class JobAdmin(admin.ModelAdmin):
         'created_at'
     ]
     
+    # Search capabilities for Title and Organization
+    search_fields = ['title', 'organization_name']
+    
+    # Filters for application_type, location, and is_verified (WhatsApp verified)
     list_filter = [
-        'is_verified',
+        'application_type',
+        'location',
+        'is_verified',  # WhatsApp verified status
         'is_active',
         'is_featured',
         'category',
-        'application_type',
-        'location',
     ]
-    
-    search_fields = ['title', 'organization_name', 'raw_data']
     
     date_hierarchy = 'created_at'
     
@@ -89,39 +100,54 @@ class JobAdmin(admin.ModelAdmin):
     
     readonly_fields = ['created_at', 'updated_at', 'total_clicks']
     
+    # Fieldsets organized into collapsible sections
     fieldsets = (
-        ('Basic Information', {
-            'fields': ('title', 'organization_name', 'category', 'location')
+        ('Opportunity Details', {
+            'fields': (
+                'title', 
+                'organization_name', 
+                'category', 
+                'location',
+                'deadline',
+                'is_verified',
+                'is_active',
+                'is_featured',
+            ),
+            'classes': ['tab'],
+            'description': 'Core opportunity information and status settings.'
         }),
-        ('Application Details', {
+        ('Gateway Logic', {
             'fields': (
                 'application_type', 
                 'external_url', 
                 'application_email',
                 'email_subject_line',
-                'brochure_upload'
-            )
+                'brochure_upload',
+                'required_documents', 
+                'prep_checklist',
+            ),
+            'classes': ['tab'],
+            'description': 'Configure how users apply and what documents are required.'
         }),
-        ('Requirements & Preparation', {
-            'fields': ('required_documents', 'prep_checklist'),
-            'description': 'Enter JSON arrays for documents and checklist items.'
+        ('Analytics', {
+            'fields': (
+                'total_clicks',
+                'created_by', 
+                'created_at', 
+                'updated_at',
+            ),
+            'classes': ['tab'],
+            'description': 'View performance metrics and metadata.'
         }),
         ('WhatsApp Raw Data (Quick Entry)', {
             'fields': ('raw_data',),
-            'classes': ('collapse',),
+            'classes': ['tab', 'collapse'],
             'description': 'Paste the original WhatsApp message for reference.'
-        }),
-        ('Status & Visibility', {
-            'fields': ('is_verified', 'is_active', 'is_featured', 'deadline')
-        }),
-        ('Metadata', {
-            'fields': ('created_by', 'created_at', 'updated_at'),
-            'classes': ('collapse',)
         }),
     )
     
     def total_clicks(self, obj):
-        """Display total clicks for this job."""
+        """Display total clicks for this job (read-only)."""
         total = sum(a.click_count for a in obj.click_analytics.all())
         return total
     total_clicks.short_description = 'Total Clicks'
@@ -134,8 +160,8 @@ class JobAdmin(admin.ModelAdmin):
 
 
 @admin.register(ClickAnalytics)
-class ClickAnalyticsAdmin(admin.ModelAdmin):
-    """Admin configuration for Click Analytics."""
+class ClickAnalyticsAdmin(ModelAdmin):
+    """Admin configuration for Click Analytics using Django Unfold."""
     
     list_display = ['job', 'click_type', 'click_count', 'last_clicked_at']
     list_filter = ['click_type', 'last_clicked_at']
