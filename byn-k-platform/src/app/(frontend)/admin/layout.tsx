@@ -12,9 +12,9 @@ interface User {
 
 export default async function AdminLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const user = await getCurrentUser() as User | null;
 
   // Check for admin access - support both Django's is_admin/is_staff and roles array
