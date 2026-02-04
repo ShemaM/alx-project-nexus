@@ -46,7 +46,13 @@ export interface Opportunity {
   disclaimer?: string
 }
 
-
+// Partner interface
+export interface Partner {
+  id: number;
+  name: string;
+  logo_url: string;
+  website_url?: string | null;
+}
 
 // API Response wrapper with disclaimer
 

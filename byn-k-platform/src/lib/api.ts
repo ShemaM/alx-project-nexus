@@ -150,3 +150,36 @@ export async function register(data: Record<string, unknown>): Promise<AuthRespo
     body: JSON.stringify(data),
   })
 }
+
+// ============================================
+// Partner Management API
+// ============================================
+import { Partner } from '@/types';
+
+export async function getPartners(): Promise<APIResponse<Partner[]>> {
+  const response = await apiFetch<APIResponse<Partner[]>>('/partners/');
+  return {
+    ...response,
+    data: (response as unknown as { results: Partner[] }).results || [],
+  };
+}
+
+export async function createPartner(partnerData: Omit<Partner, 'id'>): Promise<Partner> {
+  return apiFetch<Partner>('/partners/', {
+    method: 'POST',
+    body: JSON.stringify(partnerData),
+  });
+}
+
+export async function updatePartner(id: number, partnerData: Partial<Partner>): Promise<Partner> {
+  return apiFetch<Partner>(`/partners/${id}/`, {
+    method: 'PUT',
+    body: JSON.stringify(partnerData),
+  });
+}
+
+export async function deletePartner(id: number): Promise<void> {
+  return apiFetch<void>(`/partners/${id}/`, {
+    method: 'DELETE',
+  });
+}

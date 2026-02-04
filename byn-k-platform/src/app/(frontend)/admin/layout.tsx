@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { getCurrentUser } from '@/lib/api';
 import { redirect } from 'next/navigation';
@@ -30,9 +31,17 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
-      <main className="flex-1 p-8">
-        {children}
-      </main>
+      <div className="flex-1 flex flex-col">
+        <header className="bg-white shadow-sm h-16 flex items-center justify-between px-8 border-b border-gray-200">
+          <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
+          <Link href="/" className="text-blue-600 hover:underline">
+            View Site
+          </Link>
+        </header>
+        <main className="flex-1 p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
