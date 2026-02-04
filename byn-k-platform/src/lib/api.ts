@@ -68,11 +68,16 @@ function buildQueryString(params: OpportunityFilterParams): string {
 // ============================================
 
 export async function getOpportunities(filters?: OpportunityFilterParams): Promise<APIResponse<Opportunity[]>> {
-  const queryString = filters ? buildQueryString(filters) : '/'
-  const response = await apiFetch<APIResponse<Opportunity[]>>(`/opportunities${queryString}`)
-  return {
-    ...response,
-    data: (response as unknown as { results: Opportunity[] }).results || [],
+  try {
+    const queryString = filters ? buildQueryString(filters) : '/'
+    const response = await apiFetch<APIResponse<Opportunity[]>>(`/opportunities${queryString}`)
+    return {
+      ...response,
+      data: (response as unknown as { results: Opportunity[] }).results || [],
+    }
+  } catch {
+    // Return empty data when backend is unavailable (build time or dev without backend)
+    return { data: [], disclaimer: '' }
   }
 }
 
@@ -81,11 +86,16 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
 }
 
 export async function getFeaturedOpportunities(): Promise<APIResponse<Opportunity[]>> {
-  // 4. Fixed: Added trailing slash before query params
-  const response = await apiFetch<APIResponse<Opportunity[]>>('/opportunities/?is_featured=true')
-  return {
-    ...response,
-    data: (response as unknown as { results: Opportunity[] }).results || [],
+  try {
+    // 4. Fixed: Added trailing slash before query params
+    const response = await apiFetch<APIResponse<Opportunity[]>>('/opportunities/?is_featured=true')
+    return {
+      ...response,
+      data: (response as unknown as { results: Opportunity[] }).results || [],
+    }
+  } catch {
+    // Return empty data when backend is unavailable (build time or dev without backend)
+    return { data: [], disclaimer: '' }
   }
 }
 
@@ -117,7 +127,12 @@ export interface AnalyticsOverview {
 }
 
 export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
-  return apiFetch('/analytics/')
+  try {
+    return await apiFetch('/analytics/')
+  } catch {
+    // Return empty analytics when backend is unavailable
+    return {}
+  }
 }
 
 type AuthResponse = Record<string, unknown>
@@ -157,11 +172,16 @@ export async function register(data: Record<string, unknown>): Promise<AuthRespo
 import { Partner } from '@/types';
 
 export async function getPartners(): Promise<APIResponse<Partner[]>> {
-  const response = await apiFetch<APIResponse<Partner[]>>('/partners/');
-  return {
-    ...response,
-    data: (response as unknown as { results: Partner[] }).results || [],
-  };
+  try {
+    const response = await apiFetch<APIResponse<Partner[]>>('/partners/');
+    return {
+      ...response,
+      data: (response as unknown as { results: Partner[] }).results || [],
+    };
+  } catch {
+    // Return empty data when backend is unavailable (build time or dev without backend)
+    return { data: [], disclaimer: '' };
+  }
 }
 
 export async function createPartner(partnerData: Omit<Partner, 'id'>): Promise<Partner> {
