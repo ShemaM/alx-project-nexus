@@ -2,10 +2,11 @@
  * Hero Component
  * 
  * Revamped hero section serving as an ad center featuring:
- * - Animated gradient background with floating elements
+ * - Full-width background image with dark blue/slate gradient overlay
+ * - Distinctive white logo container box
  * - Featured opportunities carousel/spotlight
  * - Dynamic statistics with animated counters
- * - Modern glassmorphism design
+ * - Modern glassmorphism design with backdrop-blur
  * - Engaging call-to-action buttons
  * 
  * Includes data-tour attribute for onboarding tour integration.
@@ -103,8 +104,20 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
       data-tour="hero"
       className="relative min-h-[85vh] md:min-h-[90vh] flex items-center overflow-hidden"
     >
-      {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-[#1E3A5F] to-[#0F2847]" />
+      {/* Full-width Background Image with Dark Blue/Slate Gradient Overlay */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/hero-bg.jpg"
+          alt="Hero background"
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
+        />
+        {/* Dark blue/slate gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-slate-900/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-[#1E3A5F]/70 to-[#0F2847]/80" />
+      </div>
       
       {/* Animated mesh gradient overlay */}
       <div className="absolute inset-0 opacity-30">
@@ -139,20 +152,17 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Column - Branding & CTA */}
           <div className="text-center lg:text-left space-y-6">
-            {/* Logo with glow effect */}
-            <div className="flex justify-center lg:justify-start mb-4">
-              <div className="relative group">
-                <div className="absolute -inset-4 bg-linear-to-r from-[#2D8FDD] to-[#F5D300] rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
-                <div className="relative bg-white p-4 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
-                  <Image 
-                    src="/images/logo.png" 
-                    alt="BANYAMULENGE YOUTH KENYA Logo" 
-                    width={80} 
-                    height={80}
-                    className="w-16 h-16 md:w-20 md:h-20"
-                    priority
-                  />
-                </div>
+            {/* Logo Box - Distinctive white container (Critical) */}
+            <div className="flex justify-center lg:justify-start mb-6">
+              <div className="bg-white p-3 rounded-2xl shadow-lg inline-block">
+                <Image 
+                  src="/images/logo.png" 
+                  alt="BANYAMULENGE YOUTH KENYA Logo" 
+                  width={80} 
+                  height={80}
+                  className="w-16 h-16 md:w-20 md:h-20"
+                  priority
+                />
               </div>
             </div>
             
@@ -221,14 +231,14 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
             </div>
           </div>
           
-          {/* Right Column - Featured Opportunity Ad Center */}
+          {/* Right Column - Featured Opportunity Card with Glassmorphism */}
           <div className="relative">
             {/* Featured Opportunity Card */}
             <div className="relative">
               {/* Glow effect behind card */}
               <div className={`absolute -inset-4 bg-linear-to-r ${categoryColors[currentFeatured?.category || 'job']} rounded-3xl blur-2xl opacity-20 transition-all duration-500`} />
               
-              {/* Main Card */}
+              {/* Main Card with Glassmorphism backdrop-blur effect */}
               <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
                 {/* Card Header */}
                 <div className="flex items-center justify-between mb-6">
@@ -275,7 +285,7 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
                   </div>
                 </div>
 
-                {/* CTA Button */}
+                {/* CTA Button - Apply Now wrapping Link to /opportunities/${slug} */}
                 <Link 
                   href={currentFeatured?.slug ? `/opportunities/${currentFeatured.slug}` : '/opportunities'}
                   className="group flex items-center justify-center gap-2 w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg hover:bg-[#F5D300] transition-all duration-300 mt-6"
@@ -320,7 +330,7 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
               </div>
             </div>
 
-            {/* Stats Cards - Floating */}
+            {/* Stats Cards - Floating with Glassmorphism */}
             <div className="hidden lg:block absolute -bottom-4 -left-8 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-xl animate-float">
               <div className="text-3xl font-bold text-[#F5D300]">{counts?.jobs ?? 0}</div>
               <div className="text-sm text-blue-200">Jobs Available</div>
