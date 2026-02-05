@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "lib": [
       "DOM",
       "DOM.Iterable",
@@ -26,11 +25,6 @@
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
     "target": "ES2022",
     "forceConsistentCasingInFileNames": true
   },
