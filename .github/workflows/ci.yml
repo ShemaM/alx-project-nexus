@@ -12,6 +12,7 @@ permissions:
 
 env:
   NODE_VERSION: '20'
+  PYTHON_VERSION: '3.12'
 
 jobs:
   # ============================================
@@ -60,6 +61,37 @@ jobs:
 
       - name: Run TypeScript type check
         run: npx tsc --noEmit
+
+  # ============================================
+  # Django Backend Check
+  # ============================================
+  backend-check:
+    name: Backend Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: './backend/requirements.txt'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Django system check
+        run: python manage.py check
+
+      - name: Check for missing migrations
+        run: python manage.py makemigrations --check --dry-run
 
   # ============================================
   # Unit & Integration Tests
