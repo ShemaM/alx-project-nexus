@@ -115,7 +115,7 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
           sizes="100vw"
         />
         {/* Dark blue/slate gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-slate-900/90" />
+        <div className="absolute inset-0 bg-slate-900/80" />
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-[#1E3A5F]/70 to-[#0F2847]/80" />
       </div>
       
@@ -152,20 +152,6 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Column - Branding & CTA */}
           <div className="text-center lg:text-left space-y-6">
-            {/* Logo Box - Distinctive white container (Critical) */}
-            <div className="flex justify-center lg:justify-start mb-6">
-              <div className="bg-white p-3 rounded-2xl shadow-lg inline-block">
-                <Image 
-                  src="/images/logo.png" 
-                  alt="BANYAMULENGE YOUTH KENYA Logo" 
-                  width={80} 
-                  height={80}
-                  className="w-16 h-16 md:w-20 md:h-20"
-                  priority
-                />
-              </div>
-            </div>
-            
             {/* Headline with gradient text */}
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full text-sm text-blue-200">
@@ -238,8 +224,8 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
               {/* Glow effect behind card */}
               <div className={`absolute -inset-4 bg-linear-to-r ${categoryColors[currentFeatured?.category || 'job']} rounded-3xl blur-2xl opacity-20 transition-all duration-500`} />
               
-              {/* Main Card with Glassmorphism backdrop-blur effect */}
-              <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
+              {/* Main Card with clean Glassmorphism effect */}
+              <div className="relative backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
                 {/* Card Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
@@ -285,12 +271,12 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
                   </div>
                 </div>
 
-                {/* CTA Button - Apply Now wrapping Link to /opportunities/${slug} */}
+                {/* CTA Button - View Details linking to /opportunities/${slug} for better SEO */}
                 <Link 
                   href={currentFeatured?.slug ? `/opportunities/${currentFeatured.slug}` : '/opportunities'}
                   className="group flex items-center justify-center gap-2 w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg hover:bg-[#F5D300] transition-all duration-300 mt-6"
                 >
-                  <span>Apply Now</span>
+                  <span>View Details</span>
                   <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
 

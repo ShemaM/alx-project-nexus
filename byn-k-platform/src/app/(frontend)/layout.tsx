@@ -20,6 +20,9 @@ export const metadata = {
   keywords: ['jobs', 'scholarships', 'internships', 'fellowships', 'Banyamulenge', 'refugee', 'Kenya', 'opportunities'],
   authors: [{ name: 'BYN-K Platform' }],
   creator: 'BYN-K Platform',
+  icons: {
+    icon: '/images/logo.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
