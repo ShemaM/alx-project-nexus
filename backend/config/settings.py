@@ -9,8 +9,7 @@ to external NGO portals (Forms, Emails, Websites).
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url  # <--- ADDED: Required for Render Database
-
+import dj_database_url
 
 # Load environment variables
 load_dotenv()
@@ -22,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-this-in-production')
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-# <--- UPDATED: Allow Render domain
+# Allowed Hosts
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
 
 # Application definition
@@ -47,9 +46,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Must be at the top
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware", # <--- ADDED: Must be here for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,8 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# <--- UPDATED: Database Configuration for Render
-# This logic says: "If DATABASE_URL exists (Production), use it. If not, use SQLite (Local)."
+# Database Configuration for Render/Local
 DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
@@ -93,18 +91,10 @@ AUTH_USER_MODEL = 'users.User'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
@@ -113,32 +103,32 @@ TIME_ZONE = 'Africa/Nairobi'
 USE_I18N = True
 USE_TZ = True
 
-# <--- UPDATED: Static Files (CSS, JavaScript, Images)
+# Static Files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles' # <--- ADDED: Where files go in production
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' # <--- ADDED: WhiteNoise compression
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Media files (Uploaded files like PDF brochures)
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS Configuration (Phase 3: Security)
+# ============================================
+# CORS & CSRF Configuration
+# ============================================
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    # Add your Vercel URL here once you have it!
-    # 'https://byn-k-platform.vercel.app', 
+    'https://opportunities-for-banyamulenge-yout.vercel.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    # Add your Vercel URL here too
-    'https://opportunities-for-banyamulenge-yout.vercel.app/'
+    'https://opportunities-for-banyamulenge-yout.vercel.app',
     'https://nexus-backend-lkps.onrender.com',
 ]
 
@@ -161,7 +151,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# Platform Disclaimer (Phase 3: Security)
+# Platform Disclaimer
 PLATFORM_DISCLAIMER = (
     "DISCLAIMER: BYN-K Platform is a gateway service that curates and shares "
     "opportunities from various sources. We are NOT the hiring entity, scholarship "
@@ -177,23 +167,20 @@ PLATFORM_DISCLAIMER = (
 SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_SAVE_EVERY_REQUEST = True
 
-# Authentication URLs
 LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/admin/login/'
 
-# Security settings (enabled in production when DEBUG=False)
 if not DEBUG:
     # HTTPS/SSL settings
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     
-    # Session cookie security
+    # Session & CSRF cookie security
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     
-    # CSRF cookie security
     CSRF_COOKIE_SECURE = True
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_SAMESITE = 'Lax'
@@ -203,7 +190,6 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
 else:
-    # Development settings - less strict but still secure
     SESSION_COOKIE_HTTPONLY = True
     CSRF_COOKIE_HTTPONLY = True
     X_FRAME_OPTIONS = 'DENY'
