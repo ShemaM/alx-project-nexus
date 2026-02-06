@@ -1,0 +1,23 @@
+databases:
+  - name: nexus-db
+    databaseName: nexus
+    user: nexus_user
+
+services:
+  - type: web
+    name: nexus-backend
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    rootDir: "backend"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexus-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: PYTHON_VERSION
+        value: 3.11.9
