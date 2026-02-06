@@ -38,8 +38,10 @@ async function apiFetch<T>(
     
     return response.json()
   } catch (error) {
-    // Log but don't crash on network errors (e.g., during build)
+    // Log clear error message for connection issues
     console.error(`API fetch error for ${url}:`, error)
+    console.error('Is Django running? Make sure the backend server is started at http://127.0.0.1:8000')
+    // Re-throw so consumers can handle with appropriate fallbacks
     throw error
   }
 }

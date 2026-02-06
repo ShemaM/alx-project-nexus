@@ -19,7 +19,10 @@ export const metadata = {
   description: 'Verified jobs, scholarships, internships, and fellowships for Banyamulenge refugee youth in Kenya. Find opportunities that accept your documentation.',
   keywords: ['jobs', 'scholarships', 'internships', 'fellowships', 'Banyamulenge', 'refugee', 'Kenya', 'opportunities'],
   authors: [{ name: 'BYN-K Platform' }],
-  creator: 'Banyamulenge Youth Kenya Platform',
+  creator: 'BYN-K Platform',
+  icons: {
+    icon: '/images/logo.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
