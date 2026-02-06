@@ -17,6 +17,21 @@ export type ApplicationType = 'link' | 'email' | 'pdf'
 // Opportunity category types
 export type OpportunityCategory = 'job' | 'scholarship' | 'internship' | 'training' | 'fellowship'
 
+// Work mode types (Filter Parity)
+export type WorkMode = 'remote' | 'hybrid' | 'onsite'
+
+// Commitment types (Filter Parity)
+export type Commitment = 'full_time' | 'part_time' | 'short_term' | 'long_term'
+
+// Target group types (Filter Parity)
+export type TargetGroup = 'refugees' | 'youth' | 'women' | 'all'
+
+// Education level types (Filter Parity)
+export type EducationLevel = 'high_school' | 'undergraduate' | 'graduate' | 'any'
+
+// Funding type (Filter Parity)
+export type FundingType = 'fully' | 'partially' | 'none'
+
 // Preparation checklist item
 export interface PrepChecklistItem {
   item: string
@@ -31,16 +46,37 @@ export interface Opportunity {
   title: string
   organization_name: string
   location?: string | null
+  city?: string | null
   category?: OpportunityCategory
+  // Work mode & commitment
+  work_mode?: WorkMode | null
+  commitment?: Commitment | null
+  // Eligibility
+  target_group?: TargetGroup | null
+  education_level?: EducationLevel | null
+  // Funding
+  funding_type?: FundingType | null
+  is_paid?: boolean
+  stipend_min?: string | null
+  stipend_max?: string | null
+  // Documents
   required_documents: DocumentType[]
+  // Application
   application_type: ApplicationType
   external_url?: string | null
   application_email?: string | null
   email_subject_line?: string | null
   brochure_url?: string | null
   prep_checklist: PrepChecklistItem[]
+  // Status
   is_verified: boolean
+  // Deadline
   deadline?: string | null
+  is_rolling?: boolean
+  // Computed
+  days_until_deadline?: number | null
+  is_expired?: boolean
+  // Metadata
   created_at: string
   updated_at: string
   disclaimer?: string
@@ -67,20 +103,39 @@ export interface APIResponse<T> {
 
 
 
-// Filter parameters for opportunity listings
+// Filter parameters for opportunity listings (Filter Parity with Backend)
 
 export interface OpportunityFilterParams {
-
+  // Document filter
   docs?: DocumentType
-
+  // Category
   category?: OpportunityCategory
-
+  // Location
   location?: string
-
-  search?: string
-
+  city?: string
+  // Work mode & commitment
+  work_mode?: WorkMode
+  commitment?: Commitment
+  // Eligibility
+  target_group?: TargetGroup
+  education_level?: EducationLevel
+  // Funding
+  funding_type?: FundingType
+  is_paid?: boolean
+  stipend_min?: number
+  stipend_max?: number
+  // Deadline intelligence
+  deadline_before?: string
+  deadline_after?: string
+  closing_soon?: boolean
+  is_rolling?: boolean
+  // Status
   is_verified?: boolean
-
+  is_active?: boolean
+  is_featured?: boolean
+  // Search & sort
+  search?: string
+  ordering?: 'deadline' | '-deadline' | 'created_at' | '-created_at' | 'title' | '-title'
 }
 
 
@@ -95,6 +150,24 @@ export interface ClickAnalytics {
 
   timestamp: string
 
+}
+
+
+
+// Subscription interfaces
+
+export interface Subscription {
+  id: number
+  email: string
+  is_active: boolean
+  created_at: string
+  confirmed_at?: string | null
+}
+
+export interface SubscriptionResponse {
+  success: boolean
+  message: string
+  status: 'pending_confirmation' | 'already_subscribed' | 'confirmed' | 'already_confirmed' | 'unsubscribed' | 'already_unsubscribed'
 }
 
 
@@ -157,4 +230,42 @@ export const applicationTypeLabels: Record<ApplicationType, string> = {
 
   pdf: 'View Brochure',
 
+}
+
+// Work mode labels for display
+export const workModeLabels: Record<WorkMode, string> = {
+  remote: 'Remote',
+  hybrid: 'Hybrid',
+  onsite: 'On-site',
+}
+
+// Commitment labels for display
+export const commitmentLabels: Record<Commitment, string> = {
+  full_time: 'Full-time',
+  part_time: 'Part-time',
+  short_term: 'Short-term',
+  long_term: 'Long-term',
+}
+
+// Target group labels for display
+export const targetGroupLabels: Record<TargetGroup, string> = {
+  refugees: 'Refugees',
+  youth: 'Youth',
+  women: 'Women',
+  all: 'All',
+}
+
+// Education level labels for display
+export const educationLevelLabels: Record<EducationLevel, string> = {
+  high_school: 'High School',
+  undergraduate: 'Undergraduate',
+  graduate: 'Graduate',
+  any: 'Any Level',
+}
+
+// Funding type labels for display
+export const fundingTypeLabels: Record<FundingType, string> = {
+  fully: 'Fully Funded',
+  partially: 'Partially Funded',
+  none: 'Not Funded',
 }

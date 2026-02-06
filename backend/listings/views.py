@@ -10,15 +10,18 @@ from rest_framework.views import APIView
 from django.conf import settings
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from .models import Job, ClickAnalytics
+from .models import Job, ClickAnalytics, Subscription
 from .serializers import (
     JobSerializer, 
     JobListSerializer, 
     ClickAnalyticsSerializer,
-    TrackClickSerializer
+    TrackClickSerializer,
+    SubscriptionSerializer,
+    SubscriptionCreateSerializer,
 )
 from .filters import JobFilter
 
@@ -31,8 +34,19 @@ class JobListView(generics.ListAPIView):
     - ?docs=alien_card - Filter by required documents
     - ?category=scholarship - Filter by category
     - ?location=kenya - Filter by location
+    - ?city=Nairobi - Filter by city
+    - ?work_mode=remote - Filter by work mode
+    - ?commitment=full_time - Filter by commitment type
+    - ?target_group=refugees - Filter by target group
+    - ?education_level=undergraduate - Filter by education level
+    - ?funding_type=fully - Filter by funding type
+    - ?is_paid=true - Filter paid opportunities
+    - ?closing_soon=true - Filter opportunities closing within 7 days
+    - ?is_rolling=true - Filter rolling deadline opportunities
     - ?is_verified=true - Filter by verification status
     - ?search=office - Search in title/org name
+    - ?ordering=deadline - Sort by deadline (ascending)
+    - ?ordering=-created_at - Sort by newest (default)
     """
     
     queryset = Job.objects.filter(is_active=True)
@@ -40,8 +54,8 @@ class JobListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = JobFilter
-    search_fields = ['title', 'organization_name']
-    ordering_fields = ['created_at', 'deadline', 'title']
+    search_fields = ['title', 'organization_name', 'city']
+    ordering_fields = ['created_at', 'deadline', 'title', 'stipend_min', 'stipend_max']
     ordering = ['-created_at']
     
     def list(self, request, *args, **kwargs):
@@ -202,3 +216,132 @@ class AnalyticsOverviewView(APIView):
         }
         
         return Response(data)
+
+
+# ============================================
+# Subscription Views
+# ============================================
+
+class SubscriptionCreateView(APIView):
+    """
+    Create a new email subscription.
+    
+    POST /api/subscriptions/
+    
+    After subscription is created, a confirmation email should be sent
+    to the user with a link to confirm their subscription.
+    """
+    
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        serializer = SubscriptionCreateSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            
+            # Check if subscription already exists
+            existing = Subscription.objects.filter(email=email).first()
+            
+            if existing:
+                if existing.is_active:
+                    return Response({
+                        'success': True,
+                        'message': 'You are already subscribed!',
+                        'status': 'already_subscribed'
+                    })
+                else:
+                    # Regenerate token for re-confirmation
+                    existing.regenerate_token()
+                    return Response({
+                        'success': True,
+                        'message': 'Please check your email to confirm your subscription.',
+                        'status': 'pending_confirmation'
+                    })
+            
+            # Create new subscription
+            subscription = Subscription.objects.create(email=email)
+            
+            # TODO: Send confirmation email with token
+            # For now, return success with token for testing
+            return Response({
+                'success': True,
+                'message': 'Please check your email to confirm your subscription.',
+                'status': 'pending_confirmation',
+                # Note: In production, don't expose token in response
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class SubscriptionConfirmView(APIView):
+    """
+    Confirm an email subscription using the token.
+    
+    GET /api/subscriptions/confirm/{token}/
+    """
+    
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, token):
+        try:
+            subscription = Subscription.objects.get(confirmation_token=token)
+        except Subscription.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Invalid or expired confirmation link.'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        if subscription.is_active:
+            return Response({
+                'success': True,
+                'message': 'Your subscription is already confirmed!',
+                'status': 'already_confirmed'
+            })
+        
+        subscription.confirm()
+        
+        return Response({
+            'success': True,
+            'message': 'Your subscription has been confirmed! You will now receive opportunity alerts.',
+            'status': 'confirmed'
+        })
+
+
+class SubscriptionUnsubscribeView(APIView):
+    """
+    Unsubscribe from email notifications using the token.
+    
+    GET /api/subscriptions/unsubscribe/{token}/
+    
+    One-click unsubscribe - no login required.
+    """
+    
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, token):
+        try:
+            subscription = Subscription.objects.get(confirmation_token=token)
+        except Subscription.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Invalid unsubscribe link.'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        if not subscription.is_active:
+            return Response({
+                'success': True,
+                'message': 'You are already unsubscribed.',
+                'status': 'already_unsubscribed'
+            })
+        
+        subscription.unsubscribe()
+        
+        return Response({
+            'success': True,
+            'message': 'You have been successfully unsubscribed.',
+            'status': 'unsubscribed'
+        })

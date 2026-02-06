@@ -7,7 +7,7 @@ Phase 3 Security NFRs (Protected Media & Disclaimers).
 
 from rest_framework import serializers
 from django.conf import settings
-from .models import Job, ClickAnalytics
+from .models import Job, ClickAnalytics, Subscription
 
 
 class PrepChecklistItemSerializer(serializers.Serializer):
@@ -37,20 +37,38 @@ class JobSerializer(serializers.ModelSerializer):
             'organization', # Field name expected by transformJobToOpportunityCard
             'organization_name',
             'location',
+            'city',
             'category',
+            # Work mode & commitment
+            'work_mode',
+            'commitment',
+            # Eligibility
+            'target_group',
+            'education_level',
+            # Funding
+            'funding_type',
+            'is_paid',
+            'stipend_min',
+            'stipend_max',
+            # Documents
             'required_documents',
+            # Application
             'application_type',
             'external_url',
             'application_email',
             'email_subject_line',
             'brochure_url',
             'prep_checklist',
+            # Status
             'is_verified',
             'is_active',
             'is_featured',
+            # Deadline
             'deadline',
+            'is_rolling',
             'days_until_deadline',
             'is_expired',
+            # Metadata
             'created_at',
             'updated_at',
             'disclaimer',
@@ -86,16 +104,33 @@ class JobListSerializer(serializers.ModelSerializer):
             'title',
             'organization',
             'location',
+            'city',
             'category',
+            # Work mode & commitment
+            'work_mode',
+            'commitment',
+            # Eligibility
+            'target_group',
+            'education_level',
+            # Funding
+            'funding_type',
+            'is_paid',
+            'stipend_min',
+            'stipend_max',
+            # Documents
             'required_documents',
+            # Application
             'application_type',
             'external_url',
             'application_email',
             'email_subject_line',
             'brochure_url',
             'prep_checklist',
+            # Status
             'is_verified',
+            # Deadline
             'deadline',
+            'is_rolling',
             'days_until_deadline',
         ]
     
@@ -119,4 +154,21 @@ class TrackClickSerializer(serializers.Serializer):
     click_type = serializers.ChoiceField(
         choices=['apply', 'view_brochure', 'compose_email', 'view_details']
     )
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """Serializer for email subscriptions."""
+    class Meta:
+        model = Subscription
+        fields = ['id', 'email', 'is_active', 'created_at', 'confirmed_at']
+        read_only_fields = ['id', 'is_active', 'created_at', 'confirmed_at']
+
+
+class SubscriptionCreateSerializer(serializers.Serializer):
+    """Serializer for creating a new subscription."""
+    email = serializers.EmailField()
+    
+    def validate_email(self, value):
+        """Validate and normalize email."""
+        return value.lower().strip()
     

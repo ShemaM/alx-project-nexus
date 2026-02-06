@@ -3,7 +3,7 @@
  * Client for connecting to the Django REST Framework backend.
  */
 
-import { Opportunity, OpportunityFilterParams, APIResponse } from '@/types'
+import { Opportunity, OpportunityFilterParams, APIResponse, SubscriptionResponse } from '@/types'
 
 // Ensure no trailing slash on the base URL to maintain predictable concatenation
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
@@ -45,17 +45,41 @@ async function apiFetch<T>(
 
 /**
  * Build query string from filter parameters
+ * Supports all filter parity parameters between backend and frontend
  */
 function buildQueryString(params: OpportunityFilterParams): string {
   const searchParams = new URLSearchParams();
   
+  // Document filter
   if (params.docs) searchParams.set('docs', params.docs);
+  // Category
   if (params.category) searchParams.set('category', params.category);
+  // Location
   if (params.location) searchParams.set('location', params.location);
+  if (params.city) searchParams.set('city', params.city);
+  // Work mode & commitment
+  if (params.work_mode) searchParams.set('work_mode', params.work_mode);
+  if (params.commitment) searchParams.set('commitment', params.commitment);
+  // Eligibility
+  if (params.target_group) searchParams.set('target_group', params.target_group);
+  if (params.education_level) searchParams.set('education_level', params.education_level);
+  // Funding
+  if (params.funding_type) searchParams.set('funding_type', params.funding_type);
+  if (params.is_paid !== undefined) searchParams.set('is_paid', String(params.is_paid));
+  if (params.stipend_min !== undefined) searchParams.set('stipend_min', String(params.stipend_min));
+  if (params.stipend_max !== undefined) searchParams.set('stipend_max', String(params.stipend_max));
+  // Deadline intelligence
+  if (params.deadline_before) searchParams.set('deadline_before', params.deadline_before);
+  if (params.deadline_after) searchParams.set('deadline_after', params.deadline_after);
+  if (params.closing_soon !== undefined) searchParams.set('closing_soon', String(params.closing_soon));
+  if (params.is_rolling !== undefined) searchParams.set('is_rolling', String(params.is_rolling));
+  // Status
+  if (params.is_verified !== undefined) searchParams.set('is_verified', String(params.is_verified));
+  if (params.is_active !== undefined) searchParams.set('is_active', String(params.is_active));
+  if (params.is_featured !== undefined) searchParams.set('is_featured', String(params.is_featured));
+  // Search & sort
   if (params.search) searchParams.set('search', params.search);
-  if (params.is_verified !== undefined) {
-    searchParams.set('is_verified', String(params.is_verified));
-  }
+  if (params.ordering) searchParams.set('ordering', params.ordering);
   
   const query = searchParams.toString();
   return query ? `?${query}` : '';
@@ -171,5 +195,66 @@ export async function getPartners(): Promise<APIResponse<any[]>> {
     };
   } catch {
     return { data: [], disclaimer: '', count: 0 };
+  }
+}
+
+// ============================================
+// Email Subscription
+// ============================================
+
+/**
+ * Create a new email subscription
+ * @param email - The email address to subscribe
+ * @returns SubscriptionResponse with success status and message
+ */
+export async function subscribe(email: string): Promise<SubscriptionResponse> {
+  try {
+    return await apiFetch<SubscriptionResponse>('/subscriptions/', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  } catch (error) {
+    console.error('Subscription error:', error);
+    return {
+      success: false,
+      message: 'Failed to subscribe. Please try again.',
+      status: 'pending_confirmation',
+    };
+  }
+}
+
+/**
+ * Confirm an email subscription using the token
+ * @param token - The confirmation token from the email
+ * @returns SubscriptionResponse with confirmation status
+ */
+export async function confirmSubscription(token: string): Promise<SubscriptionResponse> {
+  try {
+    return await apiFetch<SubscriptionResponse>(`/subscriptions/confirm/${token}/`);
+  } catch (error) {
+    console.error('Confirmation error:', error);
+    return {
+      success: false,
+      message: 'Invalid or expired confirmation link.',
+      status: 'pending_confirmation',
+    };
+  }
+}
+
+/**
+ * Unsubscribe from email notifications using the token
+ * @param token - The unsubscribe token from the email
+ * @returns SubscriptionResponse with unsubscription status
+ */
+export async function unsubscribe(token: string): Promise<SubscriptionResponse> {
+  try {
+    return await apiFetch<SubscriptionResponse>(`/subscriptions/unsubscribe/${token}/`);
+  } catch (error) {
+    console.error('Unsubscribe error:', error);
+    return {
+      success: false,
+      message: 'Failed to unsubscribe. Please try again.',
+      status: 'unsubscribed',
+    };
   }
 }
