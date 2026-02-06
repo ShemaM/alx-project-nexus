@@ -41,8 +41,8 @@ async function apiFetch<T>(
     // Log clear error message for connection issues
     console.error(`API fetch error for ${url}:`, error)
     console.error('Is Django running? Make sure the backend server is started at http://127.0.0.1:8000')
-    // Return safe fallback to prevent app from crashing
-    return { count: 0, results: [] } as T
+    // Re-throw so consumers can handle with appropriate fallbacks
+    throw error
   }
 }
 
