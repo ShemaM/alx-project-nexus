@@ -10,7 +10,7 @@ from django.contrib import admin
 from django.conf import settings
 from django import forms
 from unfold.admin import ModelAdmin
-from .models import Job, ClickAnalytics
+from .models import Job, ClickAnalytics, Subscription
 
 # ============================================
 # Admin Site Customization
@@ -82,16 +82,23 @@ class JobAdmin(ModelAdmin):
     ]
     
     # Search capabilities for Title and Organization
-    search_fields = ['title', 'organization_name']
+    search_fields = ['title', 'organization_name', 'city']
     
-    # Filters for application_type, location, and is_verified (WhatsApp verified)
+    # Filters for all filterable fields
     list_filter = [
+        'category',
+        'work_mode',
+        'commitment',
+        'target_group',
+        'education_level',
+        'funding_type',
+        'is_paid',
+        'is_rolling',
         'application_type',
         'location',
         'is_verified',  # WhatsApp verified status
         'is_active',
         'is_featured',
-        'category',
     ]
     
     date_hierarchy = 'created_at'
@@ -108,13 +115,35 @@ class JobAdmin(ModelAdmin):
                 'organization_name', 
                 'category', 
                 'location',
+                'city',
                 'deadline',
+                'is_rolling',
                 'is_verified',
                 'is_active',
                 'is_featured',
             ),
             'classes': ['tab'],
             'description': 'Core opportunity information and status settings.'
+        }),
+        ('Work Mode & Eligibility', {
+            'fields': (
+                'work_mode',
+                'commitment',
+                'target_group',
+                'education_level',
+            ),
+            'classes': ['tab'],
+            'description': 'Work arrangement and eligibility requirements.'
+        }),
+        ('Funding & Compensation', {
+            'fields': (
+                'funding_type',
+                'is_paid',
+                'stipend_min',
+                'stipend_max',
+            ),
+            'classes': ['tab'],
+            'description': 'Financial details of the opportunity.'
         }),
         ('Gateway Logic', {
             'fields': (
@@ -168,3 +197,77 @@ class ClickAnalyticsAdmin(ModelAdmin):
     search_fields = ['job__title', 'job__organization_name']
     ordering = ['-click_count']
     readonly_fields = ['click_count', 'last_clicked_at']
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(ModelAdmin):
+    """
+    Admin configuration for Email Subscriptions using Django Unfold.
+    
+    Allows admins to:
+    - View all subscribers
+    - Filter by active/inactive status
+    - Manually deactivate subscriptions
+    - See subscription history
+    """
+    
+    list_display = [
+        'email', 
+        'is_active', 
+        'created_at', 
+        'confirmed_at',
+        'last_notified_at',
+    ]
+    
+    list_filter = [
+        'is_active',
+        'created_at',
+        'confirmed_at',
+    ]
+    
+    search_fields = ['email']
+    
+    ordering = ['-created_at']
+    
+    readonly_fields = [
+        'confirmation_token',
+        'created_at',
+        'confirmed_at',
+        'last_notified_at',
+    ]
+    
+    fieldsets = (
+        ('Subscription Details', {
+            'fields': (
+                'email',
+                'is_active',
+            ),
+            'classes': ['tab'],
+            'description': 'Core subscription information.'
+        }),
+        ('Status & History', {
+            'fields': (
+                'confirmation_token',
+                'created_at',
+                'confirmed_at',
+                'last_notified_at',
+            ),
+            'classes': ['tab'],
+            'description': 'Subscription status and notification history.'
+        }),
+    )
+    
+    actions = ['deactivate_subscriptions', 'activate_subscriptions']
+    
+    @admin.action(description='Deactivate selected subscriptions')
+    def deactivate_subscriptions(self, request, queryset):
+        """Bulk deactivate subscriptions."""
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} subscription(s) deactivated.')
+    
+    @admin.action(description='Activate selected subscriptions')
+    def activate_subscriptions(self, request, queryset):
+        """Bulk activate subscriptions."""
+        from django.utils import timezone
+        updated = queryset.update(is_active=True, confirmed_at=timezone.now())
+        self.message_user(request, f'{updated} subscription(s) activated.')

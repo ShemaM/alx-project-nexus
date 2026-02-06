@@ -5,6 +5,7 @@ The Listing Engine - curates opportunities from WhatsApp/PDFs
 and redirects users to external NGO portals.
 """
 
+import uuid
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -47,7 +48,7 @@ class Job(models.Model):
         ('training', 'Training'),
     ]
     
-    # Location Choices
+    # Location Choices (Country level)
     LOCATION_CHOICES = [
         ('kenya', 'Kenya'),
         ('uganda', 'Uganda'),
@@ -55,6 +56,44 @@ class Job(models.Model):
         ('rwanda', 'Rwanda'),
         ('remote', 'Remote'),
         ('multiple', 'Multiple Locations'),
+    ]
+    
+    # Work Mode Choices
+    WORK_MODE_CHOICES = [
+        ('remote', 'Remote'),
+        ('hybrid', 'Hybrid'),
+        ('onsite', 'On-site'),
+    ]
+    
+    # Commitment Choices
+    COMMITMENT_CHOICES = [
+        ('full_time', 'Full-time'),
+        ('part_time', 'Part-time'),
+        ('short_term', 'Short-term'),
+        ('long_term', 'Long-term'),
+    ]
+    
+    # Target Group Choices
+    TARGET_GROUP_CHOICES = [
+        ('refugees', 'Refugees'),
+        ('youth', 'Youth'),
+        ('women', 'Women'),
+        ('all', 'All'),
+    ]
+    
+    # Education Level Choices
+    EDUCATION_LEVEL_CHOICES = [
+        ('high_school', 'High School'),
+        ('undergraduate', 'Undergraduate'),
+        ('graduate', 'Graduate'),
+        ('any', 'Any Level'),
+    ]
+    
+    # Funding Type Choices
+    FUNDING_TYPE_CHOICES = [
+        ('fully', 'Fully Funded'),
+        ('partially', 'Partially Funded'),
+        ('none', 'Not Funded'),
     ]
     
     # Basic Information
@@ -77,6 +116,73 @@ class Job(models.Model):
         choices=CATEGORY_CHOICES,
         default='job',
         help_text="The type of opportunity"
+    )
+    
+    # Work Mode & Commitment (Filter Parity)
+    work_mode = models.CharField(
+        max_length=20,
+        choices=WORK_MODE_CHOICES,
+        blank=True,
+        help_text="Remote, hybrid, or on-site"
+    )
+    commitment = models.CharField(
+        max_length=20,
+        choices=COMMITMENT_CHOICES,
+        blank=True,
+        help_text="Full-time, part-time, short-term, or long-term"
+    )
+    
+    # Eligibility (Filter Parity)
+    target_group = models.CharField(
+        max_length=20,
+        choices=TARGET_GROUP_CHOICES,
+        blank=True,
+        help_text="Target audience for this opportunity"
+    )
+    education_level = models.CharField(
+        max_length=20,
+        choices=EDUCATION_LEVEL_CHOICES,
+        blank=True,
+        help_text="Required education level"
+    )
+    
+    # Funding (Filter Parity)
+    funding_type = models.CharField(
+        max_length=20,
+        choices=FUNDING_TYPE_CHOICES,
+        blank=True,
+        help_text="Funding status of this opportunity"
+    )
+    is_paid = models.BooleanField(
+        default=False,
+        help_text="Is this a paid opportunity?"
+    )
+    stipend_min = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Minimum stipend amount"
+    )
+    stipend_max = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Maximum stipend amount"
+    )
+    
+    # Location (Extended)
+    city = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="City where the opportunity is located"
+    )
+    
+    # Deadline Intelligence
+    is_rolling = models.BooleanField(
+        default=False,
+        help_text="Is this a rolling deadline opportunity?"
     )
     
     # Required Documents (for Advanced Filtering)
@@ -231,3 +337,63 @@ class ClickAnalytics(models.Model):
         analytics.click_count += 1
         analytics.save()
         return analytics
+
+
+class Subscription(models.Model):
+    """
+    Email subscription model for opportunity alerts.
+    
+    Users can subscribe to receive notifications about new opportunities.
+    Implements double opt-in confirmation flow for compliance and deliverability.
+    """
+    
+    email = models.EmailField(
+        unique=True,
+        db_index=True,
+        help_text="Subscriber email address"
+    )
+    is_active = models.BooleanField(
+        default=False,
+        help_text="Whether the subscription is confirmed and active"
+    )
+    confirmation_token = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        help_text="Token for email confirmation"
+    )
+    last_notified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time this subscriber was notified of new opportunities"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the subscription was confirmed"
+    )
+    
+    class Meta:
+        verbose_name = 'Email Subscription'
+        verbose_name_plural = 'Email Subscriptions'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        status = "Active" if self.is_active else "Pending"
+        return f"{self.email} ({status})"
+    
+    def confirm(self):
+        """Confirm the subscription."""
+        self.is_active = True
+        self.confirmed_at = timezone.now()
+        self.save()
+    
+    def unsubscribe(self):
+        """Deactivate the subscription."""
+        self.is_active = False
+        self.save()
+    
+    def regenerate_token(self):
+        """Regenerate the confirmation token."""
+        self.confirmation_token = uuid.uuid4()
+        self.save()
