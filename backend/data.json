@@ -130,8 +130,8 @@
   "model": "listings.job",
   "pk": 2,
   "fields": {
-    "title": "Humanitarian Futures – Gender, Displacement & Justice Fellowship (2026)",
-    "organization_name": "The Women’s Refugee Commission",
+    "title": "Humanitarian Futures â€“ Gender, Displacement & Justice Fellowship (2026)",
+    "organization_name": "The Womenâ€™s Refugee Commission",
     "location": "remote",
     "category": "fellowship",
     "required_documents": [
