@@ -28,4 +28,17 @@ urlpatterns = [
     
     # 6. Analytics (Matches: /api/analytics/)
     path('analytics/', views.AnalyticsOverviewView.as_view(), name='analytics'),
+    
+    # ============================================
+    # Subscription Endpoints
+    # ============================================
+    
+    # 7. Create subscription (Matches: /api/subscriptions/)
+    path('subscriptions/', views.SubscriptionCreateView.as_view(), name='subscription-create'),
+    
+    # 8. Confirm subscription (Matches: /api/subscriptions/confirm/<token>/)
+    path('subscriptions/confirm/<uuid:token>/', views.SubscriptionConfirmView.as_view(), name='subscription-confirm'),
+    
+    # 9. Unsubscribe (Matches: /api/subscriptions/unsubscribe/<token>/)
+    path('subscriptions/unsubscribe/<uuid:token>/', views.SubscriptionUnsubscribeView.as_view(), name='subscription-unsubscribe'),
 ]

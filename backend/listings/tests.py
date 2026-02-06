@@ -260,3 +260,242 @@ class UserModelTests(TestCase):
         )
         
         self.assertEqual(user2.display_name, 'testuser2')
+
+
+class SubscriptionModelTests(TestCase):
+    """Tests for the Subscription model."""
+    
+    def test_subscription_creation(self):
+        """Test that a subscription can be created."""
+        from .models import Subscription
+        
+        subscription = Subscription.objects.create(email='test@example.com')
+        
+        self.assertEqual(subscription.email, 'test@example.com')
+        self.assertFalse(subscription.is_active)
+        self.assertIsNotNone(subscription.confirmation_token)
+    
+    def test_subscription_confirm(self):
+        """Test confirming a subscription."""
+        from .models import Subscription
+        
+        subscription = Subscription.objects.create(email='test@example.com')
+        self.assertFalse(subscription.is_active)
+        
+        subscription.confirm()
+        
+        self.assertTrue(subscription.is_active)
+        self.assertIsNotNone(subscription.confirmed_at)
+    
+    def test_subscription_unsubscribe(self):
+        """Test unsubscribing."""
+        from .models import Subscription
+        
+        subscription = Subscription.objects.create(email='test@example.com')
+        subscription.confirm()
+        self.assertTrue(subscription.is_active)
+        
+        subscription.unsubscribe()
+        
+        self.assertFalse(subscription.is_active)
+    
+    def test_regenerate_token(self):
+        """Test regenerating the confirmation token."""
+        from .models import Subscription
+        
+        subscription = Subscription.objects.create(email='test@example.com')
+        original_token = subscription.confirmation_token
+        
+        subscription.regenerate_token()
+        
+        self.assertNotEqual(subscription.confirmation_token, original_token)
+
+
+class SubscriptionAPITests(TestCase):
+    """Tests for the Subscription API endpoints."""
+    
+    def setUp(self):
+        """Create test data."""
+        self.client = Client()
+    
+    def test_subscribe_new_email(self):
+        """Test subscribing with a new email."""
+        response = self.client.post(
+            '/api/subscriptions/',
+            data=json.dumps({'email': 'newuser@example.com'}),
+            content_type='application/json',
+        )
+        
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        
+        self.assertTrue(data['success'])
+        self.assertEqual(data['status'], 'pending_confirmation')
+    
+    def test_subscribe_existing_inactive_email(self):
+        """Test subscribing with an existing inactive email."""
+        from .models import Subscription
+        
+        Subscription.objects.create(email='existing@example.com')
+        
+        response = self.client.post(
+            '/api/subscriptions/',
+            data=json.dumps({'email': 'existing@example.com'}),
+            content_type='application/json',
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertTrue(data['success'])
+        self.assertEqual(data['status'], 'pending_confirmation')
+    
+    def test_subscribe_existing_active_email(self):
+        """Test subscribing with an already active email."""
+        from .models import Subscription
+        
+        subscription = Subscription.objects.create(email='active@example.com')
+        subscription.confirm()
+        
+        response = self.client.post(
+            '/api/subscriptions/',
+            data=json.dumps({'email': 'active@example.com'}),
+            content_type='application/json',
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertTrue(data['success'])
+        self.assertEqual(data['status'], 'already_subscribed')
+    
+    def test_confirm_subscription(self):
+        """Test confirming a subscription."""
+        from .models import Subscription
+        
+        subscription = Subscription.objects.create(email='confirm@example.com')
+        token = subscription.confirmation_token
+        
+        response = self.client.get(f'/api/subscriptions/confirm/{token}/')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertTrue(data['success'])
+        self.assertEqual(data['status'], 'confirmed')
+        
+        # Verify subscription is now active
+        subscription.refresh_from_db()
+        self.assertTrue(subscription.is_active)
+    
+    def test_confirm_invalid_token(self):
+        """Test confirming with an invalid token."""
+        import uuid
+        invalid_token = uuid.uuid4()
+        
+        response = self.client.get(f'/api/subscriptions/confirm/{invalid_token}/')
+        
+        self.assertEqual(response.status_code, 404)
+    
+    def test_unsubscribe(self):
+        """Test unsubscribing."""
+        from .models import Subscription
+        
+        subscription = Subscription.objects.create(email='unsub@example.com')
+        subscription.confirm()
+        token = subscription.confirmation_token
+        
+        response = self.client.get(f'/api/subscriptions/unsubscribe/{token}/')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertTrue(data['success'])
+        self.assertEqual(data['status'], 'unsubscribed')
+        
+        # Verify subscription is now inactive
+        subscription.refresh_from_db()
+        self.assertFalse(subscription.is_active)
+
+
+class JobFilterTests(TestCase):
+    """Tests for the extended Job filters."""
+    
+    def setUp(self):
+        """Create test data."""
+        self.client = Client()
+        
+        # Create jobs with new filter fields
+        self.remote_job = Job.objects.create(
+            title='Remote Developer',
+            organization_name='Remote Tech',
+            work_mode='remote',
+            commitment='full_time',
+            target_group='youth',
+            education_level='undergraduate',
+            funding_type='fully',
+            is_paid=True,
+            is_active=True,
+        )
+        
+        self.onsite_job = Job.objects.create(
+            title='Office Manager',
+            organization_name='Local Corp',
+            work_mode='onsite',
+            commitment='part_time',
+            target_group='refugees',
+            education_level='high_school',
+            funding_type='none',
+            is_paid=False,
+            is_active=True,
+        )
+    
+    def test_filter_by_work_mode(self):
+        """Test filtering by work mode."""
+        response = self.client.get('/api/opportunities/?work_mode=remote')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Remote Developer')
+    
+    def test_filter_by_commitment(self):
+        """Test filtering by commitment."""
+        response = self.client.get('/api/opportunities/?commitment=part_time')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Office Manager')
+    
+    def test_filter_by_target_group(self):
+        """Test filtering by target group."""
+        response = self.client.get('/api/opportunities/?target_group=refugees')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Office Manager')
+    
+    def test_filter_by_funding_type(self):
+        """Test filtering by funding type."""
+        response = self.client.get('/api/opportunities/?funding_type=fully')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Remote Developer')
+    
+    def test_filter_by_is_paid(self):
+        """Test filtering by paid status."""
+        response = self.client.get('/api/opportunities/?is_paid=true')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Remote Developer')
