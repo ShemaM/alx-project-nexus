@@ -5,11 +5,11 @@ set -o errexit
 # Install dependencies
 pip install -r requirements.txt
 
-# Convert static files (CSS/Images)
+# Convert static files
 python manage.py collectstatic --no-input
 
-# Run database migrations
+# Run migrations
 python manage.py migrate
 
-# ⬇️ UPGRADE 'nmshema' TO ADMIN
-python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); u = User.objects.get(username='nmshema'); u.is_staff=True; u.is_superuser=True; u.save()"
+# ⬇️ THE FIX: Create 'nmshema' if missing, OR update if exists.
+python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); u, created = User.objects.get_or_create(username='nmshema', defaults={'email': 'shemamanase992@gmail.com'}); u.set_password('Nm&&668852'); u.is_staff=True; u.is_superuser=True; u.save()"
