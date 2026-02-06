@@ -138,7 +138,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     # Add your Vercel URL here too
-    # 'https://byn-k-platform.vercel.app',
+    'https://opportunities-for-banyamulenge-yout.vercel.app/'
+    'https://nexus-backend-lkps.onrender.com',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
