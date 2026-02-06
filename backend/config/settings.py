@@ -188,7 +188,9 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     
-    # TODO: Enable HSTS after confirming HTTPS works correctly in production.
+    #TODO
+    # Enable HSTS after confirming HTTPS works correctly in production. 
+
     # HSTS (HTTP Strict Transport Security) prevents downgrade attacks.
     # Enable these settings once HTTPS is verified working:
     # SECURE_HSTS_SECONDS = 31536000  # 1 year
