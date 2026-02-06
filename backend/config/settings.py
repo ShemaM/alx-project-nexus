@@ -9,6 +9,8 @@ to external NGO portals (Forms, Emails, Websites).
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url  # <--- ADDED: Required for Render Database
+
 
 # Load environment variables
 load_dotenv()
@@ -20,7 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-this-in-production')
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# <--- UPDATED: Allow Render domain
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -46,6 +49,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware", # <--- ADDED: Must be here for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,12 +79,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database
+# <--- UPDATED: Database Configuration for Render
+# This logic says: "If DATABASE_URL exists (Production), use it. If not, use SQLite (Local)."
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600
+    )
 }
 
 # Custom User Model
@@ -108,9 +113,10 @@ TIME_ZONE = 'Africa/Nairobi'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# <--- UPDATED: Static Files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles' # <--- ADDED: Where files go in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' # <--- ADDED: WhiteNoise compression
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Media files (Uploaded files like PDF brochures)
@@ -124,11 +130,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    # Add your Vercel URL here once you have it!
+    # 'https://byn-k-platform.vercel.app', 
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    # Add your Vercel URL here too
+    # 'https://byn-k-platform.vercel.app',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -172,7 +182,6 @@ LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/admin/login/'
 
 # Security settings (enabled in production when DEBUG=False)
-# IMPORTANT: Ensure DEBUG=False is set in production deployment
 if not DEBUG:
     # HTTPS/SSL settings
     SECURE_SSL_REDIRECT = True
@@ -192,15 +201,6 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    
-    #TODO
-    # Enable HSTS after confirming HTTPS works correctly in production. 
-
-    # HSTS (HTTP Strict Transport Security) prevents downgrade attacks.
-    # Enable these settings once HTTPS is verified working:
-    # SECURE_HSTS_SECONDS = 31536000  # 1 year
-    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    # SECURE_HSTS_PRELOAD = True
 else:
     # Development settings - less strict but still secure
     SESSION_COOKIE_HTTPONLY = True
@@ -210,6 +210,6 @@ else:
 # ============================================
 # Admin Site Customization
 # ============================================
-ADMIN_SITE_HEADER = "BYN-K Platform Administration"
+ADMIN_SITE_HEADER = "Banyamulenge Youth Kenya (BYN-K) Admin"
 ADMIN_SITE_TITLE = "BYN-K Admin"
 ADMIN_INDEX_TITLE = "Platform Management"
