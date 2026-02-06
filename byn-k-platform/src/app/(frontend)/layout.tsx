@@ -13,18 +13,18 @@ import './styles.css'
 // SEO Metadata
 export const metadata = {
   title: {
-    default: 'BYN-K Platform - Opportunities for Banyamulenge Youth',
+    default: 'Banyamulenge Youth Kenya Platform - Opportunities for Banyamulenge Youth',
     template: '%s | BYN-K Platform',
   },
   description: 'Verified jobs, scholarships, internships, and fellowships for Banyamulenge refugee youth in Kenya. Find opportunities that accept your documentation.',
   keywords: ['jobs', 'scholarships', 'internships', 'fellowships', 'Banyamulenge', 'refugee', 'Kenya', 'opportunities'],
   authors: [{ name: 'BYN-K Platform' }],
-  creator: 'BYN-K Platform',
+  creator: 'Banyamulenge Youth Kenya Platform',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'BYN-K Platform',
-    title: 'BYN-K Platform - Opportunities for Banyamulenge Youth',
+    siteName: 'Banyamulenge Youth Kenya Platform',
+    title: 'Banyamulenge Youth Kenya Platform - Opportunities for Banyamulenge Youth',
     description: 'Verified jobs, scholarships, internships, and fellowships for Banyamulenge refugee youth in Kenya.',
   },
   twitter: {
