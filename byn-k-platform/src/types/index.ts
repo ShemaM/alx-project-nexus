@@ -54,20 +54,15 @@ export interface Partner {
   website_url?: string | null;
 }
 
-// API Response wrapper with disclaimer
-
+// API Response wrapper with metadata for pagination
 export interface APIResponse<T> {
-
   data: T
-
   disclaimer: string
-
-  total_count?: number
-
+  count?: number       // Changed from total_count to match Django
+  next?: string | null     // Added for pagination
+  previous?: string | null // Added for pagination
   page?: number
-
   page_size?: number
-
 }
 
 

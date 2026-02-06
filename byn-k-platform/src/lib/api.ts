@@ -1,11 +1,11 @@
 /**
  * Django API Service
- * * Client for connecting to the Django REST Framework backend.
+ * Client for connecting to the Django REST Framework backend.
  */
 
 import { Opportunity, OpportunityFilterParams, APIResponse } from '@/types'
 
-// 1. Fixed: Use 127.0.0.1 and ensure no trailing slash here to prevent // bugs
+// Ensure no trailing slash on the base URL to maintain predictable concatenation
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
 
 /**
@@ -15,8 +15,9 @@ async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  // endpoint should start with / so this becomes .../api/endpoint
-  const url = `${API_BASE_URL}${endpoint}`
+  // Ensure endpoint starts with a slash
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_BASE_URL}${cleanEndpoint}`;
   
   try {
     const response = await fetch(url, {
@@ -26,23 +27,19 @@ async function apiFetch<T>(
         ...options.headers,
       },
       credentials: 'include',
-      // Add timeout for fetch during build time
-      signal: AbortSignal.timeout(5000),
-    })
+      // Abort if request takes longer than 10 seconds
+      signal: AbortSignal.timeout(10000),
+    });
     
     if (!response.ok) {
-      // Helpful for debugging: logs the exact URL that failed
       console.error(`Fetch failed for ${url}: ${response.status}`);
-      throw new Error(`API Error: ${response.status} ${response.statusText}`)
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
     
-    return response.json()
+    return response.json();
   } catch (error) {
-    // Log clear error message for connection issues
-    console.error(`API fetch error for ${url}:`, error)
-    console.error('Is Django running? Make sure the backend server is started at http://127.0.0.1:8000')
-    // Re-throw so consumers can handle with appropriate fallbacks
-    throw error
+    console.error(`API fetch error for ${url}:`, error);
+    throw error;
   }
 }
 
@@ -50,19 +47,18 @@ async function apiFetch<T>(
  * Build query string from filter parameters
  */
 function buildQueryString(params: OpportunityFilterParams): string {
-  const searchParams = new URLSearchParams()
+  const searchParams = new URLSearchParams();
   
-  if (params.docs) searchParams.set('docs', params.docs)
-  if (params.category) searchParams.set('category', params.category)
-  if (params.location) searchParams.set('location', params.location)
-  if (params.search) searchParams.set('search', params.search)
+  if (params.docs) searchParams.set('docs', params.docs);
+  if (params.category) searchParams.set('category', params.category);
+  if (params.location) searchParams.set('location', params.location);
+  if (params.search) searchParams.set('search', params.search);
   if (params.is_verified !== undefined) {
-    searchParams.set('is_verified', String(params.is_verified))
+    searchParams.set('is_verified', String(params.is_verified));
   }
   
-  const query = searchParams.toString()
-  // 3. Fixed: Added a slash before the ? because Django is strict
-  return query ? `/?${query}` : '/'
+  const query = searchParams.toString();
+  return query ? `?${query}` : '';
 }
 
 // ============================================
@@ -71,40 +67,44 @@ function buildQueryString(params: OpportunityFilterParams): string {
 
 export async function getOpportunities(filters?: OpportunityFilterParams): Promise<APIResponse<Opportunity[]>> {
   try {
-    const queryString = filters ? buildQueryString(filters) : '/'
-    const response = await apiFetch<APIResponse<Opportunity[]>>(`/opportunities${queryString}`)
+    const queryString = filters ? buildQueryString(filters) : '';
+    // Django requires the trailing slash before the query parameters
+    const response = await apiFetch<any>(`/opportunities/${queryString}`);
+    
     return {
-      ...response,
-      data: (response as unknown as { results: Opportunity[] }).results || [],
-    }
-  } catch {
-    // Return empty data when backend is unavailable (build time or dev without backend)
-    return { data: [], disclaimer: '' }
+      data: response.results || [],
+      disclaimer: response.disclaimer || '',
+      count: response.count || 0,
+      next: response.next,
+      previous: response.previous
+    };
+  } catch (error) {
+    console.error("Failed to load opportunities:", error);
+    return { data: [], disclaimer: '', count: 0 };
   }
 }
 
 export async function getOpportunityById(id: number): Promise<Opportunity> {
-  return apiFetch<Opportunity>(`/opportunities/${id}/`)
+  // Direct detail endpoint always needs the trailing slash
+  return apiFetch<Opportunity>(`/opportunities/${id}/`);
 }
 
 export async function getFeaturedOpportunities(): Promise<APIResponse<Opportunity[]>> {
   try {
-    // 4. Fixed: Added trailing slash before query params
-    const response = await apiFetch<APIResponse<Opportunity[]>>('/opportunities/?is_featured=true')
+    const response = await apiFetch<any>('/opportunities/?is_featured=true');
     return {
-      ...response,
-      data: (response as unknown as { results: Opportunity[] }).results || [],
-    }
-  } catch {
-    // Return empty data when backend is unavailable (build time or dev without backend)
-    return { data: [], disclaimer: '' }
+      data: response.results || [],
+      disclaimer: response.disclaimer || '',
+      count: response.count || 0
+    };
+  } catch (error) {
+    console.error("Failed to load featured opportunities:", error);
+    return { data: [], disclaimer: '', count: 0 };
   }
 }
 
-
-
 // ============================================
-// Click Tracking, Analytics, Auth (Endpoints updated with slashes)
+// Click Tracking & Analytics
 // ============================================
 
 export async function trackClick(
@@ -117,91 +117,59 @@ export async function trackClick(
       opportunity_id: opportunityId,
       click_type: clickType,
     }),
-  })
+  });
 }
 
 export function getBrochureUrl(opportunityId: number): string {
-  return `${API_BASE_URL}/opportunities/${opportunityId}/brochure/`
+  return `${API_BASE_URL}/opportunities/${opportunityId}/brochure/`;
 }
 
-export interface AnalyticsOverview {
-  [key: string]: unknown
-}
-
-export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
+export async function getAnalyticsOverview(): Promise<any> {
   try {
-    return await apiFetch('/analytics/')
+    return await apiFetch('/analytics/');
   } catch {
-    // Return empty analytics when backend is unavailable
-    return {}
+    return {};
   }
 }
 
-type AuthResponse = Record<string, unknown>
-type AuthUser = Record<string, unknown>
+// ============================================
+// Authentication
+// ============================================
 
-export async function login(username: string, password: string): Promise<AuthResponse> {
-  return apiFetch<AuthResponse>('/auth/login/', {
+export async function login(username: string, password: string): Promise<any> {
+  return apiFetch('/auth/login/', {
     method: 'POST',
     body: JSON.stringify({ username, password }),
-  })
+  });
 }
 
 export async function logout(): Promise<{ message: string }> {
   return apiFetch('/auth/logout/', {
     method: 'POST',
-  })
+  });
 }
 
-export async function getCurrentUser(): Promise<AuthUser | null> {
+export async function getCurrentUser(): Promise<{ id: number; username: string; email: string } | null> {
   try {
-    return await apiFetch<AuthUser>('/auth/me/')
+    return await apiFetch('/auth/me/');
   } catch {
-    return null
+    return null;
   }
 }
 
-export async function register(data: Record<string, unknown>): Promise<AuthResponse> {
-  return apiFetch<AuthResponse>('/auth/register/', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
-}
-
 // ============================================
-// Partner Management API
+// Partner Management
 // ============================================
-import { Partner } from '@/types';
 
-export async function getPartners(): Promise<APIResponse<Partner[]>> {
+export async function getPartners(): Promise<APIResponse<any[]>> {
   try {
-    const response = await apiFetch<APIResponse<Partner[]>>('/partners/');
+    const response = await apiFetch<any>('/partners/');
     return {
-      ...response,
-      data: (response as unknown as { results: Partner[] }).results || [],
+      data: response.results || [],
+      disclaimer: response.disclaimer || '',
+      count: response.count || 0
     };
   } catch {
-    // Return empty data when backend is unavailable (build time or dev without backend)
-    return { data: [], disclaimer: '' };
+    return { data: [], disclaimer: '', count: 0 };
   }
-}
-
-export async function createPartner(partnerData: Omit<Partner, 'id'>): Promise<Partner> {
-  return apiFetch<Partner>('/partners/', {
-    method: 'POST',
-    body: JSON.stringify(partnerData),
-  });
-}
-
-export async function updatePartner(id: number, partnerData: Partial<Partner>): Promise<Partner> {
-  return apiFetch<Partner>(`/partners/${id}/`, {
-    method: 'PUT',
-    body: JSON.stringify(partnerData),
-  });
-}
-
-export async function deletePartner(id: number): Promise<void> {
-  return apiFetch<void>(`/partners/${id}/`, {
-    method: 'DELETE',
-  });
 }
