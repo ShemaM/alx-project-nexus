@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { ArrowLeft, Calendar, CheckCircle2, MapPin, Building2, FileText, Mail, Download, Paperclip } from 'lucide-react'
-import { getOpportunityById, getBrochureUrl } from '@/lib/api'
+import { getOpportunityBySlug, getBrochureUrl } from '@/lib/api'
 import OpportunityActions from '@/components/ui/OpportunityActions'
 
 // Force dynamic rendering to fetch data at runtime (requires database connection)
@@ -62,15 +62,11 @@ interface PageProps {
 export default async function OpportunityDetailPage({ params }: PageProps) {
   const { slug } = await params
   
-  // Try to parse slug as ID (Django uses numeric IDs)
-  const opportunityId = parseInt(slug, 10)
-  
   let opportunity = null
   
   try {
-    if (!isNaN(opportunityId)) {
-      opportunity = await getOpportunityById(opportunityId)
-    }
+    // Use slug-based lookup for SEO-friendly URLs
+    opportunity = await getOpportunityBySlug(slug)
   } catch (error) {
     console.error('Error fetching opportunity:', error)
   }

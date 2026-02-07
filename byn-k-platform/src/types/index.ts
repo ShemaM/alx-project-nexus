@@ -44,6 +44,7 @@ export interface Opportunity {
   organization: any
   id: number
   title: string
+  slug: string  // SEO-friendly URL slug
   organization_name: string
   location?: string | null
   city?: string | null
@@ -70,6 +71,8 @@ export interface Opportunity {
   prep_checklist: PrepChecklistItem[]
   // Status
   is_verified: boolean
+  is_featured?: boolean
+  is_active?: boolean
   // Deadline
   deadline?: string | null
   is_rolling?: boolean
@@ -80,6 +83,13 @@ export interface Opportunity {
   created_at: string
   updated_at: string
   disclaimer?: string
+  // Multilingual support
+  title_en?: string
+  title_sw?: string
+  title_fr?: string
+  description_en?: string
+  description_sw?: string
+  description_fr?: string
 }
 
 // Partner interface
