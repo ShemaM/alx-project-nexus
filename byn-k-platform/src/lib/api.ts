@@ -113,6 +113,15 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
   return apiFetch<Opportunity>(`/opportunities/${id}/`);
 }
 
+/**
+ * Get opportunity by slug (SEO-friendly URL)
+ * @param slug - The URL-friendly slug of the opportunity
+ * @returns Opportunity data
+ */
+export async function getOpportunityBySlug(slug: string): Promise<Opportunity> {
+  return apiFetch<Opportunity>(`/opportunities/${slug}/`);
+}
+
 export async function getFeaturedOpportunities(): Promise<APIResponse<Opportunity[]>> {
   try {
     const response = await apiFetch<any>('/opportunities/?is_featured=true');
@@ -256,5 +265,60 @@ export async function unsubscribe(token: string): Promise<SubscriptionResponse> 
       message: 'Failed to unsubscribe. Please try again.',
       status: 'unsubscribed',
     };
+  }
+}
+
+// ============================================
+// Category Management
+// ============================================
+
+export interface CategoryCounts {
+  jobs: number;
+  scholarships: number;
+  internships: number;
+  fellowships: number;
+  partners: number;
+}
+
+/**
+ * Get opportunity counts per category
+ * @returns CategoryCounts with counts for each category
+ */
+export async function getCategoryCounts(): Promise<CategoryCounts> {
+  try {
+    return await apiFetch<CategoryCounts>('/category-counts/');
+  } catch (error) {
+    console.error('Failed to load category counts:', error);
+    return {
+      jobs: 0,
+      scholarships: 0,
+      internships: 0,
+      fellowships: 0,
+      partners: 0,
+    };
+  }
+}
+
+export interface CategoryData {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  icon: string;
+  color: string;
+  opportunity_count: number;
+}
+
+/**
+ * Get all categories with descriptions and counts
+ * @returns Array of CategoryData
+ */
+export async function getCategories(): Promise<CategoryData[]> {
+  try {
+    const response = await apiFetch<{ results: CategoryData[] }>('/categories/');
+    return response.results || [];
+  } catch (error) {
+    console.error('Failed to load categories:', error);
+    return [];
   }
 }
