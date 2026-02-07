@@ -11,3 +11,6 @@ export type { Notification, NotificationType, NotificationProps } from './Notifi
 
 export { SiteTourProvider, useSiteTour } from './SiteTourContext'
 export type { TourStep } from './SiteTourContext'
+
+export { LanguageProvider, useLanguage } from './LanguageContext'
+export type { Language } from './LanguageContext'

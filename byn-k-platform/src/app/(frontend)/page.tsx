@@ -3,6 +3,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/components/home/Hero'
 import { CategoriesSection } from '@/components/home/CategoriesSection'
 import { PartnersSection } from '@/components/home/PartnersSection'
+import { TestimonialsSection } from '@/components/home/TestimonialsSection'
 import Footer from '@/components/layout/Footer'
 import { getOpportunities, getFeaturedOpportunities, getCategoryCounts, getPartners } from '@/lib/api'
 
@@ -84,6 +85,7 @@ export default async function HomePage() {
       {/* Passing the mapped data and counts to your components */}
       <Hero featuredOpportunities={featuredOpportunities} counts={counts} />
       <CategoriesSection counts={counts} /> 
+      <TestimonialsSection />
       <PartnersSection partners={partners} />
       <Footer />
     </div>
