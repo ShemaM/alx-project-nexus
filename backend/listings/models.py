@@ -117,6 +117,10 @@ class Job(models.Model):
         default='job',
         help_text="The type of opportunity"
     )
+    description = models.TextField(
+        blank=True,
+        help_text="Detailed description of the opportunity"
+    )
     
     # Work Mode & Commitment (Filter Parity)
     work_mode = models.CharField(

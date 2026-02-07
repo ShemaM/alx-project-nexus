@@ -136,7 +136,7 @@ class JobFilter(django_filters.FilterSet):
     
     def filter_by_search(self, queryset, name, value):
         """
-        Full-text search in title, organization name, and city.
+        Full-text search in title, organization name, city and description.
         """
         if not value:
             return queryset
@@ -144,7 +144,8 @@ class JobFilter(django_filters.FilterSet):
         return queryset.filter(
             models.Q(title__icontains=value) |
             models.Q(organization_name__icontains=value) |
-            models.Q(city__icontains=value)
+            models.Q(city__icontains=value) |
+            models.Q(description__icontains=value)
         )
     
     def filter_upcoming(self, queryset, name, value):

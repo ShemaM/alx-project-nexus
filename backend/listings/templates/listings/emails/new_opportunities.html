@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Opportunities on BYN-K Platform</title>
+</head>
+<body>
+    <p>Hi,</p>
+    <p>Here are the new opportunities recently posted on the Banyamulenge Youth Kenya (BYN-K) platform:</p>
+    <ul>
+    {% for job in jobs %}
+        <li>
+            <strong>{{ job.title }}</strong> at {{ job.organization_name }}<br>
+            <strong>Location:</strong> {{ job.location }}<br>
+            <strong>Deadline:</strong> {{ job.deadline|date:"F d, Y" }}<br>
+            <a href="http://localhost:3000/opportunities/{{ job.id }}">View Details</a>
+        </li>
+    {% endfor %}
+    </ul>
+    <p>To unsubscribe from these notifications, please <a href="{{ unsubscribe_link }}">click here</a>.</p>
+    <p>Thanks,<br>The BYN-K Team</p>
+</body>
+</html>

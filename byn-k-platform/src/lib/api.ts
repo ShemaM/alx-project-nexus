@@ -44,42 +44,89 @@ async function apiFetch<T>(
 }
 
 /**
+ * Add a parameter to search params if it has a value
+ */
+function addParamIfPresent(
+  searchParams: URLSearchParams,
+  key: string,
+  value: string | number | boolean | undefined,
+  stringify = false
+): void {
+  if (value !== undefined && value !== '') {
+    searchParams.set(key, stringify ? String(value) : (value as string));
+  }
+}
+
+/**
+ * Add basic filter parameters
+ */
+function addBasicFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
+  addParamIfPresent(searchParams, 'docs', params.docs);
+  addParamIfPresent(searchParams, 'category', params.category);
+  addParamIfPresent(searchParams, 'location', params.location);
+  addParamIfPresent(searchParams, 'city', params.city);
+}
+
+/**
+ * Add work mode and commitment filters
+ */
+function addWorkFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
+  addParamIfPresent(searchParams, 'work_mode', params.work_mode);
+  addParamIfPresent(searchParams, 'commitment', params.commitment);
+}
+
+/**
+ * Add eligibility filters
+ */
+function addEligibilityFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
+  addParamIfPresent(searchParams, 'target_group', params.target_group);
+  addParamIfPresent(searchParams, 'education_level', params.education_level);
+}
+
+/**
+ * Add funding filters
+ */
+function addFundingFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
+  addParamIfPresent(searchParams, 'funding_type', params.funding_type);
+  addParamIfPresent(searchParams, 'is_paid', params.is_paid, true);
+  addParamIfPresent(searchParams, 'stipend_min', params.stipend_min, true);
+  addParamIfPresent(searchParams, 'stipend_max', params.stipend_max, true);
+}
+
+/**
+ * Add deadline filters
+ */
+function addDeadlineFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
+  addParamIfPresent(searchParams, 'deadline_before', params.deadline_before);
+  addParamIfPresent(searchParams, 'deadline_after', params.deadline_after);
+  addParamIfPresent(searchParams, 'closing_soon', params.closing_soon, true);
+  addParamIfPresent(searchParams, 'is_rolling', params.is_rolling, true);
+}
+
+/**
+ * Add status filters
+ */
+function addStatusFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
+  addParamIfPresent(searchParams, 'is_verified', params.is_verified, true);
+  addParamIfPresent(searchParams, 'is_active', params.is_active, true);
+  addParamIfPresent(searchParams, 'is_featured', params.is_featured, true);
+}
+
+/**
  * Build query string from filter parameters
  * Supports all filter parity parameters between backend and frontend
  */
 function buildQueryString(params: OpportunityFilterParams): string {
   const searchParams = new URLSearchParams();
   
-  // Document filter
-  if (params.docs) searchParams.set('docs', params.docs);
-  // Category
-  if (params.category) searchParams.set('category', params.category);
-  // Location
-  if (params.location) searchParams.set('location', params.location);
-  if (params.city) searchParams.set('city', params.city);
-  // Work mode & commitment
-  if (params.work_mode) searchParams.set('work_mode', params.work_mode);
-  if (params.commitment) searchParams.set('commitment', params.commitment);
-  // Eligibility
-  if (params.target_group) searchParams.set('target_group', params.target_group);
-  if (params.education_level) searchParams.set('education_level', params.education_level);
-  // Funding
-  if (params.funding_type) searchParams.set('funding_type', params.funding_type);
-  if (params.is_paid !== undefined) searchParams.set('is_paid', String(params.is_paid));
-  if (params.stipend_min !== undefined) searchParams.set('stipend_min', String(params.stipend_min));
-  if (params.stipend_max !== undefined) searchParams.set('stipend_max', String(params.stipend_max));
-  // Deadline intelligence
-  if (params.deadline_before) searchParams.set('deadline_before', params.deadline_before);
-  if (params.deadline_after) searchParams.set('deadline_after', params.deadline_after);
-  if (params.closing_soon !== undefined) searchParams.set('closing_soon', String(params.closing_soon));
-  if (params.is_rolling !== undefined) searchParams.set('is_rolling', String(params.is_rolling));
-  // Status
-  if (params.is_verified !== undefined) searchParams.set('is_verified', String(params.is_verified));
-  if (params.is_active !== undefined) searchParams.set('is_active', String(params.is_active));
-  if (params.is_featured !== undefined) searchParams.set('is_featured', String(params.is_featured));
-  // Search & sort
-  if (params.search) searchParams.set('search', params.search);
-  if (params.ordering) searchParams.set('ordering', params.ordering);
+  addBasicFilters(searchParams, params);
+  addWorkFilters(searchParams, params);
+  addEligibilityFilters(searchParams, params);
+  addFundingFilters(searchParams, params);
+  addDeadlineFilters(searchParams, params);
+  addStatusFilters(searchParams, params);
+  addParamIfPresent(searchParams, 'search', params.search);
+  addParamIfPresent(searchParams, 'ordering', params.ordering);
   
   const query = searchParams.toString();
   return query ? `?${query}` : '';

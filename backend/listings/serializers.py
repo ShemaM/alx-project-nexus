@@ -39,6 +39,7 @@ class JobSerializer(serializers.ModelSerializer):
             'location',
             'city',
             'category',
+            'description',
             # Work mode & commitment
             'work_mode',
             'commitment',
@@ -106,6 +107,7 @@ class JobListSerializer(serializers.ModelSerializer):
             'location',
             'city',
             'category',
+            'description',
             # Work mode & commitment
             'work_mode',
             'commitment',

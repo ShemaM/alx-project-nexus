@@ -1,0 +1,16 @@
+Hi,
+
+Here are the new opportunities recently posted on the Banyamulenge Youth Kenya (BYN-K) platform:
+
+{% for job in jobs %}
+- {{ job.title }} at {{ job.organization_name }}
+  Location: {{ job.location }}
+  Deadline: {{ job.deadline|date:"F d, Y" }}
+  Link: http://localhost:3000/opportunities/{{ job.id }}
+{% endfor %}
+
+To unsubscribe from these notifications, please click the link below:
+{{ unsubscribe_link }}
+
+Thanks,
+The BYN-K Team
