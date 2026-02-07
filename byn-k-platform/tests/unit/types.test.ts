@@ -30,7 +30,8 @@ describe('generateSlug', () => {
     expect(slug).toBe('')
   })
 
-  it('should handle unicode characters', () => {
+  it('should remove unicode characters (accents)', () => {
+    // Current implementation removes non-ASCII characters
     const slug = generateSlug('Développeur Web')
     expect(slug).toBe('dveloppeur-web')
   })

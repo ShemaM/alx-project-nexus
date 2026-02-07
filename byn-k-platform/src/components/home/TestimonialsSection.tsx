@@ -103,7 +103,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
             </blockquote>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gradient-to-br from-[#2D8FDD] to-[#1E6BB8] rounded-full flex items-center justify-center text-white font-bold text-lg">
-                {testimonials[currentIndex].name.charAt(0)}
+                {testimonials[currentIndex].name?.charAt(0) || '?'}
               </div>
               <div>
                 <p className="font-bold text-[#2D8FDD]">
@@ -177,7 +177,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
               </blockquote>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#2D8FDD] to-[#1E6BB8] rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                  {testimonial.name.charAt(0)}
+                  {testimonial.name?.charAt(0) || '?'}
                 </div>
                 <div>
                   <p className="font-bold text-[#2D8FDD]">

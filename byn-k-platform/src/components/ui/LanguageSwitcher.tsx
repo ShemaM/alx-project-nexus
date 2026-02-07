@@ -9,7 +9,7 @@
 
 import React, { useState } from 'react'
 import { Globe, ChevronDown } from 'lucide-react'
-import { useLanguage, Language } from '@/contexts/LanguageContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface LanguageSwitcherProps {
   variant?: 'dropdown' | 'inline'
