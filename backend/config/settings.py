@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
+    'django_celery_results',
     # Local apps
     'users',
     'listings',
@@ -200,3 +201,26 @@ else:
 ADMIN_SITE_HEADER = "Banyamulenge Youth Kenya (BYN-K) Admin"
 ADMIN_SITE_TITLE = "BYN-K Admin"
 ADMIN_INDEX_TITLE = "Platform Management"
+
+# ============================================
+# Email Configuration
+# ============================================
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'Banyamulenge Youth Kenya <noreply@bynk.org>'
+
+
+# ============================================
+# Celery Configuration
+# ============================================
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Africa/Nairobi'
+CELERY_BEAT_SCHEDULE = {
+    'send-new-opportunity-notifications-every-day': {
+        'task': 'listings.tasks.send_new_opportunity_notifications',
+        'schedule': 86400.0,  # every 24 hours
+    },
+}

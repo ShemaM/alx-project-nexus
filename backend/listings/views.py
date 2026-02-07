@@ -12,7 +12,7 @@ from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import OrderingFilter
 
 from .models import Job, ClickAnalytics, Subscription
 from .serializers import (
@@ -24,6 +24,7 @@ from .serializers import (
     SubscriptionCreateSerializer,
 )
 from .filters import JobFilter
+from .tasks import send_subscription_confirmation_email
 
 
 class JobListView(generics.ListAPIView):
@@ -44,19 +45,18 @@ class JobListView(generics.ListAPIView):
     - ?closing_soon=true - Filter opportunities closing within 7 days
     - ?is_rolling=true - Filter rolling deadline opportunities
     - ?is_verified=true - Filter by verification status
-    - ?search=office - Search in title/org name
-    - ?ordering=deadline - Sort by deadline (ascending)
-    - ?ordering=-created_at - Sort by newest (default)
+    - ?search=office - Search in title/org name/description
+    - ?ordering=deadline - Sort by deadline (ascending, default)
+    - ?ordering=-created_at - Sort by newest
     """
     
     queryset = Job.objects.filter(is_active=True)
     serializer_class = JobListSerializer
     permission_classes = [permissions.AllowAny]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = JobFilter
-    search_fields = ['title', 'organization_name', 'city']
     ordering_fields = ['created_at', 'deadline', 'title', 'stipend_min', 'stipend_max']
-    ordering = ['-created_at']
+    ordering = ['deadline', '-created_at']
     
     def list(self, request, *args, **kwargs):
         """Override list to include disclaimer in response."""
@@ -251,8 +251,9 @@ class SubscriptionCreateView(APIView):
                         'status': 'already_subscribed'
                     })
                 else:
-                    # Regenerate token for re-confirmation
+                    # Regenerate token and resend confirmation
                     existing.regenerate_token()
+                    send_subscription_confirmation_email.delay(existing.id)
                     return Response({
                         'success': True,
                         'message': 'Please check your email to confirm your subscription.',
@@ -262,13 +263,13 @@ class SubscriptionCreateView(APIView):
             # Create new subscription
             subscription = Subscription.objects.create(email=email)
             
-            # TODO: Send confirmation email with token
-            # For now, return success with token for testing
+            # Send confirmation email asynchronously
+            send_subscription_confirmation_email.delay(subscription.id)
+            
             return Response({
                 'success': True,
                 'message': 'Please check your email to confirm your subscription.',
                 'status': 'pending_confirmation',
-                # Note: In production, don't expose token in response
             }, status=status.HTTP_201_CREATED)
         
         return Response(

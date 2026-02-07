@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin, Heart } from 'lucide-react'
+import SubscriptionForm from '@/components/forms/SubscriptionForm'
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
@@ -33,26 +34,14 @@ const Footer: React.FC = () => {
       {/* Newsletter Section */}
       <div className="border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="grid md:grid-cols-2 items-center gap-6">
             <div>
               <h3 className="text-xl font-bold mb-2">Stay Updated</h3>
               <p className="text-blue-100 text-sm">
                 Get the latest opportunities delivered to your inbox
               </p>
             </div>
-            <form className="flex w-full md:w-auto gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 md:w-72 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-[#F5D300]/50 focus:border-[#F5D300]"
-              />
-              <button
-                type="submit"
-                className="bg-[#F5D300] hover:bg-[#D4B500] text-[#1E6BB8] px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
-              >
-                Subscribe
-              </button>
-            </form>
+            <SubscriptionForm />
           </div>
         </div>
       </div>
