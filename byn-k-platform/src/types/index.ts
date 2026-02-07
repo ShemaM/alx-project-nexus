@@ -44,7 +44,7 @@ export interface Opportunity {
   organization: any
   id: number
   title: string
-  slug: string  // SEO-friendly URL slug
+  slug?: string  // SEO-friendly URL slug (optional, auto-generated)
   organization_name: string
   location?: string | null
   city?: string | null

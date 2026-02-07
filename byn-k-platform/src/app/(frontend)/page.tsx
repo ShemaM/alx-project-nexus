@@ -50,15 +50,21 @@ export default async function HomePage() {
     typeof value === 'object' && value !== null && 'category' in value
 
   // Map Django fields to Frontend Component props - include slug for SEO-friendly URLs
-  const featuredOpportunities = featuredData.map(opp => ({
-    id: String(opp.id),
-    title: opp.title,
-    slug: opp.slug || String(opp.id), // Use slug for URL, fallback to ID
-    organization: opp.organization_name || opp.organization || 'Unknown Organization',
-    category: toAllowedCategory(opp.category),
-    deadline: opp.deadline || '',
-    isHot: true, // Since these are from the featured endpoint
-  }))
+  const featuredOpportunities = featuredData.map(opp => {
+    // Log warning if slug is missing to help identify data issues
+    if (!opp.slug) {
+      console.warn(`Opportunity ID ${opp.id} is missing slug, falling back to ID-based URL`)
+    }
+    return {
+      id: String(opp.id),
+      title: opp.title,
+      slug: opp.slug || String(opp.id), // Use slug for URL, fallback to ID
+      organization: opp.organization_name || opp.organization || 'Unknown Organization',
+      category: toAllowedCategory(opp.category),
+      deadline: opp.deadline || '',
+      isHot: true, // Since these are from the featured endpoint
+    }
+  })
 
   // Use category counts from API, with fallback to calculated counts
   const counts = {

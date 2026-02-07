@@ -129,12 +129,8 @@ class Category(models.Model):
     @property
     def opportunity_count(self):
         """Return count of active opportunities in this category."""
-        # Map category name to the choices used in Opportunity model
-        category_map = {
-            'Jobs': 'jobs',
-            'Internships': 'internships',
-            'Scholarships': 'scholarships',
-            'Fellowships': 'fellowships',
-        }
-        category_key = category_map.get(self.name, self.name.lower())
+        # Derive mapping from Opportunity.CATEGORY_CHOICES to ensure consistency
+        category_choices_map = {choice[1]: choice[0] for choice in Opportunity.CATEGORY_CHOICES}
+        # Also add lowercase name mapping for flexibility
+        category_key = category_choices_map.get(self.name) or self.name.lower()
         return Opportunity.objects.filter(category=category_key, is_active=True).count()

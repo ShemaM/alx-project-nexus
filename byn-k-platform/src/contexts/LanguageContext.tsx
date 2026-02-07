@@ -267,17 +267,23 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // Load saved language preference from localStorage
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') as Language | null
-    if (savedLanguage && ['en', 'sw', 'fr'].includes(savedLanguage)) {
-      setLanguageState(savedLanguage)
+    // Check if window is defined to prevent SSR errors
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('language') as Language | null
+      if (savedLanguage && ['en', 'sw', 'fr'].includes(savedLanguage)) {
+        setLanguageState(savedLanguage)
+      }
     }
   }, [])
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang)
-    localStorage.setItem('language', lang)
-    // Set HTML lang attribute for accessibility
-    document.documentElement.lang = lang
+    // Check if window is defined to prevent SSR errors
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', lang)
+      // Set HTML lang attribute for accessibility
+      document.documentElement.lang = lang
+    }
   }, [])
 
   const t = useCallback((key: string): string => {

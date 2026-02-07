@@ -58,12 +58,21 @@ class OpportunityViewSet(viewsets.ModelViewSet):
                 deadline__lte=today + timedelta(days=7)
             )
         
-        # Partner filter (by partner ID or name)
-        partner = self.request.query_params.get('partner')
-        if partner:
-            if partner.isdigit():
-                queryset = queryset.filter(organization_id=partner)
-            else:
+        # Partner filter - explicit parameters for ID vs name
+        partner_id = self.request.query_params.get('partner_id')
+        partner_name = self.request.query_params.get('partner_name')
+        partner = self.request.query_params.get('partner')  # Legacy support
+        
+        if partner_id:
+            queryset = queryset.filter(organization_id=partner_id)
+        elif partner_name:
+            queryset = queryset.filter(organization__name__icontains=partner_name)
+        elif partner:
+            # Legacy fallback: try ID first if numeric, otherwise name
+            try:
+                partner_id_int = int(partner)
+                queryset = queryset.filter(organization_id=partner_id_int)
+            except ValueError:
                 queryset = queryset.filter(organization__name__icontains=partner)
         
         # Type filter (alias for category)

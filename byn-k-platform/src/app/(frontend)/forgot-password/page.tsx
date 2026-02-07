@@ -41,8 +41,9 @@ export default function ForgotPasswordPage() {
       }
 
       setIsSuccess(true)
-    } catch {
-      // Always show success message for security (don't reveal if email exists)
+    } catch (error) {
+      // Log error for debugging, but always show success for security (don't reveal if email exists)
+      console.error('Password reset error:', error)
       setIsSuccess(true)
     } finally {
       setIsLoading(false)
