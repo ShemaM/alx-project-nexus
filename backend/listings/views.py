@@ -12,9 +12,10 @@ from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Count
 from rest_framework.filters import OrderingFilter
 
-from .models import Job, ClickAnalytics, Subscription
+from .models import Job, ClickAnalytics, Subscription, Partner
 from .serializers import (
     JobSerializer, 
     JobListSerializer, 
@@ -22,6 +23,7 @@ from .serializers import (
     TrackClickSerializer,
     SubscriptionSerializer,
     SubscriptionCreateSerializer,
+    PartnerSerializer,
 )
 from .filters import JobFilter
 from .tasks import send_subscription_confirmation_email
@@ -216,6 +218,78 @@ class AnalyticsOverviewView(APIView):
         }
         
         return Response(data)
+
+
+class CategoryCountsView(APIView):
+    """
+    Return opportunity counts per category plus partner count.
+
+    GET /api/category-counts/
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        counts = {
+            'job': 0,
+            'scholarship': 0,
+            'internship': 0,
+            'fellowship': 0,
+        }
+
+        category_totals = (
+            Job.objects.filter(is_active=True)
+            .values('category')
+            .annotate(total=Count('id'))
+        )
+
+        for row in category_totals:
+            category = row.get('category')
+            if category in counts:
+                counts[category] = row.get('total', 0)
+
+        return Response({
+            'jobs': counts['job'],
+            'scholarships': counts['scholarship'],
+            'internships': counts['internship'],
+            'fellowships': counts['fellowship'],
+            'partners': Partner.objects.count(),
+        })
+
+
+class PartnerListView(generics.ListCreateAPIView):
+    """
+    List or create partner organizations.
+
+    GET /api/partners/
+    POST /api/partners/
+    """
+
+    queryset = Partner.objects.all()
+    serializer_class = PartnerSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
+
+
+class PartnerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a partner.
+
+    GET /api/partners/<id>/
+    PATCH/PUT /api/partners/<id>/
+    DELETE /api/partners/<id>/
+    """
+
+    queryset = Partner.objects.all()
+    serializer_class = PartnerSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
 
 
 # ============================================

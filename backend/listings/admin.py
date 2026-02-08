@@ -10,7 +10,7 @@ from django.contrib import admin
 from django.conf import settings
 from django import forms
 from unfold.admin import ModelAdmin
-from .models import Job, ClickAnalytics, Subscription
+from .models import Job, ClickAnalytics, Subscription, Partner
 
 # ============================================
 # Admin Site Customization
@@ -218,6 +218,16 @@ class SubscriptionAdmin(ModelAdmin):
         'confirmed_at',
         'last_notified_at',
     ]
+
+
+@admin.register(Partner)
+class PartnerAdmin(ModelAdmin):
+    """Admin configuration for Partner organizations."""
+
+    list_display = ['name', 'website_url', 'is_featured', 'created_at']
+    search_fields = ['name']
+    list_filter = ['is_featured']
+    ordering = ['name']
     
     list_filter = [
         'is_active',

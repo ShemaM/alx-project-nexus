@@ -28,6 +28,13 @@ urlpatterns = [
     
     # 6. Analytics (Matches: /api/analytics/)
     path('analytics/', views.AnalyticsOverviewView.as_view(), name='analytics'),
+
+    # 6.1 Category counts (Matches: /api/category-counts/)
+    path('category-counts/', views.CategoryCountsView.as_view(), name='category-counts'),
+
+    # 6.2 Partners (Matches: /api/partners/)
+    path('partners/', views.PartnerListView.as_view(), name='partners'),
+    path('partners/<int:pk>/', views.PartnerDetailView.as_view(), name='partner-detail'),
     
     # ============================================
     # Subscription Endpoints
