@@ -6,7 +6,10 @@ Thank you for your interest in contributing to the BYN-K Platform! This document
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
+- [Git Flow](#git-flow)
 - [Development Workflow](#development-workflow)
+- [Coding Standards](#coding-standards)
+- [Commit Message Guidelines](#commit-message-guidelines)
 - [Secure Coding Guidelines](#secure-coding-guidelines)
 - [Pull Request Process](#pull-request-process)
 - [Testing Requirements](#testing-requirements)
@@ -19,13 +22,53 @@ This project adheres to a Code of Conduct. By participating, you are expected to
 
 1. Fork the repository
 2. Clone your fork locally
-3. Set up the development environment following the [README](./byn-k-platform/README.md)
-4. Create a feature branch from `develop`
+3. Set up the development environment following the [README](./README.md)
+4. Create a feature branch from `main` or `develop`
 
 ```bash
-git checkout develop
+git checkout main
 git checkout -b feature/your-feature-name
 ```
+
+---
+
+## Git Flow
+
+We follow a standard Git Flow workflow to maintain a clean and organized codebase.
+
+### Branch Naming Convention
+
+| Branch Type | Naming Pattern | Example |
+|-------------|----------------|---------|
+| Feature | `feature/<description>` | `feature/add-job-filters` |
+| Bug Fix | `fix/<description>` | `fix/login-redirect-issue` |
+| Hotfix | `hotfix/<description>` | `hotfix/critical-auth-bug` |
+| Documentation | `docs/<description>` | `docs/update-readme` |
+| Refactor | `refactor/<description>` | `refactor/api-structure` |
+
+### Workflow
+
+1. **Create a feature branch** from `main`:
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make your changes** and commit regularly with descriptive messages.
+
+3. **Push your branch** to your fork:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+4. **Open a Pull Request** against `main` (or `develop` if applicable).
+
+5. **Address review feedback** and ensure all CI checks pass.
+
+6. **Merge** once approved (squash merge preferred for cleaner history).
+
+---
 
 ## Development Workflow
 
@@ -35,6 +78,124 @@ git checkout -b feature/your-feature-name
 4. **Run linting** to ensure code quality
 5. **Commit your changes** with clear, descriptive messages
 6. **Push** to your fork and submit a Pull Request
+
+---
+
+## Coding Standards
+
+### Frontend (Next.js / TypeScript)
+
+We use **Prettier** for code formatting and **ESLint** for code quality.
+
+#### Running Linters
+
+```bash
+cd byn-k-platform
+
+# Run ESLint
+pnpm lint
+
+# Format code with Prettier (if configured)
+pnpm prettier --write .
+```
+
+#### ESLint Rules
+
+- Follow the Next.js ESLint configuration (`eslint-config-next`)
+- Fix all ESLint errors before submitting a PR
+- Warnings should be addressed when possible
+
+#### Prettier Configuration
+
+The project uses the following Prettier settings (`.prettierrc.json`):
+- Use single quotes
+- Trailing commas
+- 2-space indentation
+
+### Backend (Django / Python)
+
+We follow **PEP 8** style guidelines for Python code.
+
+#### Style Guidelines
+
+- **Indentation**: 4 spaces (no tabs)
+- **Line length**: Maximum 79 characters for code, 72 for docstrings
+- **Imports**: Group imports (standard library, third-party, local) with blank lines between groups
+- **Naming conventions**:
+  - `snake_case` for functions and variables
+  - `PascalCase` for classes
+  - `UPPER_CASE` for constants
+
+#### Running Linters
+
+```bash
+cd backend
+
+# Install flake8 (if not installed)
+pip install flake8
+
+# Run flake8
+flake8 .
+
+# For auto-formatting, use black (optional)
+pip install black
+black .
+```
+
+---
+
+## Commit Message Guidelines
+
+We use **Conventional Commits** format for clear and meaningful commit history.
+
+### Format
+
+```
+<type>(<scope>): <short description>
+
+[optional body]
+
+[optional footer]
+```
+
+### Types
+
+| Type | Description |
+|------|-------------|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `docs` | Documentation only changes |
+| `style` | Code style changes (formatting, no logic changes) |
+| `refactor` | Code refactoring (no feature or bug fix) |
+| `test` | Adding or updating tests |
+| `chore` | Maintenance tasks (build, CI, dependencies) |
+| `security` | Security improvements or fixes |
+
+### Examples
+
+```bash
+# Feature
+feat(listings): add job category filter
+
+# Bug fix
+fix(auth): resolve login redirect issue on mobile
+
+# Documentation
+docs(readme): update installation instructions
+
+# Refactoring
+refactor(api): simplify error handling middleware
+
+# Security
+security(auth): implement rate limiting on login endpoint
+```
+
+### Best Practices
+
+- **Keep it concise**: Subject line should be 50 characters or less
+- **Use imperative mood**: "Add feature" not "Added feature"
+- **Be descriptive**: Explain what and why, not how
+- **Reference issues**: Include issue numbers when applicable (`fixes #123`)
 
 ## Secure Coding Guidelines
 
