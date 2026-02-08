@@ -7,7 +7,7 @@ Phase 3 Security NFRs (Protected Media & Disclaimers).
 
 from rest_framework import serializers
 from django.conf import settings
-from .models import Job, ClickAnalytics, Subscription
+from .models import Job, ClickAnalytics, Subscription, Partner
 
 
 class PrepChecklistItemSerializer(serializers.Serializer):
@@ -173,4 +173,19 @@ class SubscriptionCreateSerializer(serializers.Serializer):
     def validate_email(self, value):
         """Validate and normalize email."""
         return value.lower().strip()
+
+
+class PartnerSerializer(serializers.ModelSerializer):
+    """Serializer for partner organizations."""
+
+    opportunity_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Partner
+        fields = ['id', 'name', 'logo_url', 'website_url', 'is_featured', 'opportunity_count']
+        read_only_fields = ['id', 'opportunity_count']
+
+    def get_opportunity_count(self, obj):
+        from .models import Job
+        return Job.objects.filter(organization_name=obj.name, is_active=True).count()
     

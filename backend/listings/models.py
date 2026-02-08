@@ -9,6 +9,7 @@ import uuid
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 class Job(models.Model):
@@ -101,6 +102,7 @@ class Job(models.Model):
         max_length=255,
         help_text="The opportunity title - be clear and descriptive"
     )
+    slug = models.SlugField(max_length=250, null=True, blank=True)
     organization_name = models.CharField(
         max_length=255,
         help_text="The organization offering this opportunity"
@@ -269,7 +271,7 @@ class Job(models.Model):
         blank=True,
         related_name='created_jobs'
     )
-    
+
     class Meta:
         verbose_name = 'Job Listing'
         verbose_name_plural = 'Job Listings'
@@ -401,3 +403,38 @@ class Subscription(models.Model):
         """Regenerate the confirmation token."""
         self.confirmation_token = uuid.uuid4()
         self.save()
+
+
+class Partner(models.Model):
+    """
+    Partner organization featured on the platform.
+    """
+
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Partner organization name"
+    )
+    logo_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Logo image URL"
+    )
+    website_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Partner website URL"
+    )
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Highlight partner on the homepage"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Partner'
+        verbose_name_plural = 'Partners'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
