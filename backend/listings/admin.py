@@ -29,7 +29,35 @@ class JobAdminForm(forms.ModelForm):
     
     class Meta:
         model = Job
-        fields = '__all__'
+        fields = [
+            'title',
+            'organization_name',
+            'category',
+            'location',
+            'city',
+            'deadline',
+            'is_rolling',
+            'is_verified',
+            'is_active',
+            'is_featured',
+            'work_mode',
+            'commitment',
+            'target_group',
+            'education_level',
+            'funding_type',
+            'is_paid',
+            'stipend_min',
+            'stipend_max',
+            'application_type',
+            'external_url',
+            'application_email',
+            'email_subject_line',
+            'brochure_upload',
+            'required_documents',
+            'prep_checklist',
+            'raw_data',
+            'created_by',
+        ]
         widgets = {
             'raw_data': forms.Textarea(attrs={
                 'rows': 10,
@@ -226,58 +254,29 @@ class PartnerAdmin(ModelAdmin):
 
     list_display = ['name', 'website_url', 'is_featured', 'created_at']
     search_fields = ['name']
-    list_filter = ['is_featured']
+    list_filter = ['is_featured', 'created_at']
     ordering = ['name']
     
-    list_filter = [
-        'is_active',
-        'created_at',
-        'confirmed_at',
-    ]
-    
-    search_fields = ['email']
-    
-    ordering = ['-created_at']
-    
     readonly_fields = [
-        'confirmation_token',
         'created_at',
-        'confirmed_at',
-        'last_notified_at',
     ]
     
     fieldsets = (
-        ('Subscription Details', {
+        ('Partner Details', {
             'fields': (
-                'email',
-                'is_active',
+                'name',
+                'logo_url',
+                'website_url',
+                'is_featured',
             ),
             'classes': ['tab'],
-            'description': 'Core subscription information.'
+            'description': 'Core partner information.'
         }),
-        ('Status & History', {
+        ('Metadata', {
             'fields': (
-                'confirmation_token',
                 'created_at',
-                'confirmed_at',
-                'last_notified_at',
             ),
             'classes': ['tab'],
-            'description': 'Subscription status and notification history.'
+            'description': 'Partner creation metadata.'
         }),
     )
-    
-    actions = ['deactivate_subscriptions', 'activate_subscriptions']
-    
-    @admin.action(description='Deactivate selected subscriptions')
-    def deactivate_subscriptions(self, request, queryset):
-        """Bulk deactivate subscriptions."""
-        updated = queryset.update(is_active=False)
-        self.message_user(request, f'{updated} subscription(s) deactivated.')
-    
-    @admin.action(description='Activate selected subscriptions')
-    def activate_subscriptions(self, request, queryset):
-        """Bulk activate subscriptions."""
-        from django.utils import timezone
-        updated = queryset.update(is_active=True, confirmed_at=timezone.now())
-        self.message_user(request, f'{updated} subscription(s) activated.')

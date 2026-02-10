@@ -4,7 +4,9 @@ User Admin Configuration.
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User 
+# Register the custom User model with the admin site using the custom UserAdmin configuration.
+
 
 
 @admin.register(User)

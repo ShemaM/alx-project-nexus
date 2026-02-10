@@ -2,9 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { ArrowLeft, Calendar, CheckCircle2, MapPin, Building2, FileText, Mail, Download, Paperclip } from 'lucide-react'
+import { ArrowLeft, Calendar, CheckCircle2, MapPin, Building2, FileText, Mail, Download, Paperclip, ArrowRight } from 'lucide-react'
 import { getOpportunityBySlug, getBrochureUrl } from '@/lib/api'
 import OpportunityActions from '@/components/ui/OpportunityActions'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 // Force dynamic rendering to fetch data at runtime (requires database connection)
 export const dynamic = 'force-dynamic'
@@ -214,90 +215,111 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
 
           {/* Email Application Requirements */}
           {isEmailApplication && opportunity.application_email && (
-            <div className="p-6 md:p-8 border-b border-[#E2E8F0] bg-blue-50/50">
-              <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <Mail size={20} className="text-[#2D8FDD]" />
-                How to Apply
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <Paperclip size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-slate-700">Send your application to:</p>
-                    <a 
-                      href={`mailto:${opportunity.application_email}`}
-                      className="text-[#2D8FDD] hover:underline font-semibold"
-                    >
-                      {opportunity.application_email}
-                    </a>
-                  </div>
-                </div>
-                {opportunity.email_subject_line && (
+            <Collapsible className="p-6 md:p-8 border-b border-[#E2E8F0] bg-blue-50/50">
+              <CollapsibleTrigger asChild>
+                <button className="flex justify-between items-center w-full text-lg font-bold text-slate-900 mb-4 cursor-pointer">
+                  <h2 className="flex items-center gap-2">
+                    <Mail size={20} className="text-[#2D8FDD]" />
+                    How to Apply
+                  </h2>
+                  <ArrowRight size={20} className="text-slate-500 ui-open:rotate-90 ui-open:transform transition-transform" />
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <FileText size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
+                    <Paperclip size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-slate-700">Subject Line:</p>
-                      <p className="text-slate-600 bg-white px-3 py-1.5 rounded border border-slate-200 inline-block mt-1">
-                        {opportunity.email_subject_line}
-                      </p>
+                      <p className="text-sm font-medium text-slate-700">Send your application to:</p>
+                      <a 
+                        href={`mailto:${opportunity.application_email}`}
+                        className="text-[#2D8FDD] hover:underline font-semibold"
+                      >
+                        {opportunity.application_email}
+                      </a>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
+                  {opportunity.email_subject_line && (
+                    <div className="flex items-start gap-3">
+                      <FileText size={18} className="text-[#2D8FDD] mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-slate-700">Subject Line:</p>
+                        <p className="text-slate-600 bg-white px-3 py-1.5 rounded border border-slate-200 inline-block mt-1">
+                          {opportunity.email_subject_line}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           )}
 
           {/* PDF Brochure Download */}
           {hasBrochure && brochureUrl && (
-            <div className="p-6 md:p-8 border-b border-[#E2E8F0]">
-              <h2 className="text-lg font-bold text-slate-900 mb-4">Opportunity Details</h2>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#2D8FDD]/10 rounded-lg flex items-center justify-center">
-                      <FileText size={20} className="text-[#2D8FDD]" />
+            <Collapsible className="p-6 md:p-8 border-b border-[#E2E8F0]">
+              <CollapsibleTrigger asChild>
+                <button className="flex justify-between items-center w-full text-lg font-bold text-slate-900 mb-4 cursor-pointer">
+                  <h2>Opportunity Details</h2>
+                  <ArrowRight size={20} className="text-slate-500 ui-open:rotate-90 ui-open:transform transition-transform" />
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#2D8FDD]/10 rounded-lg flex items-center justify-center">
+                        <FileText size={20} className="text-[#2D8FDD]" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-900">Opportunity Details Document</p>
+                        <p className="text-sm text-slate-500">Download the full document for complete information</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-slate-900">Opportunity Details Document</p>
-                      <p className="text-sm text-slate-500">Download the full document for complete information</p>
-                    </div>
+                    <a 
+                      href={brochureUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+                    >
+                      <Download size={16} />
+                      Download
+                    </a>
                   </div>
-                  <a 
-                    href={brochureUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-                  >
-                    <Download size={16} />
-                    Download
-                  </a>
                 </div>
-              </div>
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
           )}
 
           {/* Prep Checklist */}
           {opportunity.prep_checklist && opportunity.prep_checklist.length > 0 && (
-            <div className="p-6 md:p-8 border-b border-[#E2E8F0]">
-              <h2 className="text-lg font-bold text-slate-900 mb-4">Preparation Checklist</h2>
-              <ul className="space-y-2">
-                {opportunity.prep_checklist.map((item, index) => {
-                  const itemText = typeof item === 'string' ? item : (item && typeof item === 'object' ? item.item : String(item))
-                  const isRequired = typeof item === 'object' && item !== null && 'required' in item && item.required
-                  return (
-                    <li key={index} className="flex items-start gap-2">
-                      <CheckCircle2 size={18} className="text-[#27AE60] mt-0.5 flex-shrink-0" />
-                      <span className="text-slate-700">
-                        {itemText}
-                        {isRequired && (
-                          <span className="text-red-500 ml-1">*</span>
-                        )}
-                      </span>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
+            <Collapsible className="p-6 md:p-8 border-b border-[#E2E8F0]">
+              <CollapsibleTrigger asChild>
+                <button className="flex justify-between items-center w-full text-lg font-bold text-slate-900 mb-4 cursor-pointer">
+                  <h2>Preparation Checklist</h2>
+                  <ArrowRight size={20} className="text-slate-500 ui-open:rotate-90 ui-open:transform transition-transform" />
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <ul className="space-y-2">
+                  {opportunity.prep_checklist.map((item, index) => {
+                    const itemText = typeof item === 'string' ? item : (item && typeof item === 'object' ? item.item : String(item))
+                    const isRequired = typeof item === 'object' && item !== null && 'required' in item && item.required
+                    return (
+                      <li key={index} className="flex items-start gap-2">
+                        <CheckCircle2 size={18} className="text-[#27AE60] mt-0.5 flex-shrink-0" />
+                        <span className="text-slate-700">
+                          {itemText}
+                          {isRequired && (
+                            <span className="text-red-500 ml-1">*</span>
+                          )}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </CollapsibleContent>
+            </Collapsible>
           )}
 
           {/* Actions */}

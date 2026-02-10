@@ -17,7 +17,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+// import Image from 'next/image' // Removed next/image import
+import { ImageWithFallback } from '../ui/ImageWithFallback' // Import ImageWithFallback
 import { ArrowRight, Sparkles, TrendingUp, Clock, ChevronLeft, ChevronRight, Star } from 'lucide-react'
 import styles from './Hero.module.css'
 
@@ -106,13 +107,10 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
     >
       {/* Full-width Background Image with Dark Blue/Slate Gradient Overlay */}
       <div className="absolute inset-0">
-        <Image
+        <ImageWithFallback
           src="/images/hero-bg.jpg"
           alt="Hero background"
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
+          className="object-cover w-full h-full" // Use w-full h-full and object-cover for fill effect
         />
         {/* Dark blue/slate gradient overlay for text readability */}
         <div className="absolute inset-0 bg-slate-900/80" />
