@@ -4,6 +4,16 @@ Listings Filters.
 Phase 3: Advanced Filtering
 Implements django-filter to allow frontend queries like:
 ?docs=alien_card&category=scholarship&work_mode=remote&closing_soon=true
+<<<<<<< HEAD
+=======
+
+Phase 4: Multi-select Filtering
+Enhanced to support:
+- Multiple categories: ?categories=job,scholarship,internship
+- Multiple work modes: ?work_modes=remote,hybrid
+- icontains for titles and descriptions
+- in lookups for categories and work types
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
 """
 
 import django_filters
@@ -19,10 +29,19 @@ class JobFilter(django_filters.FilterSet):
     
     Supports filtering by:
     - docs: Required documents (e.g., ?docs=alien_card)
+<<<<<<< HEAD
     - category: Job category (e.g., ?category=scholarship)
     - location: Location/Country (e.g., ?location=kenya)
     - city: City (e.g., ?city=Nairobi)
     - work_mode: Remote/hybrid/onsite (e.g., ?work_mode=remote)
+=======
+    - category: Single category (e.g., ?category=scholarship)
+    - categories: Multiple categories comma-separated (e.g., ?categories=job,scholarship)
+    - location: Location/Country (e.g., ?location=kenya)
+    - city: City (e.g., ?city=Nairobi) - uses icontains
+    - work_mode: Single work mode (e.g., ?work_mode=remote)
+    - work_modes: Multiple work modes comma-separated (e.g., ?work_modes=remote,hybrid)
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     - commitment: Full-time/part-time/etc (e.g., ?commitment=full_time)
     - target_group: Target audience (e.g., ?target_group=refugees)
     - education_level: Required education (e.g., ?education_level=undergraduate)
@@ -32,22 +51,46 @@ class JobFilter(django_filters.FilterSet):
     - deadline_before/deadline_after: Deadline range (e.g., ?deadline_before=2026-03-01)
     - closing_soon: Opportunities closing within 7 days (e.g., ?closing_soon=true)
     - is_rolling: Rolling deadline opportunities (e.g., ?is_rolling=true)
+<<<<<<< HEAD
     - is_verified: Verification status (e.g., ?is_verified=true)
     - search: Full-text search in title/org (e.g., ?search=office)
+=======
+    - is_verified: Verification status - exact match (e.g., ?is_verified=true)
+    - search: Full-text search in title/org/description - uses icontains (e.g., ?search=office)
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     """
     
     # Filter by required documents (JSONField)
     docs = django_filters.CharFilter(method='filter_by_document')
     
+<<<<<<< HEAD
     # Category filter
     category = django_filters.ChoiceFilter(choices=Job.CATEGORY_CHOICES)
     
+=======
+    # Category filter - single selection (backward compatible)
+    category = django_filters.ChoiceFilter(choices=Job.CATEGORY_CHOICES)
+    
+    # Categories filter - multiple selection with in lookup
+    categories = django_filters.CharFilter(method='filter_by_categories')
+    
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     # Location filters
     location = django_filters.ChoiceFilter(choices=Job.LOCATION_CHOICES)
     city = django_filters.CharFilter(lookup_expr='icontains')
     
+<<<<<<< HEAD
     # Work mode and commitment filters
     work_mode = django_filters.ChoiceFilter(choices=Job.WORK_MODE_CHOICES)
+=======
+    # Work mode filter - single selection (backward compatible)
+    work_mode = django_filters.ChoiceFilter(choices=Job.WORK_MODE_CHOICES)
+    
+    # Work modes filter - multiple selection with in lookup
+    work_modes = django_filters.CharFilter(method='filter_by_work_modes')
+    
+    # Commitment filter
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     commitment = django_filters.ChoiceFilter(choices=Job.COMMITMENT_CHOICES)
     
     # Eligibility filters
@@ -66,7 +109,11 @@ class JobFilter(django_filters.FilterSet):
     closing_soon = django_filters.BooleanFilter(method='filter_closing_soon')
     is_rolling = django_filters.BooleanFilter()
     
+<<<<<<< HEAD
     # Status filters
+=======
+    # Status filters - exact matching for boolean fields
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     is_verified = django_filters.BooleanFilter()
     is_active = django_filters.BooleanFilter()
     is_featured = django_filters.BooleanFilter()
@@ -76,7 +123,11 @@ class JobFilter(django_filters.FilterSet):
         choices=Job.APPLICATION_TYPE_CHOICES
     )
     
+<<<<<<< HEAD
     # Search filter
+=======
+    # Search filter - uses icontains for titles and descriptions
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     search = django_filters.CharFilter(method='filter_by_search')
     
     # Legacy filter (keeping for backward compatibility)
@@ -87,6 +138,7 @@ class JobFilter(django_filters.FilterSet):
         fields = [
             # Document filters
             'docs', 
+<<<<<<< HEAD
             # Category
             'category', 
             # Location
@@ -94,6 +146,18 @@ class JobFilter(django_filters.FilterSet):
             'city',
             # Work mode & commitment
             'work_mode',
+=======
+            # Category (single and multiple)
+            'category',
+            'categories',
+            # Location
+            'location', 
+            'city',
+            # Work mode (single and multiple)
+            'work_mode',
+            'work_modes',
+            # Commitment
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
             'commitment',
             # Eligibility
             'target_group',
@@ -134,9 +198,46 @@ class JobFilter(django_filters.FilterSet):
         # For production with PostgreSQL, you could use __contains lookup
         return queryset.filter(required_documents__icontains=value)
     
+    def filter_by_categories(self, queryset, name, value):
+        """
+        Filter jobs by multiple categories (comma-separated).
+        
+        Uses __in lookup to support multiple category selections.
+        Example: ?categories=job,scholarship,internship
+        """
+        if not value:
+            return queryset
+        
+        # Split comma-separated categories and filter
+        categories = [cat.strip() for cat in value.split(',') if cat.strip()]
+        if categories:
+            return queryset.filter(category__in=categories)
+        return queryset
+    
+    def filter_by_work_modes(self, queryset, name, value):
+        """
+        Filter jobs by multiple work modes (comma-separated).
+        
+        Uses __in lookup to support multiple work mode selections.
+        Example: ?work_modes=remote,hybrid
+        """
+        if not value:
+            return queryset
+        
+        # Split comma-separated work modes and filter
+        work_modes = [wm.strip() for wm in value.split(',') if wm.strip()]
+        if work_modes:
+            return queryset.filter(work_mode__in=work_modes)
+        return queryset
+    
     def filter_by_search(self, queryset, name, value):
         """
         Full-text search in title, organization name, city and description.
+<<<<<<< HEAD
+=======
+        
+        Uses icontains for case-insensitive partial matching.
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
         """
         if not value:
             return queryset

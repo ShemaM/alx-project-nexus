@@ -27,6 +27,7 @@ class JobSerializer(serializers.ModelSerializer):
     days_until_deadline = serializers.IntegerField(read_only=True)
     is_expired = serializers.BooleanField(read_only=True)
     brochure_url = serializers.SerializerMethodField()
+    org_logo_url = serializers.SerializerMethodField()
     disclaimer = serializers.SerializerMethodField()
     
     class Meta:
@@ -36,7 +37,11 @@ class JobSerializer(serializers.ModelSerializer):
             'title',
             'organization', # Field name expected by transformJobToOpportunityCard
             'organization_name',
+<<<<<<< HEAD
             'org_logo', # Add org_logo
+=======
+            'org_logo_url',
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
             'location',
             'city',
             'category',
@@ -77,6 +82,15 @@ class JobSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
     
+    def get_org_logo_url(self, obj):
+        """Return the full URL of the organization logo."""
+        if obj.org_logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.org_logo.url)
+            return obj.org_logo.url
+        return None
+    
     def get_brochure_url(self, obj):
         """
         Return the protected URL instead of the direct file link.
@@ -98,6 +112,7 @@ class JobListSerializer(serializers.ModelSerializer):
     organization = serializers.CharField(source='organization_name', read_only=True)
     days_until_deadline = serializers.IntegerField(read_only=True)
     brochure_url = serializers.SerializerMethodField()
+    org_logo_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Job
@@ -105,7 +120,11 @@ class JobListSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'organization',
+<<<<<<< HEAD
             'org_logo', # Add org_logo
+=======
+            'org_logo_url',
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
             'location',
             'city',
             'category',
@@ -137,6 +156,15 @@ class JobListSerializer(serializers.ModelSerializer):
             'is_rolling',
             'days_until_deadline',
         ]
+    
+    def get_org_logo_url(self, obj):
+        """Return the full URL of the organization logo."""
+        if obj.org_logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.org_logo.url)
+            return obj.org_logo.url
+        return None
     
     def get_brochure_url(self, obj):
         if obj.brochure_upload:

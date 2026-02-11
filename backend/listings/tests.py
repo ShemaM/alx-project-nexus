@@ -429,6 +429,10 @@ class JobFilterTests(TestCase):
         self.remote_job = Job.objects.create(
             title='Remote Developer',
             organization_name='Remote Tech',
+<<<<<<< HEAD
+=======
+            category='job',
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
             work_mode='remote',
             commitment='full_time',
             target_group='youth',
@@ -436,11 +440,19 @@ class JobFilterTests(TestCase):
             funding_type='fully',
             is_paid=True,
             is_active=True,
+<<<<<<< HEAD
+=======
+            is_verified=True,
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
         )
         
         self.onsite_job = Job.objects.create(
             title='Office Manager',
             organization_name='Local Corp',
+<<<<<<< HEAD
+=======
+            category='internship',
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
             work_mode='onsite',
             commitment='part_time',
             target_group='refugees',
@@ -448,6 +460,24 @@ class JobFilterTests(TestCase):
             funding_type='none',
             is_paid=False,
             is_active=True,
+<<<<<<< HEAD
+=======
+            is_verified=False,
+        )
+        
+        self.hybrid_job = Job.objects.create(
+            title='Scholarship Program',
+            organization_name='Education Fund',
+            category='scholarship',
+            work_mode='hybrid',
+            commitment='short_term',
+            target_group='women',
+            education_level='graduate',
+            funding_type='partially',
+            is_paid=False,
+            is_active=True,
+            is_verified=True,
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
         )
     
     def test_filter_by_work_mode(self):
@@ -499,3 +529,65 @@ class JobFilterTests(TestCase):
         
         self.assertEqual(data['count'], 1)
         self.assertEqual(data['results'][0]['title'], 'Remote Developer')
+<<<<<<< HEAD
+=======
+    
+    def test_filter_by_multiple_categories(self):
+        """Test filtering by multiple categories (in lookup)."""
+        response = self.client.get('/api/opportunities/?categories=job,scholarship')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 2)
+        titles = [r['title'] for r in data['results']]
+        self.assertIn('Remote Developer', titles)
+        self.assertIn('Scholarship Program', titles)
+    
+    def test_filter_by_multiple_work_modes(self):
+        """Test filtering by multiple work modes (in lookup)."""
+        response = self.client.get('/api/opportunities/?work_modes=remote,hybrid')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 2)
+        titles = [r['title'] for r in data['results']]
+        self.assertIn('Remote Developer', titles)
+        self.assertIn('Scholarship Program', titles)
+    
+    def test_filter_by_is_verified_exact_match(self):
+        """Test filtering by is_verified (exact boolean match)."""
+        response = self.client.get('/api/opportunities/?is_verified=true')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 2)
+        for result in data['results']:
+            self.assertTrue(result['is_verified'])
+    
+    def test_search_icontains_title(self):
+        """Test search filter uses icontains for titles."""
+        response = self.client.get('/api/opportunities/?search=DEVELOPER')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Remote Developer')
+    
+    def test_search_icontains_description(self):
+        """Test search filter uses icontains for descriptions."""
+        # Update job with description
+        self.remote_job.description = 'Looking for a software engineer'
+        self.remote_job.save()
+        
+        response = self.client.get('/api/opportunities/?search=SOFTWARE')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Remote Developer')
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62

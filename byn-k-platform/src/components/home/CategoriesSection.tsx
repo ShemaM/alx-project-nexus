@@ -32,7 +32,8 @@ type CategoriesSectionProps = {
 export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
   const categories = [
     {
-      href: '/categories/jobs',
+      id: 'job',
+      href: '/opportunities?categories=job',
       icon: Briefcase,
       title: 'Jobs',
       description: 'Find verified job opportunities for your skills',
@@ -41,7 +42,8 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
       ariaLabel: `Browse ${counts.jobs ?? 0} job opportunities`
     },
     {
-      href: '/categories/scholarships',
+      id: 'scholarship',
+      href: '/opportunities?categories=scholarship',
       icon: GraduationCap,
       title: 'Scholarships',
       description: 'Educational funding opportunities for students',
@@ -50,7 +52,8 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
       ariaLabel: `Browse ${counts.scholarships ?? 0} scholarship opportunities`
     },
     {
-      href: '/categories/internships',
+      id: 'internship',
+      href: '/opportunities?categories=internship',
       icon: Building,
       title: 'Internships',
       description: 'Gain experience with internship programs',
@@ -59,7 +62,8 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
       ariaLabel: `Browse ${counts.internships ?? 0} internship opportunities`
     },
     {
-      href: '/categories/fellowships',
+      id: 'fellowship',
+      href: '/opportunities?categories=fellowship',
       icon: BookOpen,
       title: 'Fellowships',
       description: 'Fellowship programs and opportunities',

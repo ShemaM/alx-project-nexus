@@ -10,7 +10,11 @@ from django.utils.html import mark_safe # Import mark_safe for rendering HTML
 from django.contrib import admin
 from django.conf import settings
 from django import forms
+<<<<<<< HEAD
 from django.utils.text import slugify
+=======
+from django.utils.html import mark_safe
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
 from unfold.admin import ModelAdmin
 from .models import Job, ClickAnalytics, Subscription, Partner
 
@@ -67,7 +71,11 @@ class JobAdmin(ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
     
     list_display = [
+<<<<<<< HEAD
         'org_logo_thumbnail', # Display logo thumbnail
+=======
+        'logo_thumbnail',
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
         'title', 
         'organization_name', 
         'category',
@@ -78,14 +86,34 @@ class JobAdmin(ModelAdmin):
         'created_at'
     ]
     
+<<<<<<< HEAD
     search_fields = ['title', 'organization_name', 'city']
     
+=======
+    # Search capabilities for Title and Organization
+    search_fields = ['title', 'organization_name', 'city']
+    
+    # Filters for all filterable fields
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     list_filter = [
         'category',
         'work_mode',
         'commitment',
+<<<<<<< HEAD
         'is_verified',
         'is_active',
+=======
+        'target_group',
+        'education_level',
+        'funding_type',
+        'is_paid',
+        'is_rolling',
+        'application_type',
+        'location',
+        'is_verified',  # WhatsApp verified status
+        'is_active',
+        'is_featured',
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     ]
     
     date_hierarchy = 'created_at'
@@ -98,9 +126,14 @@ class JobAdmin(ModelAdmin):
         ('Opportunity Details', {
             'fields': (
                 'title', 
+<<<<<<< HEAD
                 'slug',  # CRITICAL: If this is missing from fieldsets, Unfold won't save it
                 'organization_name', 
                 'org_logo', # Add org_logo to fieldset
+=======
+                'organization_name',
+                'org_logo',
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
                 'category', 
                 'location',
                 'city',
@@ -129,6 +162,26 @@ class JobAdmin(ModelAdmin):
                 'stipend_max',
             ),
             'classes': ['tab'],
+        }),
+        ('Work Mode & Eligibility', {
+            'fields': (
+                'work_mode',
+                'commitment',
+                'target_group',
+                'education_level',
+            ),
+            'classes': ['tab'],
+            'description': 'Work arrangement and eligibility requirements.'
+        }),
+        ('Funding & Compensation', {
+            'fields': (
+                'funding_type',
+                'is_paid',
+                'stipend_min',
+                'stipend_max',
+            ),
+            'classes': ['tab'],
+            'description': 'Financial details of the opportunity.'
         }),
         ('Gateway Logic', {
             'fields': (
@@ -163,11 +216,26 @@ class JobAdmin(ModelAdmin):
         return "No Image"
     org_logo_thumbnail.short_description = 'Logo'
     
+<<<<<<< HEAD
     def total_clicks_display(self, obj):
         if obj.pk:
             return sum(a.click_count for a in obj.click_analytics.all())
         return 0
     total_clicks_display.short_description = 'Total Clicks'
+=======
+    def logo_thumbnail(self, obj):
+        """Display a small thumbnail of the organization logo."""
+        if obj.org_logo:
+            return mark_safe(f'<img src="{obj.org_logo.url}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;" />')
+        return '-'
+    logo_thumbnail.short_description = 'Logo'
+    
+    def total_clicks(self, obj):
+        """Display total clicks for this job (read-only)."""
+        total = sum(a.click_count for a in obj.click_analytics.all())
+        return total
+    total_clicks.short_description = 'Total Clicks'
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     
     def save_model(self, request, obj, form, change):
         """
@@ -191,10 +259,39 @@ class ClickAnalyticsAdmin(ModelAdmin):
 
 @admin.register(Subscription)
 class SubscriptionAdmin(ModelAdmin):
+<<<<<<< HEAD
     list_display = ['email', 'is_active', 'created_at']
+=======
+    """
+    Admin configuration for Email Subscriptions using Django Unfold.
+    
+    Allows admins to:
+    - View all subscribers
+    - Filter by active/inactive status
+    - Manually deactivate subscriptions
+    - See subscription history
+    """
+    
+    list_display = [
+        'email', 
+        'is_active', 
+        'created_at', 
+        'confirmed_at',
+        'last_notified_at',
+    ]
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
 
 
 @admin.register(Partner)
 class PartnerAdmin(ModelAdmin):
+<<<<<<< HEAD
     list_display = ['name', 'website_url', 'is_featured']
     readonly_fields = ['created_at']
+=======
+    """Admin configuration for Partner organizations."""
+
+    list_display = ['name', 'website_url', 'is_featured', 'created_at']
+    search_fields = ['name']
+    list_filter = ['is_featured']
+    ordering = ['name']
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62

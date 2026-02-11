@@ -63,6 +63,13 @@ function addParamIfPresent(
 function addBasicFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
   addParamIfPresent(searchParams, 'docs', params.docs);
   addParamIfPresent(searchParams, 'category', params.category);
+<<<<<<< HEAD
+=======
+  // Support multi-select categories (comma-separated)
+  if (params.categories && params.categories.length > 0) {
+    searchParams.set('categories', params.categories.join(','));
+  }
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
   addParamIfPresent(searchParams, 'location', params.location);
   addParamIfPresent(searchParams, 'city', params.city);
 }
@@ -72,6 +79,13 @@ function addBasicFilters(searchParams: URLSearchParams, params: OpportunityFilte
  */
 function addWorkFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
   addParamIfPresent(searchParams, 'work_mode', params.work_mode);
+<<<<<<< HEAD
+=======
+  // Support multi-select work modes (comma-separated)
+  if (params.work_modes && params.work_modes.length > 0) {
+    searchParams.set('work_modes', params.work_modes.join(','));
+  }
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
   addParamIfPresent(searchParams, 'commitment', params.commitment);
 }
 

@@ -39,25 +39,41 @@ const OpportunitiesFilter = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+<<<<<<< HEAD
         <button type="submit" className="bg-[#2D8FDD] text-white p-2 rounded-lg" title="Search opportunities">
+=======
+        <button type="submit" className="bg-[#2D8FDD] text-white p-2 rounded-lg">
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
           <Search size={20} />
         </button>
       </form>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<<<<<<< HEAD
         <select name="work_mode" onChange={handleFilterChange} defaultValue={searchParams.get('work_mode') || ''} className="border p-2 rounded-lg" title="Filter by work mode" aria-label="Filter by work mode">
+=======
+        <select name="work_mode" onChange={handleFilterChange} defaultValue={searchParams.get('work_mode') || ''} className="border p-2 rounded-lg">
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
           <option value="">Work Mode (All)</option>
           <option value="remote">Remote</option>
           <option value="hybrid">Hybrid</option>
           <option value="onsite">On-site</option>
         </select>
+<<<<<<< HEAD
         <select name="commitment" onChange={handleFilterChange} defaultValue={searchParams.get('commitment') || ''} className="border p-2 rounded-lg" title="Filter by commitment level" aria-label="Filter by commitment level">
+=======
+        <select name="commitment" onChange={handleFilterChange} defaultValue={searchParams.get('commitment') || ''} className="border p-2 rounded-lg">
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
           <option value="">Commitment (All)</option>
           <option value="full_time">Full-time</option>
           <option value="part_time">Part-time</option>
           <option value="short_term">Short-term</option>
           <option value="long_term">Long-term</option>
         </select>
+<<<<<<< HEAD
         <select name="funding_type" onChange={handleFilterChange} defaultValue={searchParams.get('funding_type') || ''} className="border p-2 rounded-lg" title="Filter by funding type" aria-label="Filter by funding type">
+=======
+        <select name="funding_type" onChange={handleFilterChange} defaultValue={searchParams.get('funding_type') || ''} className="border p-2 rounded-lg">
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
           <option value="">Funding (All)</option>
           <option value="fully">Fully Funded</option>
           <option value="partially">Partially Funded</option>

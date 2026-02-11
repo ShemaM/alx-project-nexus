@@ -111,7 +111,11 @@ class Job(models.Model):
         upload_to='logos/%Y/%m/',
         blank=True,
         null=True,
+<<<<<<< HEAD
         help_text="Organization logo"
+=======
+        help_text="Organization logo for branding"
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
     )
     location = models.CharField(
         max_length=50,

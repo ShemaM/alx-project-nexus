@@ -46,6 +46,7 @@ export interface Opportunity {
   title: string
   slug?: string  // SEO-friendly URL slug (optional, auto-generated)
   organization_name: string
+  org_logo_url?: string | null  // Organization logo for branding
   location?: string | null
   city?: string | null
   category?: OpportunityCategory
@@ -118,6 +119,7 @@ export interface APIResponse<T> {
 export interface OpportunityFilterParams {
   // Document filter
   docs?: DocumentType
+<<<<<<< HEAD
   // Category
   category?: OpportunityCategory
   // Location
@@ -125,6 +127,20 @@ export interface OpportunityFilterParams {
   city?: string
   // Work mode & commitment
   work_mode?: WorkMode
+=======
+  // Category - single selection
+  category?: OpportunityCategory
+  // Categories - multiple selection (comma-separated)
+  categories?: OpportunityCategory[]
+  // Location
+  location?: string
+  city?: string
+  // Work mode - single selection
+  work_mode?: WorkMode
+  // Work modes - multiple selection (comma-separated)
+  work_modes?: WorkMode[]
+  // Commitment
+>>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
   commitment?: Commitment
   // Eligibility
   target_group?: TargetGroup
