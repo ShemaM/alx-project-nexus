@@ -37,22 +37,23 @@ function OpportunitiesPageContent() {
     const categoriesParam = searchParams.get('categories')
     const categoryParam = searchParams.get('category')
     if (categoriesParam) {
-      // Backend expects individual category param, so we'll use the first for now
-      // or enhance backend to support multiple
-      const categories = categoriesParam.split(',').filter(Boolean)
-      if (categories.length > 0) {
-        params.category = categories[0] as OpportunityFilterParams['category']
+      // Backend supports multiple categories via 'categories' parameter
+      const categories = categoriesParam.split(',').filter(Boolean) as OpportunityFilterParams['categories']
+      if (categories && categories.length > 0) {
+        params.categories = categories
       }
     } else if (categoryParam) {
+      // Single category for backward compatibility
       params.category = categoryParam as OpportunityFilterParams['category']
     }
 
     // Handle multi-select work types
-    const workTypeParam = searchParams.get('work_type')
-    if (workTypeParam) {
-      const workTypes = workTypeParam.split(',').filter(Boolean)
-      if (workTypes.length > 0) {
-        params.work_mode = workTypes[0] as OpportunityFilterParams['work_mode']
+    const workModesParam = searchParams.get('work_modes') || searchParams.get('work_type')
+    if (workModesParam) {
+      // Backend supports multiple work modes via 'work_modes' parameter
+      const workModes = workModesParam.split(',').filter(Boolean) as OpportunityFilterParams['work_modes']
+      if (workModes && workModes.length > 0) {
+        params.work_modes = workModes
       }
     }
 
@@ -113,7 +114,7 @@ function OpportunitiesPageContent() {
       <Navbar />
       
       {/* Header */}
-      <section className="bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-8 md:py-12">
+      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-8 md:py-12">
         <div className="max-w-7xl mx-auto px-4">
           <Link 
             href="/" 

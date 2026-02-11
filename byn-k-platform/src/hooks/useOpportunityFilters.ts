@@ -53,7 +53,8 @@ export function useOpportunityFilters(debounceMs: number = 300) {
     if (isInitializedRef.current) return
     
     const categoriesParam = searchParams.get('categories')
-    const workTypeParam = searchParams.get('work_type')
+    // Support both 'work_modes' (new) and 'work_type' (legacy) parameter names
+    const workModesParam = searchParams.get('work_modes') || searchParams.get('work_type')
     const isVerifiedParam = searchParams.get('is_verified')
     const searchParam = searchParams.get('search')
     const locationParam = searchParams.get('location')
@@ -69,7 +70,7 @@ export function useOpportunityFilters(debounceMs: number = 300) {
       categories: categoriesParam 
         ? categoriesParam.split(',').filter(Boolean) 
         : categoryParam ? [categoryParam] : [],
-      workType: workTypeParam ? workTypeParam.split(',').filter(Boolean) : [],
+      workType: workModesParam ? workModesParam.split(',').filter(Boolean) : [],
       isVerified: isVerifiedParam === 'true',
       searchQuery: searchParam || '',
       location: locationParam || '',
@@ -112,9 +113,9 @@ export function useOpportunityFilters(debounceMs: number = 300) {
       newParams.set('categories', filters.categories.join(','))
     }
 
-    // Add work types as comma-separated
+    // Add work types as comma-separated (use 'work_modes' for backend consistency)
     if (filters.workType.length > 0) {
-      newParams.set('work_type', filters.workType.join(','))
+      newParams.set('work_modes', filters.workType.join(','))
     }
 
     // Add boolean filters
