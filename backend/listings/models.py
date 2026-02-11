@@ -107,6 +107,12 @@ class Job(models.Model):
         max_length=255,
         help_text="The organization offering this opportunity"
     )
+    org_logo = models.ImageField(
+        upload_to='logos/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Organization logo"
+    )
     location = models.CharField(
         max_length=50,
         choices=LOCATION_CHOICES,

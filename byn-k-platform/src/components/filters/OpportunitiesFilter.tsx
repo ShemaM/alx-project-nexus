@@ -39,25 +39,25 @@ const OpportunitiesFilter = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button type="submit" className="bg-[#2D8FDD] text-white p-2 rounded-lg">
+        <button type="submit" className="bg-[#2D8FDD] text-white p-2 rounded-lg" title="Search opportunities">
           <Search size={20} />
         </button>
       </form>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <select name="work_mode" onChange={handleFilterChange} defaultValue={searchParams.get('work_mode') || ''} className="border p-2 rounded-lg">
+        <select name="work_mode" onChange={handleFilterChange} defaultValue={searchParams.get('work_mode') || ''} className="border p-2 rounded-lg" title="Filter by work mode" aria-label="Filter by work mode">
           <option value="">Work Mode (All)</option>
           <option value="remote">Remote</option>
           <option value="hybrid">Hybrid</option>
           <option value="onsite">On-site</option>
         </select>
-        <select name="commitment" onChange={handleFilterChange} defaultValue={searchParams.get('commitment') || ''} className="border p-2 rounded-lg">
+        <select name="commitment" onChange={handleFilterChange} defaultValue={searchParams.get('commitment') || ''} className="border p-2 rounded-lg" title="Filter by commitment level" aria-label="Filter by commitment level">
           <option value="">Commitment (All)</option>
           <option value="full_time">Full-time</option>
           <option value="part_time">Part-time</option>
           <option value="short_term">Short-term</option>
           <option value="long_term">Long-term</option>
         </select>
-        <select name="funding_type" onChange={handleFilterChange} defaultValue={searchParams.get('funding_type') || ''} className="border p-2 rounded-lg">
+        <select name="funding_type" onChange={handleFilterChange} defaultValue={searchParams.get('funding_type') || ''} className="border p-2 rounded-lg" title="Filter by funding type" aria-label="Filter by funding type">
           <option value="">Funding (All)</option>
           <option value="fully">Fully Funded</option>
           <option value="partially">Partially Funded</option>

@@ -6,9 +6,11 @@ Custom admin forms for quick content entry from WhatsApp messages.
 Uses Django Unfold for modern, Tailwind-based SaaS look.
 """
 
+from django.utils.html import mark_safe # Import mark_safe for rendering HTML
 from django.contrib import admin
 from django.conf import settings
 from django import forms
+from django.utils.text import slugify
 from unfold.admin import ModelAdmin
 from .models import Job, ClickAnalytics, Subscription, Partner
 
@@ -23,63 +25,32 @@ admin.site.index_title = getattr(settings, 'ADMIN_INDEX_TITLE', 'Platform Manage
 class JobAdminForm(forms.ModelForm):
     """
     Custom admin form for Job with "Raw Data" text area.
-    
-    Allows Manasseh to paste WhatsApp text, upload PDF, and click "Publish".
     """
-    
+
     class Meta:
         model = Job
+        # We include slug here so the form recognizes it
         fields = [
-            'title',
-            'organization_name',
-            'category',
-            'location',
-            'city',
-            'deadline',
-            'is_rolling',
-            'is_verified',
-            'is_active',
-            'is_featured',
-            'work_mode',
-            'commitment',
-            'target_group',
-            'education_level',
-            'funding_type',
-            'is_paid',
-            'stipend_min',
-            'stipend_max',
-            'application_type',
-            'external_url',
-            'application_email',
-            'email_subject_line',
-            'brochure_upload',
-            'required_documents',
-            'prep_checklist',
-            'raw_data',
-            'created_by',
+            'title', 'slug', 'organization_name', 'org_logo', 'category', 'location', 'city',
+            'deadline', 'is_rolling', 'is_verified', 'is_active', 'is_featured',
+            'work_mode', 'commitment', 'target_group', 'education_level',
+            'funding_type', 'is_paid', 'stipend_min', 'stipend_max',
+            'application_type', 'external_url', 'application_email',
+            'email_subject_line', 'brochure_upload', 'required_documents',
+            'prep_checklist', 'created_by', 'raw_data',
         ]
         widgets = {
             'raw_data': forms.Textarea(attrs={
                 'rows': 10,
-                'placeholder': 'Paste the raw WhatsApp message here...\n\n'
-                               'Example:\n'
-                               '📢 JOB ALERT!\n'
-                               'Position: Office Manager\n'
-                               'Organization: Akili Dada\n'
-                               'Deadline: Feb 13, 2026\n'
-                               'Apply: https://forms.office.com/...'
+                'placeholder': 'Paste the raw WhatsApp message here...'
             }),
             'prep_checklist': forms.Textarea(attrs={
                 'rows': 5,
-                'placeholder': '[\n'
-                               '  {"item": "Resume", "required": true},\n'
-                               '  {"item": "Cover Letter", "required": true},\n'
-                               '  {"item": "Recommendation Letters", "required": false}\n'
-                               ']'
+                'placeholder': '[{"item": "Resume", "required": true}]'
             }),
             'required_documents': forms.Textarea(attrs={
                 'rows': 3,
-                'placeholder': '["alien_card", "ctd", "passport"]'
+                'placeholder': '["passport", "id"]'
             }),
         }
 
@@ -88,59 +59,48 @@ class JobAdminForm(forms.ModelForm):
 class JobAdmin(ModelAdmin):
     """
     Admin configuration for Job listings using Django Unfold.
-    
-    Provides a modern, Tailwind-based admin interface with:
-    - Search capabilities for Title and Organization
-    - Filters for application_type, location, and is_verified (WhatsApp verified)
-    - Fieldsets organized into collapsible sections
     """
     
     form = JobAdminForm
     
+    # This automatically fills the slug input as you type the title
+    prepopulated_fields = {"slug": ("title",)}
+    
     list_display = [
+        'org_logo_thumbnail', # Display logo thumbnail
         'title', 
         'organization_name', 
         'category',
-        'application_type',
         'is_verified', 
         'is_active',
         'deadline',
-        'total_clicks',
+        'total_clicks_display',
         'created_at'
     ]
     
-    # Search capabilities for Title and Organization
     search_fields = ['title', 'organization_name', 'city']
     
-    # Filters for all filterable fields
     list_filter = [
         'category',
         'work_mode',
         'commitment',
-        'target_group',
-        'education_level',
-        'funding_type',
-        'is_paid',
-        'is_rolling',
-        'application_type',
-        'location',
-        'is_verified',  # WhatsApp verified status
+        'is_verified',
         'is_active',
-        'is_featured',
     ]
     
     date_hierarchy = 'created_at'
-    
     ordering = ['-created_at']
     
-    readonly_fields = ['created_at', 'updated_at', 'total_clicks']
+    readonly_fields = ['created_at', 'updated_at', 'total_clicks_display']
     
-    # Fieldsets organized into collapsible sections
+    # UPDATED FIELDSETS: Added 'slug' to 'Opportunity Details'
     fieldsets = (
         ('Opportunity Details', {
             'fields': (
                 'title', 
+                'slug',  # CRITICAL: If this is missing from fieldsets, Unfold won't save it
                 'organization_name', 
+                'org_logo', # Add org_logo to fieldset
                 'category', 
                 'location',
                 'city',
@@ -151,7 +111,6 @@ class JobAdmin(ModelAdmin):
                 'is_featured',
             ),
             'classes': ['tab'],
-            'description': 'Core opportunity information and status settings.'
         }),
         ('Work Mode & Eligibility', {
             'fields': (
@@ -161,7 +120,6 @@ class JobAdmin(ModelAdmin):
                 'education_level',
             ),
             'classes': ['tab'],
-            'description': 'Work arrangement and eligibility requirements.'
         }),
         ('Funding & Compensation', {
             'fields': (
@@ -171,7 +129,6 @@ class JobAdmin(ModelAdmin):
                 'stipend_max',
             ),
             'classes': ['tab'],
-            'description': 'Financial details of the opportunity.'
         }),
         ('Gateway Logic', {
             'fields': (
@@ -184,99 +141,60 @@ class JobAdmin(ModelAdmin):
                 'prep_checklist',
             ),
             'classes': ['tab'],
-            'description': 'Configure how users apply and what documents are required.'
         }),
-        ('Analytics', {
+        ('Analytics & Metadata', {
             'fields': (
-                'total_clicks',
+                'total_clicks_display',
                 'created_by', 
                 'created_at', 
                 'updated_at',
             ),
             'classes': ['tab'],
-            'description': 'View performance metrics and metadata.'
         }),
-        ('WhatsApp Raw Data (Quick Entry)', {
+        ('WhatsApp Raw Data', {
             'fields': ('raw_data',),
             'classes': ['tab', 'collapse'],
-            'description': 'Paste the original WhatsApp message for reference.'
         }),
     )
+
+    def org_logo_thumbnail(self, obj):
+        if obj.org_logo:
+            return mark_safe(f'<img src="{obj.org_logo.url}" width="50" height="50" style="object-fit: contain;" />')
+        return "No Image"
+    org_logo_thumbnail.short_description = 'Logo'
     
-    def total_clicks(self, obj):
-        """Display total clicks for this job (read-only)."""
-        total = sum(a.click_count for a in obj.click_analytics.all())
-        return total
-    total_clicks.short_description = 'Total Clicks'
+    def total_clicks_display(self, obj):
+        if obj.pk:
+            return sum(a.click_count for a in obj.click_analytics.all())
+        return 0
+    total_clicks_display.short_description = 'Total Clicks'
     
     def save_model(self, request, obj, form, change):
-        """Auto-set created_by to current admin user."""
-        if not change:  # Only on creation
+        """
+        Final safety check: If slug is somehow still empty, generate it.
+        Also sets the creator.
+        """
+        if not obj.slug:
+            obj.slug = slugify(obj.title)
+            
+        if not change:
             obj.created_by = request.user
+            
         super().save_model(request, obj, form, change)
 
 
 @admin.register(ClickAnalytics)
 class ClickAnalyticsAdmin(ModelAdmin):
-    """Admin configuration for Click Analytics using Django Unfold."""
-    
     list_display = ['job', 'click_type', 'click_count', 'last_clicked_at']
-    list_filter = ['click_type', 'last_clicked_at']
-    search_fields = ['job__title', 'job__organization_name']
-    ordering = ['-click_count']
     readonly_fields = ['click_count', 'last_clicked_at']
 
 
 @admin.register(Subscription)
 class SubscriptionAdmin(ModelAdmin):
-    """
-    Admin configuration for Email Subscriptions using Django Unfold.
-    
-    Allows admins to:
-    - View all subscribers
-    - Filter by active/inactive status
-    - Manually deactivate subscriptions
-    - See subscription history
-    """
-    
-    list_display = [
-        'email', 
-        'is_active', 
-        'created_at', 
-        'confirmed_at',
-        'last_notified_at',
-    ]
+    list_display = ['email', 'is_active', 'created_at']
 
 
 @admin.register(Partner)
 class PartnerAdmin(ModelAdmin):
-    """Admin configuration for Partner organizations."""
-
-    list_display = ['name', 'website_url', 'is_featured', 'created_at']
-    search_fields = ['name']
-    list_filter = ['is_featured', 'created_at']
-    ordering = ['name']
-    
-    readonly_fields = [
-        'created_at',
-    ]
-    
-    fieldsets = (
-        ('Partner Details', {
-            'fields': (
-                'name',
-                'logo_url',
-                'website_url',
-                'is_featured',
-            ),
-            'classes': ['tab'],
-            'description': 'Core partner information.'
-        }),
-        ('Metadata', {
-            'fields': (
-                'created_at',
-            ),
-            'classes': ['tab'],
-            'description': 'Partner creation metadata.'
-        }),
-    )
+    list_display = ['name', 'website_url', 'is_featured']
+    readonly_fields = ['created_at']

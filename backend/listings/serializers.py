@@ -36,6 +36,7 @@ class JobSerializer(serializers.ModelSerializer):
             'title',
             'organization', # Field name expected by transformJobToOpportunityCard
             'organization_name',
+            'org_logo', # Add org_logo
             'location',
             'city',
             'category',
@@ -104,6 +105,7 @@ class JobListSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'organization',
+            'org_logo', # Add org_logo
             'location',
             'city',
             'category',
