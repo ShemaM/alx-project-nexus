@@ -63,6 +63,10 @@ function addParamIfPresent(
 function addBasicFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
   addParamIfPresent(searchParams, 'docs', params.docs);
   addParamIfPresent(searchParams, 'category', params.category);
+  // Support multi-select categories (comma-separated)
+  if (params.categories && params.categories.length > 0) {
+    searchParams.set('categories', params.categories.join(','));
+  }
   addParamIfPresent(searchParams, 'location', params.location);
   addParamIfPresent(searchParams, 'city', params.city);
 }
@@ -72,6 +76,10 @@ function addBasicFilters(searchParams: URLSearchParams, params: OpportunityFilte
  */
 function addWorkFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
   addParamIfPresent(searchParams, 'work_mode', params.work_mode);
+  // Support multi-select work modes (comma-separated)
+  if (params.work_modes && params.work_modes.length > 0) {
+    searchParams.set('work_modes', params.work_modes.join(','));
+  }
   addParamIfPresent(searchParams, 'commitment', params.commitment);
 }
 
