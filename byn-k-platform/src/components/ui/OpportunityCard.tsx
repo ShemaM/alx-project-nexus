@@ -14,9 +14,9 @@
 
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Calendar, CheckCircle2, MapPin } from 'lucide-react'
 import { Opportunity, OpportunityCategory } from '@/types'
+import { OrganizationLogo } from './OrganizationLogo'
 
 interface OpportunityCardProps {
   opportunity: Opportunity
@@ -39,83 +39,6 @@ const categoryLabels: Record<OpportunityCategory, string> = {
   internship: 'Internship',
   fellowship: 'Fellowship',
   training: 'Training',
-}
-
-// Generate a consistent color for the placeholder based on organization name
-const getPlaceholderColor = (name: string): string => {
-  const colors = [
-    'bg-blue-500',
-    'bg-green-500',
-    'bg-purple-500',
-    'bg-pink-500',
-    'bg-indigo-500',
-    'bg-teal-500',
-    'bg-cyan-500',
-    'bg-orange-500',
-  ]
-  
-  // Simple hash based on the first few characters
-  let hash = 0
-  for (let i = 0; i < Math.min(name.length, 5); i++) {
-    hash += name.charCodeAt(i)
-  }
-  
-  return colors[hash % colors.length]
-}
-
-// Organization Logo component with fallback
-const OrganizationLogo: React.FC<{
-  logoUrl?: string | null
-  organizationName: string
-  size?: 'sm' | 'md' | 'lg'
-}> = ({ logoUrl, organizationName, size = 'md' }) => {
-  const sizeClasses = {
-    sm: 'w-8 h-8 text-sm',
-    md: 'w-12 h-12 text-lg',
-    lg: 'w-16 h-16 text-xl',
-  }
-
-  const imageSizes = {
-    sm: 32,
-    md: 48,
-    lg: 64,
-  }
-
-  const firstLetter = organizationName.trim().charAt(0).toUpperCase()
-  const placeholderColor = getPlaceholderColor(organizationName)
-
-  if (logoUrl) {
-    return (
-      <div className={`${sizeClasses[size]} relative rounded-lg overflow-hidden bg-white border border-slate-200 flex-shrink-0`}>
-        <Image
-          src={logoUrl}
-          alt={`${organizationName} logo`}
-          fill
-          sizes={`${imageSizes[size]}px`}
-          className="object-contain p-1"
-          onError={(e) => {
-            // Hide the image on error and show placeholder
-            const target = e.target as HTMLImageElement
-            target.style.display = 'none'
-            const parent = target.parentElement
-            if (parent) {
-              parent.innerHTML = `<span class="flex items-center justify-center w-full h-full ${placeholderColor} text-white font-bold">${firstLetter}</span>`
-            }
-          }}
-        />
-      </div>
-    )
-  }
-
-  // Fallback: Stylized placeholder with first letter
-  return (
-    <div
-      className={`${sizeClasses[size]} ${placeholderColor} rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0`}
-      aria-label={`${organizationName} placeholder`}
-    >
-      {firstLetter}
-    </div>
-  )
 }
 
 export const OpportunityCard: React.FC<OpportunityCardProps> = ({

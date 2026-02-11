@@ -1,11 +1,11 @@
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { ArrowLeft, Calendar, CheckCircle2, MapPin, Building2, FileText, Mail, Download, Paperclip } from 'lucide-react'
+import { ArrowLeft, Calendar, CheckCircle2, MapPin, FileText, Mail, Download, Paperclip } from 'lucide-react'
 import { getOpportunityBySlug, getBrochureUrl } from '@/lib/api'
 import OpportunityActions from '@/components/ui/OpportunityActions'
+import { OrganizationLogo } from '@/components/ui/OrganizationLogo'
 
 // Force dynamic rendering to fetch data at runtime (requires database connection)
 export const dynamic = 'force-dynamic'
@@ -150,24 +150,11 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
             <div className="flex flex-wrap items-center gap-4 text-slate-600">
               {/* Organization with Logo */}
               <div className="flex items-center gap-3">
-                {orgLogoUrl ? (
-                  <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white border border-slate-200 flex-shrink-0">
-                    <Image
-                      src={orgLogoUrl}
-                      alt={`${organizationName} logo`}
-                      fill
-                      sizes="40px"
-                      className="object-contain p-1"
-                    />
-                  </div>
-                ) : (
-                  <div 
-                    className="w-10 h-10 rounded-lg bg-[#2D8FDD] flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                    aria-label={`${organizationName} placeholder`}
-                  >
-                    {organizationName.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                <OrganizationLogo
+                  logoUrl={orgLogoUrl}
+                  organizationName={organizationName}
+                  size="md"
+                />
                 <span className="font-medium">{organizationName}</span>
               </div>
               {opportunity.location && (
