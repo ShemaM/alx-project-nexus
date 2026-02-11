@@ -5,7 +5,8 @@ import Footer from '@/components/layout/Footer'
 import { ArrowLeft, Briefcase, GraduationCap, Building, Award } from 'lucide-react'
 import { getOpportunities } from '@/lib/api'
 import OpportunitiesFilter from '@/components/filters/OpportunitiesFilter'
-import { OpportunityCategory } from '@/types'
+import OpportunityCard from '@/components/ui/OpportunityCard'
+import { OpportunityCategory, Opportunity } from '@/types'
 
 // Force dynamic rendering to fetch data at runtime
 export const dynamic = 'force-dynamic'
@@ -76,7 +77,7 @@ export default async function CategoryPage({ params, searchParams }: Readonly<Pa
   }
 
   // Fetch opportunities from Django API filtered by category and other params
-  let opportunities: Array<{ id: number; title: string; organization_name: string; deadline?: string | null }> = []
+  let opportunities: Opportunity[] = []
   try {
     const dbCategory = categoryUrlToDb[category] || category
     const response = await getOpportunities({
@@ -127,25 +128,13 @@ export default async function CategoryPage({ params, searchParams }: Readonly<Pa
             <OpportunitiesFilter />
           </div>
           <div className="lg:col-span-3">
-            <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {opportunities.length > 0 ? (
                 opportunities.map((opp) => (
-                  <Link 
-                    key={opp.id} 
-                    href={`/opportunities/${opp.id}`}
-                    className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
-                  >
-                    <h2 className="text-xl font-bold text-[#2D8FDD]">{opp.title}</h2>
-                    <p className="text-gray-600">{opp.organization_name}</p>
-                    {opp.deadline && (
-                      <p className="text-sm text-slate-500 mt-2">
-                        Deadline: {new Date(opp.deadline).toLocaleDateString()}
-                      </p>
-                    )}
-                  </Link>
+                  <OpportunityCard key={opp.id} opportunity={opp} />
                 ))
               ) : (
-                <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-[#E2E8F0]">
+                <div className="col-span-full text-center py-12 text-slate-500 bg-white rounded-xl border border-[#E2E8F0]">
                   <div className={`w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 ${meta.color}`}>
                     <Icon size={32} />
                   </div>

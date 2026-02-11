@@ -9,6 +9,7 @@ Uses Django Unfold for modern, Tailwind-based SaaS look.
 from django.contrib import admin
 from django.conf import settings
 from django import forms
+from django.utils.html import mark_safe
 from unfold.admin import ModelAdmin
 from .models import Job, ClickAnalytics, Subscription, Partner
 
@@ -70,6 +71,7 @@ class JobAdmin(ModelAdmin):
     form = JobAdminForm
     
     list_display = [
+        'logo_thumbnail',
         'title', 
         'organization_name', 
         'category',
@@ -112,7 +114,8 @@ class JobAdmin(ModelAdmin):
         ('Opportunity Details', {
             'fields': (
                 'title', 
-                'organization_name', 
+                'organization_name',
+                'org_logo',
                 'category', 
                 'location',
                 'city',
@@ -175,6 +178,13 @@ class JobAdmin(ModelAdmin):
         }),
     )
     
+    def logo_thumbnail(self, obj):
+        """Display a small thumbnail of the organization logo."""
+        if obj.org_logo:
+            return mark_safe(f'<img src="{obj.org_logo.url}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;" />')
+        return '-'
+    logo_thumbnail.short_description = 'Logo'
+    
     def total_clicks(self, obj):
         """Display total clicks for this job (read-only)."""
         total = sum(a.click_count for a in obj.click_analytics.all())
@@ -228,56 +238,3 @@ class PartnerAdmin(ModelAdmin):
     search_fields = ['name']
     list_filter = ['is_featured']
     ordering = ['name']
-    
-    list_filter = [
-        'is_active',
-        'created_at',
-        'confirmed_at',
-    ]
-    
-    search_fields = ['email']
-    
-    ordering = ['-created_at']
-    
-    readonly_fields = [
-        'confirmation_token',
-        'created_at',
-        'confirmed_at',
-        'last_notified_at',
-    ]
-    
-    fieldsets = (
-        ('Subscription Details', {
-            'fields': (
-                'email',
-                'is_active',
-            ),
-            'classes': ['tab'],
-            'description': 'Core subscription information.'
-        }),
-        ('Status & History', {
-            'fields': (
-                'confirmation_token',
-                'created_at',
-                'confirmed_at',
-                'last_notified_at',
-            ),
-            'classes': ['tab'],
-            'description': 'Subscription status and notification history.'
-        }),
-    )
-    
-    actions = ['deactivate_subscriptions', 'activate_subscriptions']
-    
-    @admin.action(description='Deactivate selected subscriptions')
-    def deactivate_subscriptions(self, request, queryset):
-        """Bulk deactivate subscriptions."""
-        updated = queryset.update(is_active=False)
-        self.message_user(request, f'{updated} subscription(s) deactivated.')
-    
-    @admin.action(description='Activate selected subscriptions')
-    def activate_subscriptions(self, request, queryset):
-        """Bulk activate subscriptions."""
-        from django.utils import timezone
-        updated = queryset.update(is_active=True, confirmed_at=timezone.now())
-        self.message_user(request, f'{updated} subscription(s) activated.')

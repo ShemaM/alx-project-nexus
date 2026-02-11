@@ -2,9 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { ArrowLeft, Calendar, CheckCircle2, MapPin, Building2, FileText, Mail, Download, Paperclip } from 'lucide-react'
+import { ArrowLeft, Calendar, CheckCircle2, MapPin, FileText, Mail, Download, Paperclip } from 'lucide-react'
 import { getOpportunityBySlug, getBrochureUrl } from '@/lib/api'
 import OpportunityActions from '@/components/ui/OpportunityActions'
+import { OrganizationLogo } from '@/components/ui/OrganizationLogo'
 
 // Force dynamic rendering to fetch data at runtime (requires database connection)
 export const dynamic = 'force-dynamic'
@@ -92,6 +93,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
   const displayCategory = opportunity.category || 'job'
   const categoryColorClass = getCategoryColor(displayCategory)
   const organizationName = opportunity.organization_name
+  const orgLogoUrl = opportunity.org_logo_url
   
   // Application method handling
   const isEmailApplication = opportunity.application_type === 'email'
@@ -146,8 +148,13 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
             </h1>
             
             <div className="flex flex-wrap items-center gap-4 text-slate-600">
-              <div className="flex items-center gap-2">
-                <Building2 size={18} className="text-slate-400" />
+              {/* Organization with Logo */}
+              <div className="flex items-center gap-3">
+                <OrganizationLogo
+                  logoUrl={orgLogoUrl}
+                  organizationName={organizationName}
+                  size="md"
+                />
                 <span className="font-medium">{organizationName}</span>
               </div>
               {opportunity.location && (

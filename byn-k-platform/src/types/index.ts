@@ -46,6 +46,7 @@ export interface Opportunity {
   title: string
   slug?: string  // SEO-friendly URL slug (optional, auto-generated)
   organization_name: string
+  org_logo_url?: string | null  // Organization logo for branding
   location?: string | null
   city?: string | null
   category?: OpportunityCategory

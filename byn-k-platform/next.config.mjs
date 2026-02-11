@@ -37,7 +37,30 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // 2. Your existing Webpack config (kept unchanged)
+  // 2. Image optimization configuration for external images
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'nexus-backend-lkps.onrender.com',
+        pathname: '/media/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/media/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
+        pathname: '/media/**',
+      },
+    ],
+  },
+
+  // 3. Your existing Webpack config (kept unchanged)
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
@@ -47,7 +70,7 @@ const nextConfig = {
     return webpackConfig
   },
 
-  // 3. Your existing Security Headers (kept unchanged)
+  // 4. Your existing Security Headers (kept unchanged)
   async headers() {
     return [
       {
