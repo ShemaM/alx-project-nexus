@@ -13,8 +13,12 @@ interface ImageWithFallbackProps {
   style?: React.CSSProperties
   /** Mark as priority to preload (for above-the-fold images like hero) */
   priority?: boolean
-  /** Fill the parent container (requires parent to have position: relative) */
+  /** Fill the parent container (requires parent to have position: relative). When true, width/height are ignored. */
   fill?: boolean
+  /** Width of the image (required when fill is false) */
+  width?: number
+  /** Height of the image (required when fill is false) */
+  height?: number
   /** Sizes attribute for responsive images */
   sizes?: string
   /** Quality of the optimized image (1-100) */
@@ -28,6 +32,8 @@ export function ImageWithFallback({
   style,
   priority = false,
   fill = false,
+  width,
+  height,
   sizes = '100vw',
   quality = 75,
 }: ImageWithFallbackProps) {
@@ -52,13 +58,32 @@ export function ImageWithFallback({
   }
 
   // Use Next.js Image component for optimized loading
+  // When fill is true, width/height are omitted; otherwise they are required
+  if (fill) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        className={className}
+        style={style}
+        fill
+        sizes={sizes}
+        quality={quality}
+        priority={priority}
+        onError={handleError}
+      />
+    )
+  }
+
+  // Non-fill mode requires width and height
   return (
     <Image
       src={src}
       alt={alt}
       className={className}
       style={style}
-      fill={fill}
+      width={width || 100}
+      height={height || 100}
       sizes={sizes}
       quality={quality}
       priority={priority}

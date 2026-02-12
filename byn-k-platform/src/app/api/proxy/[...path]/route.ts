@@ -86,9 +86,12 @@ async function handler(
   }
   headers.delete('content-length')
 
-  // Add CSRF token header for write requests if available
-  const isWriteRequest = request.method !== 'GET' && request.method !== 'HEAD'
-  if (isWriteRequest) {
+  // Identify requests that may modify data and need CSRF protection
+  // OPTIONS is excluded as it's a preflight request that doesn't modify data
+  const isModifyingRequest = request.method !== 'GET' && request.method !== 'HEAD' && request.method !== 'OPTIONS'
+  
+  // Add CSRF token header for modifying requests if available
+  if (isModifyingRequest) {
     const csrfToken = extractCsrfToken(request)
     if (csrfToken && !headers.has('X-CSRFToken')) {
       headers.set('X-CSRFToken', csrfToken)
@@ -102,7 +105,8 @@ async function handler(
     cache: 'no-store',
   }
 
-  if (isWriteRequest) {
+  // Only add body for requests that can have a body (not GET, HEAD, or OPTIONS)
+  if (isModifyingRequest) {
     init.body = await request.text()
   }
 

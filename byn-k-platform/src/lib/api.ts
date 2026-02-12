@@ -20,7 +20,9 @@ async function apiFetch<T>(
 ): Promise<T> {
   // Ensure endpoint starts with a slash
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const baseUrl = typeof globalThis === 'undefined' || globalThis.window === undefined ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
+  // Use standard Next.js pattern for server/client detection
+  const isServer = typeof window === 'undefined';
+  const baseUrl = isServer ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
   const url = `${baseUrl}${cleanEndpoint}`;
   const timeoutMs = config.timeoutMs ?? 0;
   
@@ -41,8 +43,7 @@ async function apiFetch<T>(
 
     // Add Next.js ISR caching for GET requests on the server
     if (
-      typeof globalThis !== 'undefined' && 
-      globalThis.window === undefined && 
+      isServer && 
       (!options.method || options.method === 'GET') &&
       config.revalidate !== undefined
     ) {
@@ -300,7 +301,9 @@ export async function logout(): Promise<{ message: string }> {
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const baseUrl = typeof globalThis === 'undefined' || globalThis.window === undefined ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
+  // Use standard Next.js pattern for server/client detection
+  const isServer = typeof window === 'undefined';
+  const baseUrl = isServer ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
   const candidateEndpoints = ['/auth/me/', '/auth/me'];
 
   try {
