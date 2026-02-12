@@ -27,13 +27,13 @@
 <body class="text-slate-900">
   <main class="min-h-screen flex items-center justify-center px-4 py-8">
     <section class="w-full max-w-md">
-      <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-(--bynk-blue-dark) hover:text-[var(--bynk-blue)] mb-5">
+      <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-[var(--bynk-blue-dark)] hover:text-[var(--bynk-blue)] mb-5">
         <span aria-hidden="true">&larr;</span>
         Return to site
       </a>
 
       <div class="rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden">
-        <div class="px-6 py-5 bg-linear-to-r from-(--bynk-navy) via-(--bynk-blue) to-(--bynk-blue)er-b-4 border-(--bynk-yellow)">
+        <div class="px-6 py-5 bg-gradient-to-r from-[var(--bynk-navy)] via-[var(--bynk-blue)] to-[var(--bynk-blue)] border-b-4 border-[var(--bynk-yellow)]">
           <div class="flex items-center gap-3">
             <img src="{% static 'admin/images/logo.png' %}" alt="BYN-K logo" class="h-11 w-11 rounded-lg object-cover border border-white/30 bg-white">
             <div>
@@ -64,18 +64,18 @@
             <div>
               <label for="id_username" class="block text-sm font-semibold text-slate-800 mb-1">Username</label>
               <input id="id_username" name="username" type="text" placeholder="Enter your username" required autofocus
-                     class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-(--bynk-blue)/30 focus:border-(--bynk-blue)">
+                     class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[color:var(--bynk-blue)]/30 focus:border-[var(--bynk-blue)]">
             </div>
             <div>
               <label for="id_password" class="block text-sm font-semibold text-slate-800 mb-1">Password</label>
               <input id="id_password" name="password" type="password" placeholder="Enter your password" required
-                     class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-(--bynk-blue)/30 focus:border-(--bynk-blue)">
+                     class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[color:var(--bynk-blue)]/30 focus:border-[var(--bynk-blue)]">
             </div>
 
             <input type="hidden" name="next" value="{{ next|default:'/admin/' }}">
 
             <button type="submit"
-                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-r[var(--bynk-blue)] to-[var(--bynk-blue-dark)] hover:from-[var(--bynk-blue-dark)] hover:to-[var(--bynk-blue)] text-white font-bold py-2.5 transition-colors">
+                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--bynk-blue)] to-[var(--bynk-blue-dark)] hover:from-[var(--bynk-blue-dark)] hover:to-[var(--bynk-blue)] text-white font-bold py-2.5 transition-colors">
               Log in
             </button>
           </form>

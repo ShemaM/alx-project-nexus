@@ -100,7 +100,7 @@ export default async function AboutPage() {
                   <span>Holders of Alien Cards, CTDs, and Passports</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0pan>
+                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0"></span>
                   <span>Job seekers, students, and career changers</span>
                 </li>
                 <li className="flex items-start gap-3">
