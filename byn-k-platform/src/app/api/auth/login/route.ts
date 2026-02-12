@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 // Base API URL for Django backend
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '')
 
+// Cookie options type
+type CookieOptions = {
+  httpOnly: boolean
+  secure: boolean
+  sameSite: 'lax' | 'strict' | 'none'
+  path: string
+  maxAge?: number
+}
+
 // POST /api/auth/login - Log in a user via Django backend
 export async function POST(request: NextRequest) {
   try {
@@ -38,33 +47,47 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Determine if user is admin/superuser for session handling
+    const user = responseData.user || {
+      id: responseData.id,
+      email: responseData.email,
+      username: responseData.username,
+      first_name: responseData.first_name,
+      last_name: responseData.last_name,
+      display_name: responseData.display_name,
+      is_admin: responseData.is_admin,
+      is_staff: responseData.is_staff,
+      is_superuser: responseData.is_superuser,
+      roles: responseData.roles,
+    }
+    
+    const isAdminUser = user.is_superuser || user.is_admin
+
     // Create response with user data
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
-      user: responseData.user || {
-        id: responseData.id,
-        email: responseData.email,
-        username: responseData.username,
-        first_name: responseData.first_name,
-        last_name: responseData.last_name,
-        display_name: responseData.display_name,
-        is_admin: responseData.is_admin,
-        is_staff: responseData.is_staff,
-        is_superuser: responseData.is_superuser,
-        roles: responseData.roles,
-      },
+      user,
     })
 
     // Set auth token cookie if returned by Django
+    // Admin users get session cookie (no maxAge = expires when browser closes)
+    // Regular users get 7-day persistent cookie
     if (responseData.token) {
-      response.cookies.set('auth-token', responseData.token, {
+      const cookieOptions: CookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      })
+      }
+      
+      // Admin users: session-only cookie (no maxAge)
+      // This forces re-login when browser closes
+      if (!isAdminUser) {
+        cookieOptions.maxAge = 60 * 60 * 24 * 7 // 7 days for regular users
+      }
+      
+      response.cookies.set('auth-token', responseData.token, cookieOptions)
     }
 
     // Forward any cookies from Django response

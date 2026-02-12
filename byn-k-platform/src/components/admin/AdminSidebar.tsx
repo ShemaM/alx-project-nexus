@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Briefcase, Users, Building } from 'lucide-react';
-import { AuthUser, canAccessAdminRoute, isSuperAdmin } from '@/lib/authz';
+import { AuthUser, isSuperAdmin } from '@/lib/authz';
 
 const sidebarNavLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -18,12 +18,13 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ user }: AdminSidebarProps) {
   const pathname = usePathname();
-  const visibleLinks = sidebarNavLinks.filter((link) => canAccessAdminRoute(user, link.href))
+  // Super admin can see all links
+  const visibleLinks = isSuperAdmin(user) ? sidebarNavLinks : [];
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200">
       <div className="p-4">
-        <h2 className="text-2xl font-bold">{isSuperAdmin(user) ? 'Super Admin' : 'Staff'}</h2>
+        <h2 className="text-2xl font-bold">Super Admin</h2>
       </div>
       <nav className="flex flex-col p-4">
         {visibleLinks.map((link) => {

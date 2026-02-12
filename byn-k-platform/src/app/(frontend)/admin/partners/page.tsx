@@ -1,13 +1,14 @@
 import { PartnersManager } from '@/components/admin/PartnersManager';
 import React from 'react';
 import { getCurrentUser } from '@/lib/api';
-import { AuthUser, canAccessAdminRoute } from '@/lib/authz';
+import { AuthUser, isSuperAdmin } from '@/lib/authz';
 import { redirect } from 'next/navigation';
 
 export default async function AdminPartnersPage() {
   const user = await getCurrentUser() as AuthUser | null
 
-  if (!canAccessAdminRoute(user, '/admin/partners')) {
+  // Only super admin can access admin partners page
+  if (!isSuperAdmin(user)) {
     redirect('/admin')
   }
 
