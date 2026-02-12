@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { getCurrentUser } from '@/lib/api'
-import { AuthUser, isSuperAdmin } from '@/lib/authz'
+import { isSuperAdmin } from '@/lib/authz'
 import { redirect } from 'next/navigation'
 import {
   BarChart3,
@@ -90,7 +90,7 @@ const adminLinks = [
 ]
 
 export default async function AdminDashboardPage() {
-  const user = await getCurrentUser() as AuthUser | null
+  const user = await getCurrentUser()
 
   if (!user) {
     redirect('/login?redirect=/dashboard')
@@ -111,7 +111,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Quick Link to Payload Admin */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 mb-8 text-white">
+        <div className="bg-linear-to-r from-blue-600 to-blue-700 rounded-xl p-6 mb-8 text-white">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold mb-2">Full CMS Admin Panel</h2>
