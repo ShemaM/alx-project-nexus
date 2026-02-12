@@ -111,7 +111,7 @@ class Job(models.Model):
         upload_to='logos/%Y/%m/',
         blank=True,
         null=True,
-        help_text="Organization logo for branding"
+        help_text="Organization logo"
     )
     location = models.CharField(
         max_length=50,
@@ -430,7 +430,7 @@ class Partner(models.Model):
     logo_url = models.URLField(
         blank=True,
         null=True,
-        help_text="Legacy external logo URL (optional fallback)"
+        help_text="Logo image URL"
     )
     website_url = models.URLField(
         blank=True,
