@@ -101,43 +101,38 @@ class Command(BaseCommand):
     def _check_column_exists(self):
         """Check if org_logo column exists in listings_job table."""
         with connection.cursor() as cursor:
-            # Get the database vendor to use appropriate query
             vendor = connection.vendor
 
-            if vendor == "postgresql":
-                cursor.execute("""
-                    SELECT column_name 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'listings_job' 
-                    AND column_name = 'org_logo';
-                """)
-            elif vendor == "sqlite":
+            if vendor == "sqlite":
+                # SQLite uses PRAGMA for table info, returns different format
                 cursor.execute("PRAGMA table_info(listings_job);")
                 columns = cursor.fetchall()
                 return any(col[1] == "org_logo" for col in columns)
-            elif vendor == "mysql":
+
+            if vendor in ("postgresql", "mysql"):
+                # PostgreSQL and MySQL use information_schema
                 cursor.execute("""
                     SELECT column_name 
                     FROM information_schema.columns 
                     WHERE table_name = 'listings_job' 
                     AND column_name = 'org_logo';
                 """)
-            else:
-                # Generic fallback using Django's introspection
-                try:
-                    introspection = connection.introspection
-                    table_description = introspection.get_table_description(
-                        cursor, "listings_job"
-                    )
-                    return any(col.name == "org_logo" for col in table_description)
-                except Exception:
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f"Unknown database vendor '{vendor}'. "
-                            "Assuming column does not exist."
-                        )
-                    )
-                    return False
+                result = cursor.fetchone()
+                return result is not None
 
-            result = cursor.fetchone()
-            return result is not None
+            # Generic fallback using Django's introspection API
+            # Works with any Django-supported database
+            try:
+                introspection = connection.introspection
+                table_description = introspection.get_table_description(
+                    cursor, "listings_job"
+                )
+                return any(col.name == "org_logo" for col in table_description)
+            except Exception:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Unknown database vendor '{vendor}'. "
+                        "Assuming column does not exist."
+                    )
+                )
+                return False
