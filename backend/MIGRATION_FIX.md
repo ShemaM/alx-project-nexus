@@ -12,13 +12,59 @@ When these branches were merged, Django's merge migration (`0009_merge_...`) was
 
 ## Current Fix Applied
 
-The `0008_add_org_logo.py` migration has been **emptied** (operations = []) to prevent duplicate column creation. The actual field addition is handled solely by `0008_job_org_logo.py`.
+1. The `0008_add_org_logo.py` migration has been **emptied** (operations = []) to prevent duplicate column creation. The actual field addition is handled solely by `0008_job_org_logo.py`.
+
+2. A **management command** `fix_org_logo_migration` has been added to automatically detect and fix migration state issues during deployment.
+
+3. The **build.sh** script now runs `fix_org_logo_migration` before migrations to handle the edge case where the column exists but migrations aren't recorded.
+
+---
+
+## Automatic Fix (Recommended)
+
+The `build.sh` script now automatically handles this issue during deployment. No manual intervention required for most cases.
+
+If you need to run the fix manually:
+
+```bash
+# Preview what would be fixed (safe, no changes made)
+python manage.py fix_org_logo_migration --dry-run
+
+# Apply the fix
+python manage.py fix_org_logo_migration
+
+# Then run migrations
+python manage.py migrate
+```
 
 ---
 
 ## Remediation Plans
 
-### Plan A: Fake Migration to Align State (Recommended for Production)
+### Plan A: Automatic Fix via Management Command (Recommended)
+
+The `fix_org_logo_migration` command automatically detects if:
+- The `org_logo` column exists in the database
+- The corresponding migrations are not recorded in `django_migrations`
+
+If both conditions are true, it "fakes" the migrations by recording them as applied.
+
+```bash
+# Check current state
+python manage.py fix_org_logo_migration --dry-run
+
+# Apply fix if needed
+python manage.py fix_org_logo_migration
+
+# Continue with migrations
+python manage.py migrate
+```
+
+**When to use:** Automatically run during deployment (already integrated in build.sh).
+
+---
+
+### Plan B: Manual Fake Migration
 
 If the `org_logo` column **already exists** in your PostgreSQL database (added by a previous partial migration), fake the problematic migration:
 
@@ -43,7 +89,7 @@ python manage.py migrate
 
 ---
 
-### Plan B: Remove Duplicate AddField (Already Applied)
+### Plan C: Code Fix (Already Applied)
 
 This has been completed in the repository:
 - `0008_add_org_logo.py` now has `operations = []`
@@ -205,3 +251,5 @@ This ensures all model changes have corresponding migrations and no duplicate op
 - `backend/listings/migrations/0008_job_org_logo.py` - Contains actual AddField
 - `backend/listings/migrations/0009_merge_0008_add_org_logo_0008_job_org_logo.py` - Merge migration
 - `backend/listings/models.py` - Job model with org_logo field
+- `backend/listings/management/commands/fix_org_logo_migration.py` - Automatic migration fix command
+- `backend/build.sh` - Deployment script (runs fix_org_logo_migration before migrations)

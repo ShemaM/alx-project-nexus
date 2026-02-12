@@ -7,6 +7,10 @@ pip install -r requirements.txt
 # Convert static files
 python manage.py collectstatic --no-input
 
+# Fix migration state for org_logo field if column already exists
+# This handles duplicate migration scenarios from parallel branch merges
+python manage.py fix_org_logo_migration || true
+
 # Run migrations
 python manage.py migrate
 
