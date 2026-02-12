@@ -1,6 +1,6 @@
 # Contributing to BYN-K Platform
 
-Thank you for your interest in contributing to the **BYN-K Community Platform**! This document provides professional guidelines for contributing to Project Nexus.
+Thank you for your interest in contributing to the **Opportunities for Banyamulenge Youth in Kenya** platform! This document provides professional guidelines for contributing to BYN-K.
 
 ---
 

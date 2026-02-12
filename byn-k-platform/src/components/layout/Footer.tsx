@@ -18,8 +18,8 @@ const Footer: React.FC = () => {
   const resources = [
     { href: '/about', label: 'About Us' },
     { href: '/partners', label: 'Our Partners' },
-    { href: '#faq', label: 'FAQ' },
-    { href: '#contact', label: 'Contact Us' },
+    { href: '/faq', label: 'FAQ' },
+    { href: '/contact', label: 'Contact Us' },
   ]
 
   const socialLinks = [
@@ -132,10 +132,10 @@ const Footer: React.FC = () => {
               <li className="flex items-center gap-3">
                 <Mail size={18} className="text-[#F5D300] flex-shrink-0" />
                 <a
-                  href="mailto:info@byn-k.org"
+                  href="mailto:contact@bynk-platform.org"
                   className="text-blue-100 hover:text-[#F5D300] transition-colors text-sm"
                 >
-                  info@byn-k.org
+                  contact@bynk-platform.org
                 </a>
               </li>
               <li className="flex items-center gap-3">

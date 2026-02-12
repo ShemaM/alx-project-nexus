@@ -1,20 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { Search, SlidersHorizontal, Loader2 } from 'lucide-react'
+import { useLoadingState } from '@/contexts'
 
 type DeadlineFilter = '' | 'closing_soon' | 'rolling' | 'latest'
 type CompensationFilter = '' | 'paid' | 'free'
 
 export const LandingOpportunityFilter = () => {
   const router = useRouter()
+  const { isLoading, setLoading } = useLoadingState()
   const [query, setQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [category, setCategory] = useState('')
   const [deadline, setDeadline] = useState<DeadlineFilter>('')
   const [workMode, setWorkMode] = useState('')
   const [compensation, setCompensation] = useState<CompensationFilter>('')
+  const [searchingQuery, setSearchingQuery] = useState<string | null>(null)
+
+  // Clear loading states when component unmounts
+  useEffect(() => {
+    return () => {
+      setLoading('search', false)
+      setSearchingQuery(null)
+    }
+  }, [setLoading])
 
   const categorySearchRoutes: Record<string, string> = {
     job: 'jobs',
@@ -37,8 +48,14 @@ export const LandingOpportunityFilter = () => {
     training: 'training',
   }
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Set loading state and show searching message
+    setLoading('search', true)
+    if (query.trim()) {
+      setSearchingQuery(query.trim())
+    }
 
     const params = new URLSearchParams()
     const normalizedQuery = query.trim().toLowerCase()
@@ -61,10 +78,12 @@ export const LandingOpportunityFilter = () => {
       router.push(
         queryString ? `/categories/${destinationCategory}?${queryString}` : `/categories/${destinationCategory}`
       )
+      // Loading state will be cleared when the page navigates
       return
     }
 
     router.push(queryString ? `/opportunities?${queryString}` : '/opportunities')
+    // Loading state will be cleared when the page navigates
   }
 
   const clearFilters = () => {
@@ -90,6 +109,7 @@ export const LandingOpportunityFilter = () => {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search jobs, scholarships, internships..."
                   className="w-full h-12 rounded-xl border border-[#CBD5E1] bg-white pl-11 pr-4 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2D8FDD]/25 focus:border-[#2D8FDD]"
+                  disabled={isLoading('search')}
                 />
               </div>
 
@@ -97,6 +117,7 @@ export const LandingOpportunityFilter = () => {
                 type="button"
                 onClick={() => setShowFilters((prev) => !prev)}
                 className="h-12 px-5 rounded-xl bg-[#2D8FDD] text-white font-semibold hover:bg-[#1E6BB8] transition-colors inline-flex items-center justify-center gap-2"
+                disabled={isLoading('search')}
               >
                 <SlidersHorizontal size={18} />
                 Filters
@@ -104,11 +125,27 @@ export const LandingOpportunityFilter = () => {
 
               <button
                 type="submit"
-                className="h-12 px-6 rounded-xl bg-[#1E6BB8] text-white font-semibold hover:bg-[#185A9B] transition-colors"
+                disabled={isLoading('search')}
+                className="h-12 px-6 rounded-xl bg-[#1E6BB8] text-white font-semibold hover:bg-[#185A9B] transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Search
+                {isLoading('search') ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'Search'
+                )}
               </button>
             </div>
+
+            {/* Searching indicator */}
+            {searchingQuery && isLoading('search') && (
+              <div className="flex items-center gap-2 text-[#2D8FDD] font-medium animate-pulse">
+                <Loader2 size={16} className="animate-spin" />
+                <span>Searching for &ldquo;{searchingQuery}&rdquo;...</span>
+              </div>
+            )}
 
             {showFilters && (
               <div className="bg-white border border-[#CBD5E1] rounded-xl p-4">

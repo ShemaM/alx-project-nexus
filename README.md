@@ -1,10 +1,10 @@
-# Project Nexus - BYN-K Community Platform
+# Opportunities for Banyamulenge Youth in Kenya (BYN-K Platform)
 
 > **ProDev Frontend Engineering Capstone Project**
 
 ## Mission
 
-Project Nexus is a community-driven platform designed to **empower the Banyamulenge Youth in Kenya (BYN-K)** by bridging the gap between opportunities—including jobs, scholarships, and educational resources—and the community members who need them most.
+The BYN-K Platform is a community-driven platform designed to **empower the Banyamulenge Youth in Kenya** by bridging the gap between opportunities—including jobs, scholarships, and educational resources—and the community members who need them most.
 
 Our goal is to create an accessible, modern digital hub where young Banyamulenge can discover career opportunities, share resources, and build connections that will help them succeed in their professional journeys.
 

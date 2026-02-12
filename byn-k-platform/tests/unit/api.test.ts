@@ -53,6 +53,7 @@ describe('CategoryCounts API', () => {
       scholarships: 0,
       internships: 0,
       fellowships: 0,
+      training: 0,
       partners: 0
     })
   })

@@ -1,6 +1,6 @@
 # Security Policy
 
-> **Project Nexus - BYN-K Community Platform Security Guidelines**
+> **Opportunities for Banyamulenge Youth in Kenya - BYN-K Platform Security Guidelines**
 
 ---
 
