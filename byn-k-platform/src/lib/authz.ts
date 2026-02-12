@@ -93,7 +93,8 @@ export function hasAdminPermission(
 }
 
 export function canAccessAdmin(user: AuthUser | null | undefined): boolean {
-  return isSuperAdmin(user) || isStaff(user)
+  // Only super admin (super manager) can access admin panel
+  return isSuperAdmin(user)
 }
 
 export function canAccessAdminRoute(

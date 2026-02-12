@@ -9,15 +9,17 @@
  * - SiteTourProvider: Onboarding tour
  * - LanguageProvider: Multilingual support
  * - LoadingStateProvider: Global loading state management
+ * - GlobalLoadingIndicator: Page transition loading overlay
  * 
  * @module components/layout/Providers
  */
 'use client'
 
-import React, { ReactNode } from 'react'
+import React, { ReactNode, Suspense } from 'react'
 import { NotificationProvider, SiteTourProvider, LanguageProvider, LoadingStateProvider } from '@/contexts'
 import { ToastContainer } from '@/components/ui/Toast'
 import { SiteTour } from '@/components/ui/SiteTour'
+import { GlobalLoadingIndicator } from '@/components/ui/GlobalLoadingIndicator'
 
 interface ProvidersProps {
   children: ReactNode
@@ -37,6 +39,9 @@ export function Providers({ children }: ProvidersProps) {
             {/* Global UI components */}
             <ToastContainer />
             <SiteTour />
+            <Suspense fallback={null}>
+              <GlobalLoadingIndicator />
+            </Suspense>
           </SiteTourProvider>
         </NotificationProvider>
       </LoadingStateProvider>

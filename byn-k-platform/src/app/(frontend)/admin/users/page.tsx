@@ -1,12 +1,13 @@
 import React from 'react';
 import { getCurrentUser } from '@/lib/api';
-import { AuthUser, canAccessAdminRoute } from '@/lib/authz';
+import { AuthUser, isSuperAdmin } from '@/lib/authz';
 import { redirect } from 'next/navigation';
 
 export default async function AdminUsersPage() {
   const user = await getCurrentUser() as AuthUser | null
 
-  if (!canAccessAdminRoute(user, '/admin/users')) {
+  // Only super admin can access admin users page
+  if (!isSuperAdmin(user)) {
     redirect('/admin')
   }
 
