@@ -23,6 +23,14 @@ const UPSTREAM_HEADER_BLOCKLIST = new Set([
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * Extract CSRF token from cookies
+ */
+function extractCsrfToken(request: NextRequest): string | null {
+  const csrfCookie = request.cookies.get('csrftoken')
+  return csrfCookie?.value || null
+}
+
 function buildBaseCandidates(baseUrl: string): string[] {
   const candidates = [baseUrl]
   if (baseUrl.endsWith('/api')) {
@@ -78,14 +86,23 @@ async function handler(
   }
   headers.delete('content-length')
 
+  // Add CSRF token header for write requests if available
+  const isWriteRequest = request.method !== 'GET' && request.method !== 'HEAD'
+  if (isWriteRequest) {
+    const csrfToken = extractCsrfToken(request)
+    if (csrfToken && !headers.has('X-CSRFToken')) {
+      headers.set('X-CSRFToken', csrfToken)
+    }
+  }
+
   const init: RequestInit = {
     method: request.method,
     headers,
-    redirect: 'manual',
+    redirect: 'follow', // Follow redirects automatically to handle Django's APPEND_SLASH
     cache: 'no-store',
   }
 
-  if (request.method !== 'GET' && request.method !== 'HEAD') {
+  if (isWriteRequest) {
     init.body = await request.text()
   }
 

@@ -7,8 +7,9 @@ import { PartnersSection } from '@/components/home/PartnersSection'
 import Footer from '@/components/layout/Footer'
 import { getOpportunities, getFeaturedOpportunities, getCategoryCounts, getPartners } from '@/lib/api'
 
-// Force dynamic rendering to fetch data at runtime (not at build time)
-export const dynamic = 'force-dynamic'
+// Use ISR with revalidation instead of force-dynamic for better performance
+// This caches the page and revalidates every 60 seconds
+export const revalidate = 60
 
 export default async function HomePage() {
   // Initialize default values
