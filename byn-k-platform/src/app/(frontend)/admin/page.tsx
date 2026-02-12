@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import React from 'react';
 import { getCurrentUser } from '@/lib/api';
