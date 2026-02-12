@@ -1,13 +1,14 @@
 import { OpportunitiesManager } from '@/components/admin/OpportunitiesManager';
 import React from 'react';
 import { getCurrentUser } from '@/lib/api';
-import { AuthUser, canAccessAdminRoute } from '@/lib/authz';
+import { AuthUser, isSuperAdmin } from '@/lib/authz';
 import { redirect } from 'next/navigation';
 
 export default async function AdminOpportunitiesPage() {
   const user = await getCurrentUser() as AuthUser | null
 
-  if (!canAccessAdminRoute(user, '/admin/opportunities')) {
+  // Only super admin can access admin opportunities page
+  if (!isSuperAdmin(user)) {
     redirect('/admin')
   }
 
