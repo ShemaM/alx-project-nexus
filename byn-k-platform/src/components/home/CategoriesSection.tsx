@@ -120,21 +120,19 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
         </div>
         
         {/* Category Cards Grid */}
-        <div 
+        <ul 
           className="grid grid-cols-1 md:grid-cols-2 gap-5"
-          role="list"
           aria-label="Opportunity categories"
         >
           {categories.map((cat) => {
             const Icon = cat.icon
             return (
-              <Link
-                key={cat.title}
-                href={cat.href}
-                className={`group rounded-2xl border border-[#CFD8E3] bg-white p-6 transition-all duration-300 hover:shadow-xl ${cat.hoverBg} focus:outline-none focus:ring-2 focus:ring-[#2D8FDD] focus:ring-offset-2`}
-                role="listitem"
-                aria-label={cat.ariaLabel}
-              >
+              <li key={cat.title}>
+                <Link
+                  href={cat.href}
+                  className={`group rounded-2xl border border-[#CFD8E3] bg-white p-6 transition-all duration-300 hover:shadow-xl ${cat.hoverBg} focus:outline-none focus:ring-2 focus:ring-[#2D8FDD] focus:ring-offset-2`}
+                  aria-label={cat.ariaLabel}
+                >
                 {/* Category Icon */}
                 <div 
                   className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 ${cat.iconColor} transition-transform duration-300 group-hover:scale-105`}
@@ -164,9 +162,10 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
                   />
                 </div>
               </Link>
+            </li>
             )
           })}
-        </div>
+        </ul>
       </div>
     </section>
   )
