@@ -8,13 +8,14 @@
  * - NotificationProvider: Toast notifications
  * - SiteTourProvider: Onboarding tour
  * - LanguageProvider: Multilingual support
+ * - LoadingStateProvider: Global loading state management
  * 
  * @module components/layout/Providers
  */
 'use client'
 
 import React, { ReactNode } from 'react'
-import { NotificationProvider, SiteTourProvider, LanguageProvider } from '@/contexts'
+import { NotificationProvider, SiteTourProvider, LanguageProvider, LoadingStateProvider } from '@/contexts'
 import { ToastContainer } from '@/components/ui/Toast'
 import { SiteTour } from '@/components/ui/SiteTour'
 
@@ -29,14 +30,16 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <LanguageProvider>
-      <NotificationProvider>
-        <SiteTourProvider>
-          {children}
-          {/* Global UI components */}
-          <ToastContainer />
-          <SiteTour />
-        </SiteTourProvider>
-      </NotificationProvider>
+      <LoadingStateProvider>
+        <NotificationProvider>
+          <SiteTourProvider>
+            {children}
+            {/* Global UI components */}
+            <ToastContainer />
+            <SiteTour />
+          </SiteTourProvider>
+        </NotificationProvider>
+      </LoadingStateProvider>
     </LanguageProvider>
   )
 }

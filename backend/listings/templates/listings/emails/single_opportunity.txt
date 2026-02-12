@@ -1,0 +1,25 @@
+Hi,
+
+A new opportunity has just been posted on the Opportunities for Banyamulenge Youth in Kenya platform that we thought you'd be interested in:
+
+{{ job.title }}
+Organization: {{ job.organization_name }}
+{% if job.category %}Category: {{ job.get_category_display }}{% endif %}
+{% if job.location %}Location: {{ job.get_location_display }}{% endif %}
+{% if job.work_mode %}Work Mode: {{ job.get_work_mode_display }}{% endif %}
+{% if job.deadline %}Deadline: {{ job.deadline|date:"F d, Y" }}{% endif %}
+{% if job.is_paid %}Compensation: Paid opportunity{% endif %}
+
+View Full Details & Apply: {{ job_url }}
+
+Don't wait – good opportunities fill up fast!
+
+Best regards,
+The BYN-K Team
+
+---
+Banyamulenge Youth Kenya
+Nairobi, Kenya
+
+To unsubscribe from these notifications:
+{{ unsubscribe_link }}

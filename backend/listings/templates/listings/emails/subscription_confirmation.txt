@@ -1,11 +1,17 @@
 Hi,
 
-Thank you for subscribing to the Banyamulenge Youth Kenya (BYN-K) opportunities newsletter.
+Thank you for subscribing to the Opportunities for Banyamulenge Youth in Kenya newsletter.
+
+You'll receive email notifications whenever new opportunities (jobs, scholarships, internships, fellowships, and training programs) are posted on our platform.
 
 Please click the link below to confirm your subscription:
 {{ confirmation_link }}
 
-If you did not subscribe, please ignore this email.
+If you did not subscribe to our platform, please ignore this email.
 
-Thanks,
+Best regards,
 The BYN-K Team
+
+---
+Banyamulenge Youth Kenya
+Nairobi, Kenya

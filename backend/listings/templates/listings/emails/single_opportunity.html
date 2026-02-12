@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Opportunity: {{ job.title }}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background: linear-gradient(135deg, #2D8FDD 0%, #1E6BB8 100%); padding: 30px; text-align: center; }
+        .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+        .badge { display: inline-block; background-color: #F5D300; color: #1E6BB8; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 10px; }
+        .content { padding: 30px; }
+        .job-card { background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin: 20px 0; border-left: 4px solid #F5D300; }
+        .job-title { font-size: 22px; font-weight: bold; color: #1E6BB8; margin-bottom: 8px; }
+        .job-org { color: #666; font-size: 16px; margin-bottom: 15px; }
+        .job-details { font-size: 14px; color: #555; }
+        .job-details p { margin: 8px 0; }
+        .button { display: inline-block; background-color: #F5D300; color: #1E6BB8; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; }
+        .button:hover { background-color: #D4B500; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+        .unsubscribe { color: #999; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Opportunity Posted!</h1>
+            <span class="badge">🔔 Just Added</span>
+        </div>
+        <div class="content">
+            <p>Hi,</p>
+            <p>A new opportunity has just been posted on the <strong>Opportunities for Banyamulenge Youth in Kenya</strong> platform that we thought you'd be interested in:</p>
+            
+            <div class="job-card">
+                <div class="job-title">{{ job.title }}</div>
+                <div class="job-org">{{ job.organization_name }}</div>
+                <div class="job-details">
+                    {% if job.category %}
+                    <p><strong>Category:</strong> {{ job.get_category_display }}</p>
+                    {% endif %}
+                    {% if job.location %}
+                    <p><strong>Location:</strong> {{ job.get_location_display }}</p>
+                    {% endif %}
+                    {% if job.work_mode %}
+                    <p><strong>Work Mode:</strong> {{ job.get_work_mode_display }}</p>
+                    {% endif %}
+                    {% if job.deadline %}
+                    <p><strong>Deadline:</strong> {{ job.deadline|date:"F d, Y" }}</p>
+                    {% endif %}
+                    {% if job.is_paid %}
+                    <p><strong>Compensation:</strong> Paid opportunity</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin-top: 25px;">
+                <a href="{{ job_url }}" class="button">View Full Details & Apply</a>
+            </p>
+            
+            <p style="margin-top: 30px;">Don't wait – good opportunities fill up fast!</p>
+            <p>Best regards,<br><strong>The BYN-K Team</strong></p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 Banyamulenge Youth Kenya. All rights reserved.</p>
+            <p>Nairobi, Kenya</p>
+            <p style="margin-top: 15px;">
+                <a href="{{ unsubscribe_link }}" class="unsubscribe">Unsubscribe from these notifications</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

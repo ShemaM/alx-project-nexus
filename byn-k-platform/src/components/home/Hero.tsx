@@ -17,11 +17,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-// import Image from 'next/image' // Removed next/image import
-import { ImageWithFallback } from '../ui/ImageWithFallback' // Import ImageWithFallback
-import { ArrowRight, Sparkles, TrendingUp, Clock, ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ImageWithFallback } from '../ui/ImageWithFallback'
+import { ArrowRight, Sparkles, TrendingUp, Clock, ChevronLeft, ChevronRight, Star, Loader2 } from 'lucide-react'
 import styles from './Hero.module.css'
 import { buildOpportunityPath } from '@/lib/opportunity-utils'
+import { useLoadingState } from '@/contexts'
 
 export interface FeaturedOpportunity {
   id: string
@@ -61,6 +62,8 @@ const categoryLabels: Record<FeaturedOpportunity['category'], string> = {
 }
 
 export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
+  const router = useRouter()
+  const { isLoading, setLoading } = useLoadingState()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -71,6 +74,17 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
     () => (hasSlides ? featuredOpportunities[currentSlide] : undefined),
     [featuredOpportunities, currentSlide, hasSlides]
   )
+
+  const handleExploreClick = () => {
+    setLoading('explore-opportunities', true)
+    router.push('/categories/jobs')
+  }
+
+  const handleViewDetailsClick = () => {
+    const detailsKey = `view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`
+    setLoading(detailsKey, true)
+    router.push(buildOpportunityPath(currentFeatured?.category, currentFeatured?.slug))
+  }
 
   const nextSlide = useCallback(() => {
     if (!hasSlides || isAnimating) return
@@ -178,13 +192,23 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
             
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
-              <Link 
-                href="/categories/jobs"
-                className="group relative inline-flex items-center gap-2 bg-linear-to-r from-[#F5D300] to-[#FFE066] text-slate-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-[#F5D300]/25 hover:shadow-xl hover:shadow-[#F5D300]/30 transition-all duration-300 transform hover:-translate-y-1"
+              <button 
+                onClick={handleExploreClick}
+                disabled={isLoading('explore-opportunities')}
+                className="group relative inline-flex items-center gap-2 bg-linear-to-r from-[#F5D300] to-[#FFE066] text-slate-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-[#F5D300]/25 hover:shadow-xl hover:shadow-[#F5D300]/30 transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
-                <span>Explore Opportunities</span>
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
+                {isLoading('explore-opportunities') ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Explore Opportunities</span>
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
               <Link 
                 href="/about"
                 className="group inline-flex items-center gap-2 bg-white/5 text-white border-2 border-white/20 backdrop-blur-md px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 hover:border-white/40 transition-all duration-300"
@@ -271,13 +295,23 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
                 </div>
 
                 {/* CTA Button - View Details linking to /opportunities/${slug} for better SEO */}
-                <Link 
-                  href={buildOpportunityPath(currentFeatured?.category, currentFeatured?.slug)}
-                  className="group flex items-center justify-center gap-2 w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg hover:bg-[#F5D300] transition-all duration-300 mt-6"
+                <button 
+                  onClick={handleViewDetailsClick}
+                  disabled={isLoading(`view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`)}
+                  className="group flex items-center justify-center gap-2 w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg hover:bg-[#F5D300] transition-all duration-300 mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <span>View Details</span>
-                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
+                  {isLoading(`view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`) ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" />
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>View Details</span>
+                      <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
 
                 {/* Carousel Controls */}
                 {hasSlides && (

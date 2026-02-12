@@ -1,14 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirm Your Subscription</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background: linear-gradient(135deg, #2D8FDD 0%, #1E6BB8 100%); padding: 30px; text-align: center; }
+        .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+        .content { padding: 30px; }
+        .button { display: inline-block; background-color: #F5D300; color: #1E6BB8; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+        .button:hover { background-color: #D4B500; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+    </style>
 </head>
 <body>
-    <p>Hi,</p>
-    <p>Thank you for subscribing to the Banyamulenge Youth Kenya (BYN-K) opportunities newsletter.</p>
-    <p>Please click the link below to confirm your subscription:</p>
-    <p><a href="{{ confirmation_link }}">Confirm Subscription</a></p>
-    <p>If you did not subscribe, please ignore this email.</p>
-    <p>Thanks,<br>The BYN-K Team</p>
+    <div class="container">
+        <div class="header">
+            <h1>Banyamulenge Youth Kenya</h1>
+        </div>
+        <div class="content">
+            <p>Hi,</p>
+            <p>Thank you for subscribing to the <strong>Opportunities for Banyamulenge Youth in Kenya</strong> newsletter.</p>
+            <p>You'll receive email notifications whenever new opportunities (jobs, scholarships, internships, fellowships, and training programs) are posted on our platform.</p>
+            <p>Please click the button below to confirm your subscription:</p>
+            <p style="text-align: center;">
+                <a href="{{ confirmation_link }}" class="button">Confirm Subscription</a>
+            </p>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #2D8FDD;">{{ confirmation_link }}</p>
+            <p>If you did not subscribe to our platform, please ignore this email.</p>
+            <p>Best regards,<br><strong>The BYN-K Team</strong></p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 Banyamulenge Youth Kenya. All rights reserved.</p>
+            <p>Nairobi, Kenya</p>
+        </div>
+    </div>
 </body>
 </html>
