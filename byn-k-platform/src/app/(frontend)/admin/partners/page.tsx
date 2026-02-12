@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { PartnersManager } from '@/components/admin/PartnersManager';
 import React from 'react';
 import { getCurrentUser } from '@/lib/api';

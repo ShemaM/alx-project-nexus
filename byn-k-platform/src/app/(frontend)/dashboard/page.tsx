@@ -1,22 +1,24 @@
 /**
  * Admin Dashboard Landing Page
- * 
+ *
  * Main admin entry point with quick access to management features.
- * 
+ *
  * @module app/(frontend)/dashboard
  */
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { getCurrentUser } from '@/lib/api'
 import { AuthUser, isSuperAdmin } from '@/lib/authz'
 import { redirect } from 'next/navigation'
-import { 
-  BarChart3, 
-  Briefcase, 
-  Building2, 
-  Users, 
-  Settings, 
+import {
+  BarChart3,
+  Briefcase,
+  Building2,
+  Users,
+  Settings,
   FileText,
   Calendar,
   Bell,

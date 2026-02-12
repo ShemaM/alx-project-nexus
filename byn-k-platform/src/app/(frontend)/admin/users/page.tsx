@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { getCurrentUser } from '@/lib/api';
 import { AuthUser, isSuperAdmin } from '@/lib/authz';
