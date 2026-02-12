@@ -297,7 +297,7 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
                 {/* CTA Button - View Details linking to /opportunities/${slug} for better SEO */}
                 <button 
                   onClick={handleViewDetailsClick}
-                  disabled={isLoading(`view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`)}
+                  disabled={!currentFeatured || isLoading(`view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`)}
                   className="group flex items-center justify-center gap-2 w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg hover:bg-[#F5D300] transition-all duration-300 mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading(`view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`) ? (

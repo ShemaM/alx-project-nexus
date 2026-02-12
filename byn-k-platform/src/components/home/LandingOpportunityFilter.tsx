@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, SlidersHorizontal, Loader2 } from 'lucide-react'
 import { useLoadingState } from '@/contexts'
@@ -18,6 +18,14 @@ export const LandingOpportunityFilter = () => {
   const [workMode, setWorkMode] = useState('')
   const [compensation, setCompensation] = useState<CompensationFilter>('')
   const [searchingQuery, setSearchingQuery] = useState<string | null>(null)
+
+  // Clear loading states when component unmounts
+  useEffect(() => {
+    return () => {
+      setLoading('search', false)
+      setSearchingQuery(null)
+    }
+  }, [setLoading])
 
   const categorySearchRoutes: Record<string, string> = {
     job: 'jobs',
