@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 // Base API URL for Django backend
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '')
 
+// Cookie options type
+type CookieOptions = {
+  httpOnly: boolean
+  secure: boolean
+  sameSite: 'lax' | 'strict' | 'none'
+  path: string
+  maxAge?: number
+}
+
 // POST /api/auth/login - Log in a user via Django backend
 export async function POST(request: NextRequest) {
   try {
@@ -65,13 +74,7 @@ export async function POST(request: NextRequest) {
     // Admin users get session cookie (no maxAge = expires when browser closes)
     // Regular users get 7-day persistent cookie
     if (responseData.token) {
-      const cookieOptions: {
-        httpOnly: boolean
-        secure: boolean
-        sameSite: 'lax' | 'strict' | 'none'
-        path: string
-        maxAge?: number
-      } = {
+      const cookieOptions: CookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',

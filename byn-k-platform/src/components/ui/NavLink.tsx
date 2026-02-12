@@ -19,22 +19,6 @@ interface NavLinkProps extends LinkProps {
   showSpinner?: boolean
 }
 
-// Global loading state for navigation
-let setGlobalLoading: ((loading: boolean) => void) | null = null
-
-export function useNavigationLoading() {
-  const [isLoading, setIsLoading] = useState(false)
-  
-  useEffect(() => {
-    setGlobalLoading = setIsLoading
-    return () => {
-      setGlobalLoading = null
-    }
-  }, [])
-  
-  return isLoading
-}
-
 export function NavLink({ 
   children, 
   className = '', 
@@ -48,9 +32,6 @@ export function NavLink({
   // Reset loading state when pathname changes
   useEffect(() => {
     setIsNavigating(false)
-    if (setGlobalLoading) {
-      setGlobalLoading(false)
-    }
   }, [pathname])
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -63,9 +44,6 @@ export function NavLink({
     
     if (showSpinner) {
       setIsNavigating(true)
-      if (setGlobalLoading) {
-        setGlobalLoading(true)
-      }
     }
     onClick?.(e)
   }, [onClick, pathname, props.href, showSpinner])

@@ -122,8 +122,8 @@ export function AdminSessionProvider({ children }: AdminSessionProviderProps) {
         const remaining = Math.max(0, logoutTime - Date.now())
         setTimeUntilLogout(Math.ceil(remaining / 1000))
         
-        if (remaining <= 0) {
-          clearInterval(countdownIntervalRef.current!)
+        if (remaining <= 0 && countdownIntervalRef.current) {
+          clearInterval(countdownIntervalRef.current)
         }
       }, 1000)
     }, SESSION_TIMEOUT_MS - WARNING_BEFORE_LOGOUT_MS)
