@@ -118,6 +118,7 @@ export const Navbar = () => {
               width={56} 
               height={56}
               className="rounded-lg"
+              priority
             />
             <div className="flex flex-col">
               <span className="text-lg md:text-xl font-black text-[#2D8FDD] tracking-tight leading-tight">BANYAMULENGE</span>

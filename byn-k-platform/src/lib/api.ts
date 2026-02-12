@@ -16,17 +16,21 @@ const CLIENT_PROXY_BASE_URL = '/api/proxy';
 async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {},
-  config: { suppressErrorLogging?: boolean; timeoutMs?: number } = {}
+  config: { suppressErrorLogging?: boolean; timeoutMs?: number; revalidate?: number | false } = {}
 ): Promise<T> {
   // Ensure endpoint starts with a slash
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const baseUrl = typeof globalThis === 'undefined' || globalThis.window === undefined ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
+  // Use standard Next.js pattern for server/client detection
+  const isServer = typeof window === 'undefined';
+  const baseUrl = isServer ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
   const url = `${baseUrl}${cleanEndpoint}`;
   const timeoutMs = config.timeoutMs ?? 0;
   
   try {
     const isFormDataBody = typeof FormData !== 'undefined' && options.body instanceof FormData;
-    const requestOptions: RequestInit = {
+    
+    // Build fetch options with Next.js caching support
+    const requestOptions: RequestInit & { next?: { revalidate?: number | false } } = {
       ...options,
       headers: isFormDataBody
         ? { ...options.headers }
@@ -36,6 +40,15 @@ async function apiFetch<T>(
           },
       credentials: 'include',
     };
+
+    // Add Next.js ISR caching for GET requests on the server
+    if (
+      isServer && 
+      (!options.method || options.method === 'GET') &&
+      config.revalidate !== undefined
+    ) {
+      requestOptions.next = { revalidate: config.revalidate };
+    }
 
     // Timeout is opt-in; avoid forcing short aborts on slower environments.
     if (
@@ -190,7 +203,8 @@ export async function getOpportunities(filters?: OpportunityFilterParams): Promi
   try {
     const queryString = filters ? buildQueryString(filters) : '';
     // Django requires the trailing slash before the query parameters
-    const response = await apiFetch<any>(`/opportunities/${queryString}`, {}, { suppressErrorLogging: true });
+    // Use 60-second cache for homepage data to improve load times
+    const response = await apiFetch<any>(`/opportunities/${queryString}`, {}, { suppressErrorLogging: true, revalidate: 60 });
     
     return {
       data: response.results || [],
@@ -210,7 +224,8 @@ export async function getOpportunities(filters?: OpportunityFilterParams): Promi
 
 export async function getOpportunityById(id: number): Promise<Opportunity> {
   // Direct detail endpoint always needs the trailing slash
-  return apiFetch<Opportunity>(`/opportunities/${id}/`);
+  // Cache individual opportunity pages for 60 seconds
+  return apiFetch<Opportunity>(`/opportunities/${id}/`, {}, { revalidate: 60 });
 }
 
 /**
@@ -219,12 +234,14 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
  * @returns Opportunity data
  */
 export async function getOpportunityBySlug(slug: string): Promise<Opportunity> {
-  return apiFetch<Opportunity>(`/opportunities/by-slug/${slug}/`);
+  // Cache opportunity pages for 60 seconds
+  return apiFetch<Opportunity>(`/opportunities/by-slug/${slug}/`, {}, { revalidate: 60 });
 }
 
 export async function getFeaturedOpportunities(): Promise<APIResponse<Opportunity[]>> {
   try {
-    const response = await apiFetch<any>('/opportunities/?is_featured=true', {}, { suppressErrorLogging: true });
+    // Cache featured opportunities for 60 seconds to improve homepage load times
+    const response = await apiFetch<any>('/opportunities/?is_featured=true', {}, { suppressErrorLogging: true, revalidate: 60 });
     return {
       data: response.results || [],
       disclaimer: response.disclaimer || '',
@@ -284,7 +301,9 @@ export async function logout(): Promise<{ message: string }> {
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const baseUrl = typeof globalThis === 'undefined' || globalThis.window === undefined ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
+  // Use standard Next.js pattern for server/client detection
+  const isServer = typeof window === 'undefined';
+  const baseUrl = isServer ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
   const candidateEndpoints = ['/auth/me/', '/auth/me'];
 
   try {
@@ -326,7 +345,8 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
 export async function getPartners(): Promise<APIResponse<any[]>> {
   try {
-    const response = await apiFetch<any>('/partners/');
+    // Cache partners for 60 seconds to improve homepage load times
+    const response = await apiFetch<any>('/partners/', {}, { revalidate: 60 });
     return {
       data: response.results || [],
       disclaimer: response.disclaimer || '',
@@ -462,7 +482,8 @@ export interface CategoryCounts {
  */
 export async function getCategoryCounts(): Promise<CategoryCounts> {
   try {
-    return await apiFetch<CategoryCounts>('/category-counts/', {}, { suppressErrorLogging: true });
+    // Cache category counts for 60 seconds to improve homepage load times
+    return await apiFetch<CategoryCounts>('/category-counts/', {}, { suppressErrorLogging: true, revalidate: 60 });
   } catch (error) {
     console.error('Failed to fetch category counts:', error);
     return {
@@ -492,7 +513,8 @@ export interface CategoryData {
  */
 export async function getCategories(): Promise<CategoryData[]> {
   try {
-    const response = await apiFetch<{ results: CategoryData[] }>('/categories/', {}, { suppressErrorLogging: true });
+    // Cache categories for 60 seconds
+    const response = await apiFetch<{ results: CategoryData[] }>('/categories/', {}, { suppressErrorLogging: true, revalidate: 60 });
     return response.results || [];
   } catch (error) {
     console.error('Failed to fetch categories:', error);

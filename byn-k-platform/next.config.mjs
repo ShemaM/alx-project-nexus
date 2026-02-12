@@ -37,6 +37,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // Trailing slash configuration to avoid 301 redirects
+  trailingSlash: false,
+
   // 2. Image optimization configuration for external images
   images: {
     remotePatterns: [

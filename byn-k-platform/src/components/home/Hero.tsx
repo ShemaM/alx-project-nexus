@@ -128,7 +128,11 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
         <ImageWithFallback
           src="/images/hero-bg.jpg"
           alt="Hero background"
-          className="object-cover w-full h-full" // Use w-full h-full and object-cover for fill effect
+          className="object-cover"
+          fill
+          priority
+          sizes="100vw"
+          quality={75}
         />
         {/* Dark blue/slate gradient overlay for text readability */}
         <div className="absolute inset-0 bg-slate-900/80" />
