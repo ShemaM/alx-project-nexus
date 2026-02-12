@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
     })
 
     const setCookieHeader = djangoResponse.headers.get('set-cookie')
-    const responseBody = await djangoResponse.text()
-    const response = new NextResponse(responseBody, {
+    // Stream the upstream payload to avoid buffering large bodies in memory.
+    const response = new NextResponse(djangoResponse.body, {
       status: djangoResponse.status,
       headers: {
         'Content-Type': djangoResponse.headers.get('content-type') || 'application/json',

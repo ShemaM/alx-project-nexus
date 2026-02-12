@@ -10,25 +10,64 @@
 
 import React, { useEffect, useState, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useLoadingState } from '@/contexts'
+
+const LOADING_MESSAGES: Record<string, string> = {
+  'search': 'Searching opportunities...',
+  'explore-opportunities': 'Opening opportunities...',
+  'view-details': 'Opening opportunity details...',
+}
+
+const PATIENT_MESSAGES = [
+  'Please hold on while we prepare your page.',
+  'Still working. This usually takes 2-6 seconds.',
+  'Almost there. Thank you for your patience.',
+  'Finalizing your request now.',
+]
+
+const MAX_LOADING_MS = 10_000
 
 function LoadingIndicatorContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [isLoading, setIsLoading] = useState(false)
+  const { loadingStates, clearAllLoading } = useLoadingState()
+  const [isNavigationLoading, setIsNavigationLoading] = useState(false)
+  const [navigationMessage, setNavigationMessage] = useState('Loading, please wait...')
+  const [patientMessageIndex, setPatientMessageIndex] = useState(0)
+  const [elapsedMs, setElapsedMs] = useState(0)
+  const [loadingStartedAt, setLoadingStartedAt] = useState<number | null>(null)
   const [prevPath, setPrevPath] = useState(pathname)
 
   useEffect(() => {
     // If path changed, stop loading
     if (prevPath !== pathname) {
-      setIsLoading(false)
+      setIsNavigationLoading(false)
+      setNavigationMessage('Loading, please wait...')
+      setPatientMessageIndex(0)
+      setElapsedMs(0)
+      setLoadingStartedAt(null)
+      clearAllLoading()
       setPrevPath(pathname)
     }
-  }, [pathname, prevPath, searchParams])
+  }, [pathname, prevPath, searchParams, clearAllLoading])
 
   // Listen for navigation events via custom events
   useEffect(() => {
-    const handleStart = () => setIsLoading(true)
-    const handleEnd = () => setIsLoading(false)
+    const handleStart = (event: Event) => {
+      const customEvent = event as CustomEvent<{ message?: string }>
+      setNavigationMessage(customEvent.detail?.message || 'Loading, please wait...')
+      setIsNavigationLoading(true)
+      setPatientMessageIndex(0)
+      setElapsedMs(0)
+      setLoadingStartedAt(Date.now())
+    }
+    const handleEnd = () => {
+      setIsNavigationLoading(false)
+      setNavigationMessage('Loading, please wait...')
+      setPatientMessageIndex(0)
+      setElapsedMs(0)
+      setLoadingStartedAt(null)
+    }
 
     window.addEventListener('navigation-start', handleStart)
     window.addEventListener('navigation-end', handleEnd)
@@ -38,6 +77,86 @@ function LoadingIndicatorContent() {
       window.removeEventListener('navigation-end', handleEnd)
     }
   }, [])
+
+  useEffect(() => {
+    const clickHandler = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null
+      if (!target) return
+
+      // Support explicit button-triggered loading pages.
+      const buttonWithMessage = target.closest('button[data-loading-message]') as HTMLButtonElement | null
+      if (buttonWithMessage && !buttonWithMessage.disabled) {
+        triggerNavigationLoading(buttonWithMessage.dataset.loadingMessage || 'Working on your request...')
+        return
+      }
+
+      const anchor = target.closest('a[href]') as HTMLAnchorElement | null
+      if (!anchor) return
+      if (anchor.target === '_blank' || anchor.hasAttribute('download')) return
+
+      const href = anchor.getAttribute('href') || ''
+      if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return
+
+      const url = new URL(anchor.href, window.location.origin)
+      if (url.origin !== window.location.origin) return
+
+      const current = `${window.location.pathname}${window.location.search}`
+      const next = `${url.pathname}${url.search}`
+      if (current === next) return
+
+      triggerNavigationLoading(`Opening ${url.pathname.replaceAll('/', ' ').trim() || 'page'}...`)
+    }
+
+    document.addEventListener('click', clickHandler, true)
+    return () => {
+      document.removeEventListener('click', clickHandler, true)
+    }
+  }, [])
+
+  const activeLoadingKeys = Object.keys(loadingStates).filter((key) => loadingStates[key])
+  const firstLoadingKey = activeLoadingKeys[0] || ''
+  const contextMessage = activeLoadingKeys.length > 0
+    ? (
+      LOADING_MESSAGES[firstLoadingKey] ||
+      (firstLoadingKey.startsWith('view-details-') ? 'Opening opportunity details...' : '') ||
+      (firstLoadingKey.startsWith('explore-') ? 'Opening opportunities...' : '') ||
+      'Working on your request...'
+    )
+    : ''
+
+  const isLoading = isNavigationLoading || activeLoadingKeys.length > 0
+  const message = contextMessage || navigationMessage
+  const remainingSeconds = Math.max(0, Math.ceil((MAX_LOADING_MS - elapsedMs) / 1000))
+
+  useEffect(() => {
+    if (!isLoading) {
+      setPatientMessageIndex(0)
+      setElapsedMs(0)
+      setLoadingStartedAt(null)
+      return
+    }
+
+    if (!loadingStartedAt) {
+      setLoadingStartedAt(Date.now())
+    }
+
+    const timer = window.setInterval(() => {
+      const startedAt = loadingStartedAt ?? Date.now()
+      const elapsed = Date.now() - startedAt
+      setElapsedMs(elapsed)
+      setPatientMessageIndex(Math.min(PATIENT_MESSAGES.length - 1, Math.floor(elapsed / 2500)))
+
+      // Never keep loader visible for more than 10 seconds.
+      if (elapsed >= MAX_LOADING_MS) {
+        setIsNavigationLoading(false)
+        clearAllLoading()
+      }
+    }, 1000)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [isLoading, loadingStartedAt, clearAllLoading])
 
   if (!isLoading) {
     return null
@@ -61,7 +180,9 @@ function LoadingIndicatorContent() {
         {/* Loading text */}
         <div className="text-center">
           <p className="text-lg font-semibold text-slate-700">Loading</p>
-          <p className="text-sm text-slate-500 mt-1">Please wait...</p>
+          <p className="text-sm text-slate-500 mt-1">{message}</p>
+          <p className="text-xs text-slate-400 mt-2">{PATIENT_MESSAGES[patientMessageIndex]}</p>
+          <p className="text-xs text-slate-400 mt-1">Approx. {remainingSeconds}s remaining</p>
         </div>
         {/* Progress bar */}
         <div className="w-48 h-1 bg-slate-200 rounded-full overflow-hidden">
@@ -83,9 +204,9 @@ export function GlobalLoadingIndicator() {
 }
 
 // Helper function to trigger navigation loading
-export function triggerNavigationLoading() {
+export function triggerNavigationLoading(message?: string) {
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('navigation-start'))
+    window.dispatchEvent(new CustomEvent('navigation-start', { detail: { message } }))
   }
 }
 

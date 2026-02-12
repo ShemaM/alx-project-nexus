@@ -14,6 +14,7 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
 from rest_framework.filters import OrderingFilter
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import logging
 
 from .models import Job, ClickAnalytics, Subscription, Partner
@@ -28,6 +29,7 @@ from .serializers import (
 )
 from .filters import JobFilter
 from .tasks import send_subscription_confirmation_email
+from .permissions import IsSuperUser
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,18 @@ def dispatch_subscription_confirmation_email(subscription_id):
     Prefer async delivery via Celery. If a worker/broker is unavailable,
     fall back to synchronous execution without breaking subscription creation.
     """
+    use_async = getattr(settings, "SEND_EMAILS_ASYNC", False)
+
+    if not use_async:
+        try:
+            send_subscription_confirmation_email(subscription_id)
+        except Exception:
+            logger.exception(
+                "Failed to send subscription confirmation email synchronously.",
+                extra={"subscription_id": subscription_id},
+            )
+        return
+
     try:
         send_subscription_confirmation_email.delay(subscription_id)
     except Exception:
@@ -214,6 +228,8 @@ class ProtectedBrochureView(APIView):
             filename=filename,
             content_type='application/pdf'
         )
+        # Force browser preview (new tab) instead of download.
+        response["Content-Disposition"] = f'inline; filename="{filename}"'
         
         return response
 
@@ -225,7 +241,7 @@ class AnalyticsOverviewView(APIView):
     Returns aggregated click data for all jobs.
     """
     
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsSuperUser]
     
     def get(self, request):
         # Get top clicked jobs
@@ -305,11 +321,12 @@ class PartnerListView(generics.ListCreateAPIView):
 
     queryset = Partner.objects.all()
     serializer_class = PartnerSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
             return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
+        return [IsSuperUser()]
 
 
 class PartnerDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -323,11 +340,12 @@ class PartnerDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = Partner.objects.all()
     serializer_class = PartnerSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
             return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
+        return [IsSuperUser()]
 
 
 # ============================================

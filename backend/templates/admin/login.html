@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load i18n static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% translate "BYN-K Admin Login" %}</title>
+  <link rel="icon" type="image/png" href="{% static 'admin/images/logo.png' %}">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bynk-blue: #2D8FDD;
+      --bynk-blue-dark: #1E6BB8;
+      --bynk-red: #D52B2B;
+      --bynk-yellow: #F5D300;
+      --bynk-navy: #1E3A5F;
+    }
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 420px at 10% -20%, rgba(45,143,221,.18), transparent 60%),
+        radial-gradient(900px 420px at 95% -20%, rgba(213,43,43,.12), transparent 55%),
+        #f3f7fc;
+    }
+  </style>
+</head>
+<body class="text-slate-900">
+  <main class="min-h-screen flex items-center justify-center px-4 py-8">
+    <section class="w-full max-w-md">
+      <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-(--bynk-blue-dark) hover:text-[var(--bynk-blue)] mb-5">
+        <span aria-hidden="true">&larr;</span>
+        Return to site
+      </a>
+
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden">
+        <div class="px-6 py-5 bg-linear-to-r from-(--bynk-navy) via-(--bynk-blue) to-(--bynk-blue)er-b-4 border-(--bynk-yellow)">
+          <div class="flex items-center gap-3">
+            <img src="{% static 'admin/images/logo.png' %}" alt="BYN-K logo" class="h-11 w-11 rounded-lg object-cover border border-white/30 bg-white">
+            <div>
+              <h1 class="text-xl font-black text-white leading-tight">BYN-K Admin</h1>
+              <p class="text-blue-100 text-xs">Opportunities for Banyamulenge Youth in Kenya</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-6 py-6">
+          <h2 class="text-lg font-bold text-slate-900">Sign in to Admin Console</h2>
+          <p class="text-sm text-slate-600 mt-1">Use your super admin account to continue.</p>
+
+          {% if form.errors %}
+            <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              Invalid username or password. Please try again.
+            </div>
+          {% endif %}
+
+          {% if next and user.is_authenticated %}
+            <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+              Your account does not have access to this page.
+            </div>
+          {% endif %}
+
+          <form method="post" action="{{ app_path }}" class="mt-5 space-y-4">
+            {% csrf_token %}
+            <div>
+              <label for="id_username" class="block text-sm font-semibold text-slate-800 mb-1">Username</label>
+              <input id="id_username" name="username" type="text" placeholder="Enter your username" required autofocus
+                     class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-(--bynk-blue)/30 focus:border-(--bynk-blue)">
+            </div>
+            <div>
+              <label for="id_password" class="block text-sm font-semibold text-slate-800 mb-1">Password</label>
+              <input id="id_password" name="password" type="password" placeholder="Enter your password" required
+                     class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-(--bynk-blue)/30 focus:border-(--bynk-blue)">
+            </div>
+
+            <input type="hidden" name="next" value="{{ next|default:'/admin/' }}">
+
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-r[var(--bynk-blue)] to-[var(--bynk-blue-dark)] hover:from-[var(--bynk-blue-dark)] hover:to-[var(--bynk-blue)] text-white font-bold py-2.5 transition-colors">
+              Log in
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -21,6 +21,45 @@ interface PartnersSectionProps {
   partners: PartnerWithCount[]
 }
 
+const ALLOWED_REMOTE_IMAGE_HOSTS = new Set([
+  'localhost',
+  '127.0.0.1',
+  'nexus-backend-lkps.onrender.com',
+])
+
+function getSafePartnerLogoSrc(logo?: string): string | null {
+  if (!logo) return null
+
+  // Local static/public or proxied media path
+  if (logo.startsWith('/')) {
+    return logo
+  }
+
+  try {
+    const parsed = new URL(logo)
+    const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:'
+    if (!isHttp) return null
+
+    // Reject Google Image Search result links (not direct image files)
+    if (parsed.hostname.includes('google.') && parsed.pathname.startsWith('/imgres')) {
+      return null
+    }
+
+    // Match next.config.mjs remote image allowlist
+    if (!ALLOWED_REMOTE_IMAGE_HOSTS.has(parsed.hostname)) {
+      return null
+    }
+
+    if (parsed.pathname.startsWith('/media/')) {
+      return logo
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
+
 export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) => {
   // If no partners provided, show placeholder
   if (!partners || partners.length === 0) {
@@ -63,6 +102,7 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) =>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {partners.slice(0, 6).map((partner) => {
+            const safeLogoSrc = getSafePartnerLogoSrc(partner.logo)
             return (
               <Link 
                 key={partner.id}
@@ -72,9 +112,9 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({ partners }) =>
                 {/* Logo and Verified Badge */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-20 h-20 bg-linear-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-xl flex items-center justify-center overflow-hidden p-2">
-                    {partner.logo ? (
+                    {safeLogoSrc ? (
                       <Image 
-                        src={partner.logo} 
+                        src={safeLogoSrc}
                         alt={`${partner.name} logo`}
                         width={64}
                         height={64}

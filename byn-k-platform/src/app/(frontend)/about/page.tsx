@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Target, Users, Shield, Heart, Globe, Award } from 'lucide-react'
+import { getCategoryCounts } from '@/lib/api'
 
 export const metadata = {
   title: 'About Us | BYN-K Opportunity Platform',
@@ -32,20 +33,28 @@ const values = [
   }
 ]
 
-const stats = [
-  { value: '50+', label: 'Verified Jobs' },
-  { value: '20+', label: 'Scholarships' },
-  { value: '15+', label: 'Partner Organizations' },
-  { value: '1000+', label: 'Youth Served' }
-]
+export default async function AboutPage() {
+  const counts = await getCategoryCounts()
+  const totalOpportunities =
+    (counts.jobs || 0) +
+    (counts.scholarships || 0) +
+    (counts.internships || 0) +
+    (counts.fellowships || 0) +
+    (counts.training || 0)
 
-export default function AboutPage() {
+  const stats = [
+    { value: counts.jobs || 0, label: 'Jobs' },
+    { value: counts.scholarships || 0, label: 'Scholarships' },
+    { value: counts.partners || 0, label: 'Partner Organizations' },
+    { value: totalOpportunities, label: 'Total Opportunities' },
+  ]
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-24">
+      <section className="bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
             Empowering Refugee Youth Through <span className="text-[#F5D300]">Opportunities</span>
@@ -74,7 +83,7 @@ export default function AboutPage() {
                 We believe that documentation status should not be a barrier to accessing education and employment opportunities. Our platform is designed to help you find opportunities that match your documentation, saving time and reducing frustration.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-2xl p-8">
+            <div className="bg-linear-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-2xl p-8">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-[#2D8FDD]/10 rounded-xl flex items-center justify-center">
                   <Users className="w-6 h-6 text-[#2D8FDD]" />
@@ -83,19 +92,19 @@ export default function AboutPage() {
               </div>
               <ul className="space-y-4 text-slate-600">
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0"></span>
                   <span>Banyamulenge refugee youth living in Kenya</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0"></span>
                   <span>Holders of Alien Cards, CTDs, and Passports</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0pan>
                   <span>Job seekers, students, and career changers</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0"></span>
                   <span>Organizations looking to hire diverse talent</span>
                 </li>
               </ul>
@@ -105,7 +114,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD]">
+      <section className="py-16 bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD]">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-12">
             Making an Impact
@@ -114,7 +123,7 @@ export default function AboutPage() {
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-4xl md:text-5xl font-extrabold text-[#F5D300] mb-2">
-                  {stat.value}
+                  {stat.value.toLocaleString()}
                 </div>
                 <div className="text-blue-100 font-medium">{stat.label}</div>
               </div>
@@ -152,7 +161,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8]">
+      <section className="py-16 bg-linear-to-rrom-[#2D8FDD] to-[#1E6BB8]">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
             Ready to Find Your Next Opportunity?
@@ -161,7 +170,7 @@ export default function AboutPage() {
             Browse our verified listings and take the next step in your career or education journey.
           </p>
           <Link 
-            href="/" 
+            href="/opportunities" 
             className="inline-block bg-[#F5D300] hover:bg-[#D4B500] text-[#1E6BB8] px-8 py-4 rounded-xl font-bold text-lg transition-colors"
           >
             Explore Opportunities

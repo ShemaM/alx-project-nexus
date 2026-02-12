@@ -8,14 +8,13 @@ Implements a simple user model with:
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from listings.models import Subscription
 
 
 class User(AbstractUser):
     """
-    Custom User model with is_admin role.
-    
-    - is_admin=True: Admin user (Manasseh) - can manage all listings
-    - is_admin=False: Standard community user - can browse and bookmark
+    Custom User model with legacy is_admin flag.
+    Platform management is enforced via Django superuser status.
     """
     
     is_admin = models.BooleanField(
@@ -54,3 +53,28 @@ class User(AbstractUser):
         if self.first_name and self.last_name:
             return f"{self.first_name} {self.last_name}"
         return self.username
+
+
+class UpdateSubscriber(Subscription):
+    """
+    Proxy model to expose update-only subscribers under the Users domain
+    in Django admin navigation.
+    """
+
+    class Meta:
+        proxy = True
+        app_label = 'users'
+        verbose_name = 'Update Subscriber'
+        verbose_name_plural = 'Update Subscribers'
+
+
+class SignedUpUser(User):
+    """
+    Proxy model to present account holders under a clear admin category.
+    """
+
+    class Meta:
+        proxy = True
+        app_label = 'users'
+        verbose_name = 'Signed Up User'
+        verbose_name_plural = 'Signed Up Users'

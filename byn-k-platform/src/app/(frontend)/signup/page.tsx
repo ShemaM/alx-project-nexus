@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Mail, Lock, Eye, EyeOff, AlertCircle, User, CheckCircle } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { getProviders, signIn } from 'next-auth/react'
 
 // Google Icon Component
 const GoogleIcon = () => (
@@ -59,6 +59,7 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [oauthProviders, setOauthProviders] = useState<Record<string, unknown>>({})
 
   // Handle error from URL params (e.g., from Google OAuth callback)
   useEffect(() => {
@@ -66,6 +67,19 @@ export default function SignupPage() {
       setError(getErrorMessage(errorParam))
     }
   }, [errorParam])
+
+  useEffect(() => {
+    const loadProviders = async () => {
+      try {
+        const providers = await getProviders()
+        setOauthProviders(providers || {})
+      } catch {
+        setOauthProviders({})
+      }
+    }
+
+    void loadProviders()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -123,11 +137,17 @@ export default function SignupPage() {
   }
 
   const handleGoogleSignUp = () => {
-    void signIn('google', { callbackUrl: redirectUrl })
+    const callbackUrl = redirectUrl.includes('?')
+      ? `${redirectUrl}&reset_activity=1`
+      : `${redirectUrl}?reset_activity=1`
+    void signIn('google', { callbackUrl })
   }
 
   const handleLinkedInSignUp = () => {
-    void signIn('linkedin', { callbackUrl: redirectUrl })
+    const callbackUrl = redirectUrl.includes('?')
+      ? `${redirectUrl}&reset_activity=1`
+      : `${redirectUrl}?reset_activity=1`
+    void signIn('linkedin', { callbackUrl })
   }
 
   return (
@@ -151,32 +171,45 @@ export default function SignupPage() {
               </div>
             )}
 
-            {/* Google Sign Up Button */}
-            <button
-              type="button"
-              onClick={handleGoogleSignUp}
-              className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-lg font-semibold transition-colors mb-6"
-            >
-              <GoogleIcon />
-              Continue with Google
-            </button>
-            <button
-              type="button"
-              onClick={handleLinkedInSignUp}
-              className="w-full flex items-center justify-center gap-3 bg-[#0A66C2] hover:bg-[#084f99] text-white py-3 rounded-lg font-semibold transition-colors mb-6"
-            >
-              Continue with LinkedIn
-            </button>
+            {(oauthProviders.google || oauthProviders.linkedin) && (
+              <>
+                {oauthProviders.google && (
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignUp}
+                    className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-lg font-semibold transition-colors mb-6"
+                  >
+                    <GoogleIcon />
+                    Continue with Google
+                  </button>
+                )}
+                {oauthProviders.linkedin && (
+                  <button
+                    type="button"
+                    onClick={handleLinkedInSignUp}
+                    className="w-full flex items-center justify-center gap-3 bg-[#0A66C2] hover:bg-[#084f99] text-white py-3 rounded-lg font-semibold transition-colors mb-6"
+                  >
+                    Continue with LinkedIn
+                  </button>
+                )}
 
-            {/* Divider */}
-            <div className="relative mb-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200"></div>
+                {/* Divider */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-slate-500">or sign up with email</span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {!oauthProviders.google && !oauthProviders.linkedin && (
+              <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
+                Google and LinkedIn sign-up are currently unavailable. Please use email sign-up.
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500">or sign up with email</span>
-              </div>
-            </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">

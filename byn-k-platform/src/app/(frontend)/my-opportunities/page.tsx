@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Eye, Send, Bookmark, ArrowRight } from 'lucide-react'
 import { getCurrentUser } from '@/lib/api'
-import { getActivity, OpportunityActivityItem } from '@/lib/opportunity-activity'
+import { clearAllActivity, getActivity, OpportunityActivityItem } from '@/lib/opportunity-activity'
 
 type TabKey = 'viewed' | 'applied' | 'bookmarked'
 
@@ -26,6 +26,7 @@ function formatWhen(timestamp: string) {
 export default function MyOpportunitiesPage() {
   const searchParams = useSearchParams()
   const welcomeMessage = searchParams.get('welcome')
+  const shouldResetActivity = searchParams.get('reset_activity') === '1'
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [viewed, setViewed] = useState<OpportunityActivityItem[]>([])
@@ -41,6 +42,9 @@ export default function MyOpportunitiesPage() {
         const user = await getCurrentUser()
         setIsAuthenticated(!!user)
       } finally {
+        if (shouldResetActivity) {
+          clearAllActivity()
+        }
         setViewed(getActivity('viewed'))
         setApplied(getActivity('applied'))
         setBookmarked(getActivity('bookmarked'))
@@ -49,7 +53,7 @@ export default function MyOpportunitiesPage() {
     }
 
     loadData()
-  }, [])
+  }, [shouldResetActivity])
 
   const activeItems = useMemo(() => {
     if (activeTab === 'applied') return applied

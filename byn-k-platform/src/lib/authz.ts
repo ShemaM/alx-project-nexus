@@ -37,7 +37,7 @@ function normalizeRoles(user: AuthUser | null | undefined): Set<string> {
     }
   }
 
-  if (user.is_superuser || user.is_admin) {
+  if (user.is_superuser) {
     roles.add('super_admin')
   } else if (user.is_staff) {
     roles.add('staff')
@@ -47,7 +47,7 @@ function normalizeRoles(user: AuthUser | null | undefined): Set<string> {
 }
 
 export function isSuperAdmin(user: AuthUser | null | undefined): boolean {
-  return normalizeRoles(user).has('super_admin')
+  return user?.is_superuser === true
 }
 
 export function isStaff(user: AuthUser | null | undefined): boolean {

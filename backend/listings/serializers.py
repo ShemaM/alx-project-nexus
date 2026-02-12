@@ -205,11 +205,23 @@ class PartnerSerializer(serializers.ModelSerializer):
     """Serializer for partner organizations."""
 
     opportunity_count = serializers.SerializerMethodField()
+    logo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Partner
-        fields = ['id', 'name', 'logo_url', 'website_url', 'is_featured', 'opportunity_count']
-        read_only_fields = ['id', 'opportunity_count']
+        fields = ['id', 'name', 'logo', 'logo_url', 'website_url', 'is_featured', 'opportunity_count']
+        read_only_fields = ['id', 'logo_url', 'opportunity_count']
+
+    def get_logo_url(self, obj):
+        """
+        Prefer uploaded logo file; fall back to legacy URL field.
+        """
+        if obj.logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.logo.url)
+            return obj.logo.url
+        return obj.logo_url
 
     def get_opportunity_count(self, obj):
         from .models import Job

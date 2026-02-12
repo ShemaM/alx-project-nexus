@@ -421,10 +421,16 @@ class Partner(models.Model):
         unique=True,
         help_text="Partner organization name"
     )
+    logo = models.ImageField(
+        upload_to='partners/logos/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Upload partner logo image from your computer"
+    )
     logo_url = models.URLField(
         blank=True,
         null=True,
-        help_text="Logo image URL"
+        help_text="Legacy external logo URL (optional fallback)"
     )
     website_url = models.URLField(
         blank=True,

@@ -5,7 +5,9 @@ Tests for the listings app.
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
+from django.core.management import call_command
 from datetime import timedelta
+from io import StringIO
 import json
 
 from .models import Job, ClickAnalytics
@@ -590,6 +592,7 @@ class JobFilterTests(TestCase):
         self.assertEqual(data['count'], 1)
         self.assertEqual(data['results'][0]['title'], 'Technical Skills Trainer')
 
+
     def test_search_keyword_matching_with_extra_spaces(self):
         """Test search ignores repeated spaces between keywords."""
         self.remote_job.title = 'Technical Skills Trainer'
@@ -629,3 +632,145 @@ class JobFilterTests(TestCase):
 
         self.assertEqual(data['count'], 1)
         self.assertEqual(data['results'][0]['title'], 'Technical Skills Trainer')
+
+
+class PlatformManagementAccessTests(TestCase):
+    """Platform management routes must be superadmin-only."""
+
+    def setUp(self):
+        self.client = Client()
+        self.super_admin = User.objects.create_user(
+            username='superadmin',
+            email='superadmin@example.com',
+            password='Testpass123!',
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.staff_user = User.objects.create_user(
+            username='staffuser',
+            email='staff@example.com',
+            password='Testpass123!',
+            is_staff=True,
+            is_superuser=False,
+        )
+
+    def test_analytics_denies_staff_user(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/api/analytics/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_analytics_allows_super_admin(self):
+        self.client.force_login(self.super_admin)
+        response = self.client.get('/api/analytics/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_redirects_anonymous_users_to_login(self):
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/login/', response.url)
+
+    def test_admin_denies_staff_user(self):
+        self.client.force_login(self.staff_user)
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/login/', response.url)
+
+    def test_admin_allows_super_admin(self):
+        self.client.force_login(self.super_admin)
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 200)
+
+
+class ConsolidateOpportunitiesCommandTests(TestCase):
+    """Tests for the consolidate_opportunities management command."""
+
+    def setUp(self):
+        self.target_user = User.objects.create_user(
+            username='target-admin',
+            email='target@example.com',
+            password='Testpass123!',
+            is_staff=False,
+            is_superuser=False,
+            is_admin=False,
+        )
+        self.other_super = User.objects.create_user(
+            username='other-super',
+            email='othersuper@example.com',
+            password='Testpass123!',
+            is_staff=True,
+            is_superuser=True,
+            is_admin=True,
+        )
+        self.staff_user = User.objects.create_user(
+            username='staff-user',
+            email='staffuser@example.com',
+            password='Testpass123!',
+            is_staff=True,
+            is_superuser=False,
+            is_admin=True,
+        )
+
+        self.job_a = Job.objects.create(
+            title='Job A',
+            organization_name='Org A',
+            created_by=self.other_super,
+        )
+        self.job_b = Job.objects.create(
+            title='Job B',
+            organization_name='Org B',
+            created_by=self.staff_user,
+        )
+
+    def test_exclusive_superadmin_reassigns_and_demotes_others(self):
+        stdout = StringIO()
+        call_command(
+            'consolidate_opportunities',
+            username='target-admin',
+            promote_existing=True,
+            exclusive_superadmin=True,
+            stdout=stdout,
+        )
+
+        self.target_user.refresh_from_db()
+        self.other_super.refresh_from_db()
+        self.staff_user.refresh_from_db()
+        self.job_a.refresh_from_db()
+        self.job_b.refresh_from_db()
+
+        self.assertTrue(self.target_user.is_superuser)
+        self.assertTrue(self.target_user.is_staff)
+        self.assertFalse(self.other_super.is_superuser)
+        self.assertFalse(self.other_super.is_staff)
+        self.assertFalse(self.other_super.is_admin)
+        self.assertFalse(self.staff_user.is_staff)
+        self.assertFalse(self.staff_user.is_admin)
+        self.assertEqual(self.job_a.created_by_id, self.target_user.id)
+        self.assertEqual(self.job_b.created_by_id, self.target_user.id)
+
+    def test_dry_run_does_not_mutate_users_or_ownership(self):
+        original_owner_ids = {
+            self.job_a.id: self.job_a.created_by_id,
+            self.job_b.id: self.job_b.created_by_id,
+        }
+        stdout = StringIO()
+
+        call_command(
+            'consolidate_opportunities',
+            username='target-admin',
+            promote_existing=True,
+            exclusive_superadmin=True,
+            dry_run=True,
+            stdout=stdout,
+        )
+
+        self.target_user.refresh_from_db()
+        self.other_super.refresh_from_db()
+        self.staff_user.refresh_from_db()
+        self.job_a.refresh_from_db()
+        self.job_b.refresh_from_db()
+
+        self.assertFalse(self.target_user.is_superuser)
+        self.assertTrue(self.other_super.is_superuser)
+        self.assertTrue(self.staff_user.is_staff)
+        self.assertEqual(self.job_a.created_by_id, original_owner_ids[self.job_a.id])
+        self.assertEqual(self.job_b.created_by_id, original_owner_ids[self.job_b.id])

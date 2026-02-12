@@ -22,7 +22,7 @@ export default async function HomePage() {
     training: 0,
     partners: 0,
   }
-  let partnersData: Array<{ id: number; name: string; website?: string; logo?: string; is_featured?: boolean; opportunity_count?: number }> = []
+  let partnersData: Array<{ id: number; name: string; website_url?: string; logo_url?: string; logo?: string; is_featured?: boolean; opportunity_count?: number }> = []
   
   // Fetch data from Django API (with error handling for build time)
   try {
@@ -81,8 +81,8 @@ export default async function HomePage() {
   const partners = partnersData.map(p => ({
     id: p.id,
     name: p.name,
-    website: p.website,
-    logo: p.logo,
+    website: p.website_url,
+    logo: p.logo_url || p.logo,
     is_featured: p.is_featured,
     opportunitiesCount: p.opportunity_count || 0,
   }))

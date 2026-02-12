@@ -39,6 +39,8 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 # Allowed Hosts
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
 
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000').rstrip('/')
+
 # Application definition
 INSTALLED_APPS = [
     # Django Unfold Admin Theme (must be before django.contrib.admin)
@@ -66,7 +68,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.linkedin_oauth2',
     # Local apps
-    'users',
+    'users.apps.UsersConfig',
     'listings',
 ]
 
@@ -78,6 +80,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'config.middleware.StrictAdminAccessMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -97,6 +100,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'config.context_processors.admin_dashboard_context',
             ],
         },
     },
@@ -151,18 +155,31 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ============================================
 # CORS & CSRF Configuration
 # ============================================
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'https://opportunities-for-banyamulenge-yout.vercel.app',
-]
+def _dedupe_non_empty(values):
+    seen = set()
+    output = []
+    for value in values:
+        cleaned = (value or '').strip().rstrip('/')
+        if cleaned and cleaned not in seen:
+            seen.add(cleaned)
+            output.append(cleaned)
+    return output
 
-CSRF_TRUSTED_ORIGINS = [
+
+backend_public_url = os.environ.get('BACKEND_PUBLIC_URL', '').rstrip('/')
+
+CORS_ALLOWED_ORIGINS = _dedupe_non_empty([
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    'https://opportunities-for-banyamulenge-yout.vercel.app',
-    'https://nexus-backend-lkps.onrender.com',
-]
+    FRONTEND_URL,
+])
+
+CSRF_TRUSTED_ORIGINS = _dedupe_non_empty([
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    FRONTEND_URL,
+    backend_public_url,
+])
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -199,6 +216,7 @@ PLATFORM_DISCLAIMER = (
 # ============================================
 SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/admin/'
@@ -234,11 +252,90 @@ ADMIN_SITE_HEADER = "Banyamulenge Youth Kenya (BYN-K) Admin"
 ADMIN_SITE_TITLE = "BYN-K Admin"
 ADMIN_INDEX_TITLE = "Platform Management"
 
+UNFOLD = {
+    "SITE_TITLE": ADMIN_SITE_TITLE,
+    "SITE_HEADER": ADMIN_SITE_HEADER,
+    "SITE_SUBHEADER": "Super Admin Control Center",
+    "SITE_SYMBOL": "",
+    "SITE_ICON": lambda request: "/static/admin/images/logo.png",
+    "STYLES": [
+        lambda request: "admin/css/custom.css",
+    ],
+    "SHOW_HISTORY": False,
+    "SHOW_VIEW_ON_SITE": False,
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Core Management",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Opportunities",
+                        "icon": "work",
+                        "link": "/admin/listings/job/",
+                    },
+                    {
+                        "title": "Partners",
+                        "icon": "handshake",
+                        "link": "/admin/listings/partner/",
+                    },
+                    {
+                        "title": "Analytics",
+                        "icon": "monitoring",
+                        "link": "/admin/listings/clickanalytics/",
+                    },
+                ],
+            },
+            {
+                "title": "Users",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Signed Up Users",
+                        "icon": "group",
+                        "link": "/admin/users/signedupuser/",
+                    },
+                    {
+                        "title": "Update Subscribers",
+                        "icon": "email",
+                        "link": "/admin/users/updatesubscriber/",
+                    },
+                ],
+            },
+        ],
+    },
+}
+
 # ============================================
 # Email Configuration
 # ============================================
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'Banyamulenge Youth Kenya <noreply@bynk.org>'
+def env_bool(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
+EMAIL_USE_SSL = env_bool('EMAIL_USE_SSL', False)
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '30'))
+
+# Prefer explicit EMAIL_BACKEND, otherwise auto-select SMTP when host is provided.
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend' if EMAIL_HOST else 'django.core.mail.backends.console.EmailBackend',
+)
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL',
+    'Banyamulenge Youth Kenya <noreply@bynk.org>',
+)
+SEND_EMAILS_ASYNC = env_bool('SEND_EMAILS_ASYNC', False)
 
 
 # ============================================
@@ -250,6 +347,8 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Africa/Nairobi'
+CELERY_TASK_ALWAYS_EAGER = env_bool('CELERY_TASK_ALWAYS_EAGER', False)
+CELERY_TASK_EAGER_PROPAGATES = env_bool('CELERY_TASK_EAGER_PROPAGATES', True)
 CELERY_BEAT_SCHEDULE = {
     'send-new-opportunity-notifications-every-day': {
         'task': 'listings.tasks.send_new_opportunity_notifications',
@@ -294,3 +393,5 @@ SOCIALACCOUNT_PROVIDERS = {
 
 GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI', 'http://localhost:3000/api/auth/callback/google')
 LINKEDIN_REDIRECT_URI = os.environ.get('LINKEDIN_REDIRECT_URI', 'http://localhost:3000/api/auth/callback/linkedin')
+
+

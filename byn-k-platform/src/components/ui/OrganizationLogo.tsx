@@ -15,7 +15,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import Image from 'next/image'
 
 interface OrganizationLogoProps {
   logoUrl?: string | null
@@ -29,12 +28,6 @@ const sizeClasses = {
   sm: 'w-8 h-8 text-sm',
   md: 'w-12 h-12 text-lg',
   lg: 'w-16 h-16 text-xl',
-}
-
-const imageSizes = {
-  sm: 32,
-  md: 48,
-  lg: 64,
 }
 
 // Generate a consistent color for the placeholder based on organization name
@@ -53,7 +46,7 @@ const getPlaceholderColor = (name: string): string => {
   // Simple hash based on the first few characters
   let hash = 0
   for (let i = 0; i < Math.min(name.length, 5); i++) {
-    hash += name.charCodeAt(i)
+    hash += name.codePointAt(i) ?? 0
   }
   
   return colors[hash % colors.length]
@@ -75,7 +68,7 @@ export const OrganizationLogo: React.FC<OrganizationLogoProps> = ({
   if (!logoUrl || hasError) {
     return (
       <div
-        className={`${sizeClasses[size]} ${placeholderColor} rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0 ${className}`}
+        className={`${sizeClasses[size]} ${placeholderColor} rounded-lg flex items-center justify-center text-white font-bold shrink-0 ${className}`}
         aria-label={`${safeName} placeholder`}
       >
         {firstLetter}
@@ -84,13 +77,12 @@ export const OrganizationLogo: React.FC<OrganizationLogoProps> = ({
   }
 
   return (
-    <div className={`${sizeClasses[size]} relative rounded-lg overflow-hidden bg-white border border-slate-200 flex-shrink-0 ${className}`}>
-      <Image
+    <div className={`${sizeClasses[size]} relative rounded-lg overflow-hidden bg-white border border-slate-200 shrink-0 ${className}`}>
+      <img
         src={logoUrl}
         alt={`${safeName} logo`}
-        fill
-        sizes={`${imageSizes[size]}px`}
-        className="object-contain p-1"
+        className="w-full h-full object-contain p-1"
+        loading="lazy"
         onError={() => setHasError(true)}
       />
     </div>

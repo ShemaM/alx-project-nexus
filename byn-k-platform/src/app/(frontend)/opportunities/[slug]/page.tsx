@@ -9,7 +9,7 @@ import {
   Building2,
   FileText,
   Mail,
-  Download,
+  Eye,
   Paperclip,
   ExternalLink,
 } from 'lucide-react'
@@ -366,9 +366,9 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
               >
                 <span className="inline-flex items-center gap-2 font-semibold">
                   <FileText size={16} className="text-[#2D8FDD]" />
-                  Download Brochure
+                  Preview Brochure
                 </span>
-                <Download size={16} className="text-[#2D8FDD]" />
+                <Eye size={16} className="text-[#2D8FDD]" />
               </a>
             )}
           </aside>

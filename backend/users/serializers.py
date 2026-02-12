@@ -33,8 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
         """
         roles = {name.strip().lower() for name in obj.groups.values_list('name', flat=True) if name}
 
-        # Backward compatibility for existing flags.
-        if obj.is_superuser or obj.is_admin:
+        if obj.is_superuser:
             roles.add('super_admin')
         elif obj.is_staff:
             roles.add('staff')

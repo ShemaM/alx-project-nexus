@@ -25,12 +25,15 @@ async function apiFetch<T>(
   const timeoutMs = config.timeoutMs ?? 0;
   
   try {
+    const isFormDataBody = typeof FormData !== 'undefined' && options.body instanceof FormData;
     const requestOptions: RequestInit = {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers: isFormDataBody
+        ? { ...options.headers }
+        : {
+            'Content-Type': 'application/json',
+            ...options.headers,
+          },
       credentials: 'include',
     };
 
@@ -251,9 +254,6 @@ export async function trackClick(
 }
 
 export function getBrochureUrl(opportunityId: number): string {
-  if (typeof globalThis === 'undefined' || globalThis.window === undefined) {
-    return `${DIRECT_API_BASE_URL}/opportunities/${opportunityId}/brochure/`;
-  }
   return `${CLIENT_PROXY_BASE_URL}/opportunities/${opportunityId}/brochure/`;
 }
 
@@ -336,6 +336,50 @@ export async function getPartners(): Promise<APIResponse<any[]>> {
     console.error('Failed to fetch partners:', error);
     return { data: [], disclaimer: '', count: 0 };
   }
+}
+
+export interface PartnerPayload {
+  name: string
+  website_url?: string
+  is_featured?: boolean
+  logo?: File | null
+}
+
+function buildPartnerFormData(payload: PartnerPayload): FormData {
+  const formData = new FormData()
+  formData.append('name', payload.name)
+  if (payload.website_url) {
+    formData.append('website_url', payload.website_url)
+  }
+  if (typeof payload.is_featured === 'boolean') {
+    formData.append('is_featured', String(payload.is_featured))
+  }
+  if (payload.logo) {
+    formData.append('logo', payload.logo)
+  }
+  return formData
+}
+
+export async function createPartner(payload: PartnerPayload): Promise<any> {
+  const formData = buildPartnerFormData(payload)
+  return apiFetch('/partners/', {
+    method: 'POST',
+    body: formData,
+  })
+}
+
+export async function updatePartner(id: number, payload: PartnerPayload): Promise<any> {
+  const formData = buildPartnerFormData(payload)
+  return apiFetch(`/partners/${id}/`, {
+    method: 'PATCH',
+    body: formData,
+  })
+}
+
+export async function deletePartner(id: number): Promise<void> {
+  await apiFetch(`/partners/${id}/`, {
+    method: 'DELETE',
+  })
 }
 
 // ============================================

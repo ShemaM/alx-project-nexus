@@ -7,6 +7,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { getProviders, signIn } from 'next-auth/react'
+import { clearAllActivity } from '@/lib/opportunity-activity'
 
 // Google Icon Component
 const GoogleIcon = () => (
@@ -76,6 +77,17 @@ export default function LoginPage() {
     try {
       const parsed = new URL(target, window.location.origin)
       parsed.searchParams.set('welcome', welcome)
+      parsed.searchParams.set('reset_activity', '1')
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`
+    } catch {
+      return target
+    }
+  }
+
+  const appendResetToRedirect = (target: string) => {
+    try {
+      const parsed = new URL(target, window.location.origin)
+      parsed.searchParams.set('reset_activity', '1')
       return `${parsed.pathname}${parsed.search}${parsed.hash}`
     } catch {
       return target
@@ -132,6 +144,7 @@ export default function LoginPage() {
         data?.user?.email?.split?.('@')?.[0] ||
         'there'
       const welcome = buildWelcomeMessage(name)
+      clearAllActivity()
       window.location.href = appendWelcomeToRedirect(redirectUrl, welcome)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -141,11 +154,11 @@ export default function LoginPage() {
   }
 
   const handleGoogleSignIn = () => {
-    void signIn('google', { callbackUrl: redirectUrl })
+    void signIn('google', { callbackUrl: appendResetToRedirect(redirectUrl) })
   }
 
   const handleLinkedInSignIn = () => {
-    void signIn('linkedin', { callbackUrl: redirectUrl })
+    void signIn('linkedin', { callbackUrl: appendResetToRedirect(redirectUrl) })
   }
 
   return (

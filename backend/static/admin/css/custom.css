@@ -9,11 +9,28 @@
  */
 
 /* ============================================
+   Unfold Theme Tokens (applies when Unfold is active)
+   ============================================ */
+:root {
+    --color-primary-50: 239 247 255;
+    --color-primary-100: 219 236 252;
+    --color-primary-200: 185 214 244;
+    --color-primary-300: 140 189 236;
+    --color-primary-400: 87 161 226;
+    --color-primary-500: 45 143 221;
+    --color-primary-600: 30 107 184;
+    --color-primary-700: 22 85 151;
+    --color-primary-800: 21 72 125;
+    --color-primary-900: 24 63 104;
+}
+
+/* ============================================
    Header & Branding
    ============================================ */
 #header {
     background: linear-gradient(135deg, #1E3A5F 0%, #2D8FDD 100%);
     color: #ffffff;
+    border-bottom: 3px solid #F5D300;
 }
 
 #header a:link, 
@@ -24,11 +41,18 @@
 #branding h1 {
     color: #F5D300;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 #branding h1 a:link,
 #branding h1 a:visited {
     color: #F5D300;
+}
+
+#site-name a {
+    letter-spacing: 0.2px;
 }
 
 /* User tools (top right) */
@@ -285,4 +309,79 @@ body.login input[type="password"]:focus {
     #branding h1 {
         font-size: 18px;
     }
+}
+
+/* ============================================
+   Unfold/Fallback shell polish
+   ============================================ */
+body {
+    background: #f3f6fb;
+}
+
+.dashboard #content-main .module,
+#content-main .module,
+.change-list #content-main,
+.change-form #content-main {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.dashboard #content-main .module {
+    border: 1px solid #d7e2ef;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+#nav-sidebar {
+    border-right: 1px solid #d7e2ef;
+    background: #f8fbff;
+}
+
+#nav-sidebar .current-app .section,
+#nav-sidebar .current-model {
+    background: #e9f4ff;
+}
+
+/* ============================================
+   Unfold Brand Overrides (remove default purple)
+   ============================================ */
+.bg-primary-600,
+.hover\:bg-primary-700:hover,
+.focus\:bg-primary-700:focus,
+.active\:bg-primary-700:active {
+    background-color: #2D8FDD !important;
+}
+
+.text-primary-600,
+.hover\:text-primary-700:hover,
+.focus\:text-primary-700:focus {
+    color: #1E6BB8 !important;
+}
+
+.border-primary-600,
+.focus\:border-primary-600:focus {
+    border-color: #2D8FDD !important;
+}
+
+.ring-primary-600,
+.focus\:ring-primary-600:focus {
+    --tw-ring-color: rgba(45, 143, 221, 0.35) !important;
+}
+
+.from-primary-600 {
+    --tw-gradient-from: #1E3A5F !important;
+}
+
+.to-primary-500 {
+    --tw-gradient-to: #2D8FDD !important;
+}
+
+/* Accent stripe and danger actions retain brand red/yellow intent */
+.text-red-600,
+.hover\:text-red-700:hover {
+    color: #D52B2B !important;
+}
+
+.bg-yellow-400,
+.bg-yellow-500 {
+    background-color: #F5D300 !important;
 }

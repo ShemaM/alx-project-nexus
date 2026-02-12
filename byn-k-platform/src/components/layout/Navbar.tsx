@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, ChevronDown, Bookmark, LogOut } from 'lucide-react'
+import { Menu, X, ChevronDown, ChevronRight, Bookmark, LogOut } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 import { getCurrentUser } from '@/lib/api'
 
@@ -25,11 +26,55 @@ interface UserData {
 }
 
 export const Navbar = () => {
+  const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [user, setUser] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
+  const segmentLabelMap: Record<string, string> = {
+    about: 'About',
+    admin: 'Admin',
+    analytics: 'Analytics',
+    bookmarks: 'Bookmarks',
+    categories: 'Categories',
+    'confirm-subscription': 'Confirm Subscription',
+    contact: 'Contact',
+    dashboard: 'Dashboard',
+    faq: 'FAQ',
+    'forgot-password': 'Forgot Password',
+    login: 'Sign In',
+    'my-opportunities': 'My Opportunities',
+    opportunities: 'Opportunities',
+    partners: 'Partners',
+    signup: 'Sign Up',
+    training: 'Training',
+    unsubscribe: 'Unsubscribe',
+    jobs: 'Jobs',
+    scholarships: 'Scholarships',
+    internships: 'Internships',
+    fellowships: 'Fellowships',
+  }
+
+  const segments = (pathname || '/').split('/').filter(Boolean)
+  const showBreadcrumbs = segments.length > 0
+
+  const breadcrumbItems = segments.map((segment, index) => {
+    const href = `/${segments.slice(0, index + 1).join('/')}`
+    const safeSegment = decodeURIComponent(segment)
+    const label =
+      segmentLabelMap[safeSegment.toLowerCase()] ||
+      safeSegment
+        .replaceAll('-', ' ')
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+
+    return {
+      href,
+      label,
+      isLast: index === segments.length - 1,
+    }
+  })
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -294,6 +339,32 @@ export const Navbar = () => {
                 </>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {showBreadcrumbs && (
+        <div className="border-t border-[#E2E8F0] bg-slate-50/80">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 overflow-x-auto">
+            <ol className="flex items-center gap-1 whitespace-nowrap text-xs sm:text-sm">
+              <li>
+                <Link href="/" className="text-slate-500 hover:text-[#2D8FDD] transition-colors">
+                  Home
+                </Link>
+              </li>
+              {breadcrumbItems.map((item) => (
+                <li key={item.href} className="flex items-center gap-1">
+                  <ChevronRight size={14} className="text-slate-400" />
+                  {item.isLast ? (
+                    <span className="font-semibold text-[#2D8FDD]">{item.label}</span>
+                  ) : (
+                    <Link href={item.href} className="text-slate-500 hover:text-[#2D8FDD] transition-colors">
+                      {item.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       )}

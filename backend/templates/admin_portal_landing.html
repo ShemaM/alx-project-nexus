@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BYN-K Admin Portal</title>
+  <style>
+    :root {
+      --bynk-blue: #2D8FDD;
+      --bynk-blue-dark: #1E6BB8;
+      --bynk-navy: #1E3A5F;
+      --bynk-yellow: #F5D300;
+      --bg: #f4f7fb;
+      --text: #0f172a;
+      --muted: #475569;
+      --card: #ffffff;
+      --border: #d9e3ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 500px at 10% -20%, rgba(45,143,221,.18), transparent 60%),
+        radial-gradient(1000px 450px at 90% -30%, rgba(245,211,0,.16), transparent 55%),
+        var(--bg);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+    .shell {
+      width: min(920px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, .10);
+    }
+    .header {
+      padding: 26px 28px;
+      background: linear-gradient(135deg, var(--bynk-navy), var(--bynk-blue));
+      color: #fff;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.35);
+      flex-shrink: 0;
+    }
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.2;
+    }
+    .header p {
+      margin: 4px 0 0;
+      color: rgba(255,255,255,.88);
+      font-size: .95rem;
+    }
+    .content {
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      background: #fff;
+    }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+    }
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .btn {
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      font-size: .92rem;
+      transition: all .15s ease;
+    }
+    .btn-primary {
+      color: #fff;
+      background: var(--bynk-blue);
+    }
+    .btn-primary:hover { background: var(--bynk-blue-dark); }
+    .btn-outline {
+      color: var(--bynk-blue-dark);
+      border-color: #b9d3ec;
+      background: #f8fbff;
+    }
+    .btn-outline:hover { background: #eef6ff; }
+    .note {
+      font-size: .86rem;
+      color: #64748b;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="header">
+      <div class="logo">
+        <img src="/static/admin/images/logo.png" alt="BYN-K Logo">
+      </div>
+      <div>
+        <h1>Opportunities for Banyamulenge Youth in Kenya</h1>
+        <p>Administration Portal</p>
+      </div>
+    </section>
+
+    <section class="content">
+      <article class="card">
+        <h2>Where you are</h2>
+        <p>You are on the BYN-K backend control entry page (`http://127.0.0.1:8000/`). This is the safe starting point for platform management.</p>
+      </article>
+
+      <article class="card">
+        <h2>What to do next</h2>
+        <p>Open the admin console and sign in. Only active super admins can access platform management.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="{{ admin_login_url }}">Open Admin Console</a>
+        </div>
+        <p class="note">You will always be prompted to sign in before entering `/admin/`.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -8,6 +8,9 @@
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard'
+import { getCurrentUser } from '@/lib/api'
+import { AuthUser, isSuperAdmin } from '@/lib/authz'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,7 +19,17 @@ export const metadata = {
   description: 'View platform analytics and metrics',
 }
 
-export default function AdminAnalyticsPage() {
+export default async function AdminAnalyticsPage() {
+  const user = await getCurrentUser() as AuthUser | null
+
+  if (!user) {
+    redirect('/login?redirect=/dashboard/analytics')
+  }
+
+  if (!isSuperAdmin(user)) {
+    redirect('/')
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />

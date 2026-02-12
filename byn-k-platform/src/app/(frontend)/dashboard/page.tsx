@@ -8,6 +8,9 @@
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import { getCurrentUser } from '@/lib/api'
+import { AuthUser, isSuperAdmin } from '@/lib/authz'
+import { redirect } from 'next/navigation'
 import { 
   BarChart3, 
   Briefcase, 
@@ -84,7 +87,17 @@ const adminLinks = [
   },
 ]
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const user = await getCurrentUser() as AuthUser | null
+
+  if (!user) {
+    redirect('/login?redirect=/dashboard')
+  }
+
+  if (!isSuperAdmin(user)) {
+    redirect('/')
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />

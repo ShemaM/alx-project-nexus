@@ -9,7 +9,7 @@ This is the Django REST Framework backend for the BYN-K Platform. It provides a 
 ## Features
 
 ### Phase 2: The Gateway Backend
-- Custom User Model with `is_admin` role
+- Custom User Model with legacy `is_admin` flag and superadmin (`is_superuser`) access control
 - Job Listings model with:
   - Required documents (for advanced filtering)
   - Application types (External Link, Email, PDF Brochure)
@@ -56,9 +56,14 @@ cp .env.example .env
 python manage.py migrate
 ```
 
-5. Create admin user:
+5. Create super admin user:
 ```bash
 python manage.py createsuperuser
+```
+
+Optional consolidation command (move all opportunities to one super admin):
+```bash
+python manage.py consolidate_opportunities --username <superadmin_username> --promote-existing --exclusive-superadmin
 ```
 
 6. Run development server:

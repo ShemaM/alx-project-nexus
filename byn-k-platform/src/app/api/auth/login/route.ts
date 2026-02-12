@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       roles: responseData.roles,
     }
     
-    const isAdminUser = user.is_superuser || user.is_admin
+    const isAdminUser = user.is_superuser === true
 
     // Create response with user data
     const response = NextResponse.json({

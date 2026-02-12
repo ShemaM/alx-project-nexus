@@ -8,13 +8,20 @@ import Input from '@/components/ui/Input';
 import Modal from '@/components/ui/Modal';
 import { useForm } from 'react-hook-form';
 
+type PartnerFormValues = {
+  name: string
+  website_url?: string
+  is_featured?: boolean
+  logo?: FileList
+}
+
 export function PartnersManager() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
 
-  const { register, handleSubmit, reset } = useForm<Partner>();
+  const { register, handleSubmit, reset } = useForm<PartnerFormValues>();
 
   useEffect(() => {
     fetchPartners();
@@ -33,13 +40,17 @@ export function PartnersManager() {
 
   const openModalForCreate = () => {
     setEditingPartner(null);
-    reset({ name: '', logo_url: '', website_url: '' });
+    reset({ name: '', website_url: '', is_featured: false });
     setIsModalOpen(true);
   };
 
   const openModalForEdit = (partner: Partner) => {
     setEditingPartner(partner);
-    reset(partner);
+    reset({
+      name: partner.name,
+      website_url: partner.website_url || '',
+      is_featured: Boolean(partner.is_featured),
+    });
     setIsModalOpen(true);
   };
 
@@ -48,12 +59,18 @@ export function PartnersManager() {
     setEditingPartner(null);
   };
 
-  const onSubmit = async (data: Partner) => {
+  const onSubmit = async (data: PartnerFormValues) => {
+    const payload = {
+      name: data.name,
+      website_url: data.website_url || '',
+      is_featured: Boolean(data.is_featured),
+      logo: data.logo && data.logo.length > 0 ? data.logo[0] : null,
+    };
     try {
       if (editingPartner) {
-        await updatePartner(editingPartner.id, data);
+        await updatePartner(editingPartner.id, payload);
       } else {
-        await createPartner(data);
+        await createPartner(payload);
       }
       fetchPartners();
       closeModal();
@@ -98,7 +115,11 @@ export function PartnersManager() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
                                         <div className="shrink-0 h-10 w-10">
-                                            <img className="h-10 w-10 rounded-full object-cover" src={partner.logo_url} alt="" />
+                                            {partner.logo_url || partner.logo ? (
+                                              <img className="h-10 w-10 rounded-full object-cover" src={partner.logo_url || partner.logo || ''} alt="" />
+                                            ) : (
+                                              <div className="h-10 w-10 rounded-full bg-gray-100" />
+                                            )}
                                         </div>
                                         <div className="ml-4">
                                             <div className="text-sm font-medium text-gray-900">{partner.name}</div>
@@ -128,8 +149,12 @@ export function PartnersManager() {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-4">
                     <Input label="Name" {...register('name', { required: true })} />
-                    <Input label="Logo URL" {...register('logo_url', { required: true })} />
+                    <Input label="Logo" type="file" accept="image/*" {...register('logo')} />
                     <Input label="Website URL" {...register('website_url')} />
+                    <label className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" {...register('is_featured')} />
+                      Featured partner
+                    </label>
                 </div>
                 <div className="mt-6 flex justify-end space-x-3">
                     <Button onClick={closeModal}>Cancel</Button>

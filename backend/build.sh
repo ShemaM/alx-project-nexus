@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Exit on error
 set -o errexit
 
 # Install dependencies
@@ -11,8 +10,20 @@ python manage.py collectstatic --no-input
 # Run migrations
 python manage.py migrate
 
-# 1. ⬇️ RESTORE ADMIN: Create 'nmshema' if missing, or reset permissions if exists
-python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); u, created = User.objects.get_or_create(username='nmshema', defaults={'email': 'shemamanase992@gmail.com'}); u.set_password('Nm&&668852'); u.is_staff=True; u.is_superuser=True; u.save()"
+# Optional seed data load (disabled by default to avoid fixed account bootstrap)
+if [[ "${LOAD_SEED_DATA}" == "true" ]]; then
+  python manage.py loaddata data.json
+fi
 
-# 2. ⬇️ RESTORE DATA: Load all the listings from your clean data.json file
-python manage.py loaddata data.json
+# Optional super admin bootstrap + ownership consolidation.
+# Uses env vars only (no hardcoded credentials):
+# PLATFORM_SUPERADMIN_USERNAME, PLATFORM_SUPERADMIN_EMAIL, PLATFORM_SUPERADMIN_PASSWORD
+if [[ -n "${PLATFORM_SUPERADMIN_USERNAME}" && -n "${PLATFORM_SUPERADMIN_EMAIL}" && -n "${PLATFORM_SUPERADMIN_PASSWORD}" ]]; then
+  python manage.py consolidate_opportunities \
+    --username "${PLATFORM_SUPERADMIN_USERNAME}" \
+    --email "${PLATFORM_SUPERADMIN_EMAIL}" \
+    --password "${PLATFORM_SUPERADMIN_PASSWORD}" \
+    --create-if-missing \
+    --promote-existing \
+    --exclusive-superadmin
+fi

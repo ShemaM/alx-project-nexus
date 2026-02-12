@@ -39,7 +39,9 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
     description: string
     count: number
     iconColor: string
-    hoverBg: string
+    accentColor: string
+    accentBg: string
+    hoverBorder: string
     ariaLabel: string
   }> = [
     {
@@ -49,8 +51,10 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
       title: 'Jobs',
       description: 'Full-time and part-time employment opportunities',
       count: counts.jobs ?? 0,
-      iconColor: 'bg-[#F5D300] text-white',
-      hoverBg: 'hover:bg-yellow-400',
+      iconColor: 'bg-amber-100 text-amber-700',
+      accentColor: 'text-amber-700',
+      accentBg: 'bg-amber-50',
+      hoverBorder: 'hover:border-amber-200',
       ariaLabel: `Browse ${counts.jobs ?? 0} job opportunities`
     },
     {
@@ -60,8 +64,10 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
       title: 'Scholarships',
       description: 'Educational funding and grants',
       count: counts.scholarships ?? 0,
-      iconColor: 'bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white',
-      hoverBg: 'hover:bg-gradient-to-r hover:from-violet-500 hover:to-fuchsia-500',
+      iconColor: 'bg-violet-100 text-violet-700',
+      accentColor: 'text-violet-700',
+      accentBg: 'bg-violet-50',
+      hoverBorder: 'hover:border-violet-200',
       ariaLabel: `Browse ${counts.scholarships ?? 0} scholarship opportunities`
     },
     {
@@ -71,8 +77,10 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
       title: 'Internships',
       description: 'Hands-on learning experiences',
       count: counts.internships ?? 0,
-      iconColor: 'bg-gradient-to-br from-[#2D8FDD] to-cyan-500 text-white',
-      hoverBg: 'hover:bg-gradient-to-r hover:from-[#2D8FDD] hover:to-cyan-500',
+      iconColor: 'bg-sky-100 text-sky-700',
+      accentColor: 'text-sky-700',
+      accentBg: 'bg-sky-50',
+      hoverBorder: 'hover:border-sky-200',
       ariaLabel: `Browse ${counts.internships ?? 0} internship opportunities`
     },
     {
@@ -82,8 +90,10 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
       title: 'Fellowships',
       description: 'Professional development programs',
       count: counts.fellowships ?? 0,
-      iconColor: 'bg-emerald-500 text-white',
-      hoverBg: 'hover:bg-emerald-500',
+      iconColor: 'bg-emerald-100 text-emerald-700',
+      accentColor: 'text-emerald-700',
+      accentBg: 'bg-emerald-50',
+      hoverBorder: 'hover:border-emerald-200',
       ariaLabel: `Browse ${counts.fellowships ?? 0} fellowship opportunities`
     },
     {
@@ -93,8 +103,10 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
       title: 'Training',
       description: 'Skills development and certification programs',
       count: counts.training ?? 0,
-      iconColor: 'bg-slate-500 text-white',
-      hoverBg: 'hover:bg-slate-500',
+      iconColor: 'bg-slate-100 text-slate-700',
+      accentColor: 'text-slate-700',
+      accentBg: 'bg-slate-100',
+      hoverBorder: 'hover:border-slate-300',
       ariaLabel: `Browse ${counts.training ?? 0} training opportunities`
     }
   ];
@@ -121,7 +133,7 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
         
         {/* Category Cards Grid */}
         <ul 
-          className="grid grid-cols-1 md:grid-cols-2 gap-5"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           aria-label="Opportunity categories"
         >
           {categories.map((cat) => {
@@ -130,34 +142,34 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
               <li key={cat.title}>
                 <Link
                   href={cat.href}
-                  className={`group rounded-2xl border border-[#CFD8E3] bg-white p-6 transition-all duration-300 hover:shadow-xl ${cat.hoverBg} focus:outline-none focus:ring-2 focus:ring-[#2D8FDD] focus:ring-offset-2`}
+                  className={`group block h-full rounded-xl border border-slate-200 bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${cat.hoverBorder} focus:outline-none focus:ring-2 focus:ring-[#2D8FDD] focus:ring-offset-2`}
                   aria-label={cat.ariaLabel}
                 >
                 {/* Category Icon */}
                 <div 
-                  className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 ${cat.iconColor} transition-transform duration-300 group-hover:scale-105`}
+                  className={`w-11 h-11 rounded-lg flex items-center justify-center mb-4 ${cat.iconColor}`}
                   aria-hidden="true"
                 >
-                  <Icon size={24} />
+                  <Icon size={20} />
                 </div>
                 
                 {/* Category Title */}
-                <h3 className="text-3xl font-black text-slate-900 mb-2 leading-tight group-hover:text-white transition-colors">
+                <h3 className="text-xl font-bold text-slate-900 mb-1.5 leading-tight">
                   {cat.title}
                 </h3>
                 
-                <p className="text-lg text-slate-700 mb-5 max-w-md group-hover:text-white/90 transition-colors">
+                <p className="text-sm text-slate-600 mb-4 max-w-sm">
                   {cat.description}
                 </p>
                 
                 {/* Count and Arrow */}
                 <div className="flex items-center justify-between">
-                  <span className="text-4xl font-extrabold text-[#2D8FDD] group-hover:text-white transition-colors">
-                    {cat.count}
+                  <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-sm font-semibold ${cat.accentBg} ${cat.accentColor}`}>
+                    {cat.count} open
                   </span>
                   <ArrowRight 
-                    size={24} 
-                    className="text-slate-400 transition-all duration-300 group-hover:text-white group-hover:translate-x-1" 
+                    size={18} 
+                    className={`text-slate-400 transition-all duration-200 group-hover:translate-x-1 ${cat.accentColor}`} 
                     aria-hidden="true"
                   />
                 </div>

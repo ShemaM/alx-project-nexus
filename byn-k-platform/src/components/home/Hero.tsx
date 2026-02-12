@@ -23,6 +23,7 @@ import { ArrowRight, Sparkles, TrendingUp, Clock, ChevronLeft, ChevronRight, Sta
 import styles from './Hero.module.css'
 import { buildOpportunityPath } from '@/lib/opportunity-utils'
 import { useLoadingState } from '@/contexts'
+import { triggerNavigationLoading } from '@/components/ui/GlobalLoadingIndicator'
 
 export interface FeaturedOpportunity {
   id: string
@@ -77,12 +78,14 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
 
   const handleExploreClick = () => {
     setLoading('explore-opportunities', true)
-    router.push('/categories/jobs')
+    triggerNavigationLoading('Opening opportunities...')
+    router.push('/opportunities')
   }
 
   const handleViewDetailsClick = () => {
     const detailsKey = `view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`
     setLoading(detailsKey, true)
+    triggerNavigationLoading('Opening opportunity details...')
     router.push(buildOpportunityPath(currentFeatured?.category, currentFeatured?.slug))
   }
 
@@ -195,6 +198,7 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
               <button 
                 onClick={handleExploreClick}
                 disabled={isLoading('explore-opportunities')}
+                data-loading-message="Opening opportunities..."
                 className="group relative inline-flex items-center gap-2 bg-linear-to-r from-[#F5D300] to-[#FFE066] text-slate-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-[#F5D300]/25 hover:shadow-xl hover:shadow-[#F5D300]/30 transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 {isLoading('explore-opportunities') ? (
@@ -298,6 +302,7 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
                 <button 
                   onClick={handleViewDetailsClick}
                   disabled={!currentFeatured || isLoading(`view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`)}
+                  data-loading-message="Opening opportunity details..."
                   className="group flex items-center justify-center gap-2 w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg hover:bg-[#F5D300] transition-all duration-300 mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading(`view-details-${currentFeatured?.slug || currentFeatured?.id || 'featured'}`) ? (

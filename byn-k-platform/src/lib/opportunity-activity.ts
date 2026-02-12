@@ -65,3 +65,10 @@ export function removeBookmarkedActivity(opportunityId: number) {
 export function isBookmarkedActivity(opportunityId: number) {
   return readItems('bookmarked').some((entry) => entry.id === opportunityId)
 }
+
+export function clearAllActivity() {
+  if (!canUseStorage()) return
+  for (const key of Object.values(STORAGE_KEYS)) {
+    window.localStorage.removeItem(key)
+  }
+}
