@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         email: email.toLowerCase(),
-        username: email.toLowerCase().split('@')[0], // Use email prefix as username
+        username: email.toLowerCase(),
         password,
         first_name: name?.split(' ')[0] || '',
         last_name: name?.split(' ').slice(1).join(' ') || '',

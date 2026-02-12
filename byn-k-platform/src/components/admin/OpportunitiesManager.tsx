@@ -20,10 +20,12 @@ import {
   Briefcase,
 } from 'lucide-react';
 import { getOpportunities } from '@/lib/api';
+import { buildOpportunityPath } from '@/lib/opportunity-utils';
 
 interface Opportunity {
   id: number;
   title: string;
+  slug?: string;
   category: string;
   organization_name: string;
   deadline: string | null;
@@ -48,6 +50,7 @@ export async function OpportunitiesManager() {
     opportunities = (response?.data || []).map((opp) => ({
       id: opp.id,
       title: opp.title,
+      slug: opp.slug,
       category: opp.category || 'job',
       organization_name: opp.organization_name,
       deadline: opp.deadline || null,
@@ -177,7 +180,7 @@ export async function OpportunitiesManager() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Link href={`/opportunities/${opp.id}`} title="View">
+                      <Link href={buildOpportunityPath(opp.category, opp.slug)} title="View">
                         <ExternalLink size={18} className="text-gray-400 hover:text-blue-500" />
                       </Link>
                       <Link href={`/admin/opportunities/${opp.id}/edit`} title="Edit">

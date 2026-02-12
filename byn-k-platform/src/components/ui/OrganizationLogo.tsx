@@ -19,7 +19,7 @@ import Image from 'next/image'
 
 interface OrganizationLogoProps {
   logoUrl?: string | null
-  organizationName: string
+  organizationName?: string | null
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
@@ -67,15 +67,16 @@ export const OrganizationLogo: React.FC<OrganizationLogoProps> = ({
 }) => {
   const [hasError, setHasError] = useState(false)
 
-  const firstLetter = organizationName.trim().charAt(0).toUpperCase()
-  const placeholderColor = getPlaceholderColor(organizationName)
+  const safeName = (organizationName || '').trim() || 'Organization'
+  const firstLetter = safeName.charAt(0).toUpperCase()
+  const placeholderColor = getPlaceholderColor(safeName)
 
   // Show placeholder if no logo URL or if there was an error loading the image
   if (!logoUrl || hasError) {
     return (
       <div
         className={`${sizeClasses[size]} ${placeholderColor} rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0 ${className}`}
-        aria-label={`${organizationName} placeholder`}
+        aria-label={`${safeName} placeholder`}
       >
         {firstLetter}
       </div>
@@ -86,7 +87,7 @@ export const OrganizationLogo: React.FC<OrganizationLogoProps> = ({
     <div className={`${sizeClasses[size]} relative rounded-lg overflow-hidden bg-white border border-slate-200 flex-shrink-0 ${className}`}>
       <Image
         src={logoUrl}
-        alt={`${organizationName} logo`}
+        alt={`${safeName} logo`}
         fill
         sizes={`${imageSizes[size]}px`}
         className="object-contain p-1"

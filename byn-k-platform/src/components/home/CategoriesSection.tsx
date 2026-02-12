@@ -15,13 +15,14 @@
  */
 import React from 'react'
 import Link from 'next/link'
-import { Briefcase, GraduationCap, Building, BookOpen, ArrowRight } from 'lucide-react'
+import { Briefcase, GraduationCap, Building, BookOpen, ArrowRight, LucideIcon } from 'lucide-react'
 
 type CategoryCounts = {
   jobs: number
   scholarships: number
   internships: number
   fellowships: number
+  training?: number
   partners?: number
 }
 
@@ -30,46 +31,71 @@ type CategoriesSectionProps = {
 }
 
 export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
-  const categories = [
+  const categories: Array<{
+    id: string
+    href: string
+    icon: LucideIcon
+    title: string
+    description: string
+    count: number
+    iconColor: string
+    hoverBg: string
+    ariaLabel: string
+  }> = [
     {
       id: 'job',
-      href: '/opportunities?categories=job',
+      href: '/categories/jobs',
       icon: Briefcase,
       title: 'Jobs',
-      description: 'Find verified job opportunities for your skills',
+      description: 'Full-time and part-time employment opportunities',
       count: counts.jobs ?? 0,
-      color: 'bg-yellow-50 text-[#F5D300] border-yellow-200',
+      iconColor: 'bg-[#F5D300] text-white',
+      hoverBg: 'hover:bg-yellow-400',
       ariaLabel: `Browse ${counts.jobs ?? 0} job opportunities`
     },
     {
       id: 'scholarship',
-      href: '/opportunities?categories=scholarship',
+      href: '/categories/scholarships',
       icon: GraduationCap,
       title: 'Scholarships',
-      description: 'Educational funding opportunities for students',
+      description: 'Educational funding and grants',
       count: counts.scholarships ?? 0,
-      color: 'bg-purple-50 text-purple-600 border-purple-200',
+      iconColor: 'bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white',
+      hoverBg: 'hover:bg-gradient-to-r hover:from-violet-500 hover:to-fuchsia-500',
       ariaLabel: `Browse ${counts.scholarships ?? 0} scholarship opportunities`
     },
     {
       id: 'internship',
-      href: '/opportunities?categories=internship',
+      href: '/categories/internships',
       icon: Building,
       title: 'Internships',
-      description: 'Gain experience with internship programs',
+      description: 'Hands-on learning experiences',
       count: counts.internships ?? 0,
-      color: 'bg-blue-50 text-[#2D8FDD] border-blue-200',
+      iconColor: 'bg-gradient-to-br from-[#2D8FDD] to-cyan-500 text-white',
+      hoverBg: 'hover:bg-gradient-to-r hover:from-[#2D8FDD] hover:to-cyan-500',
       ariaLabel: `Browse ${counts.internships ?? 0} internship opportunities`
     },
     {
       id: 'fellowship',
-      href: '/opportunities?categories=fellowship',
+      href: '/categories/fellowships',
       icon: BookOpen,
       title: 'Fellowships',
-      description: 'Fellowship programs and opportunities',
+      description: 'Professional development programs',
       count: counts.fellowships ?? 0,
-      color: 'bg-green-50 text-green-600 border-green-200',
+      iconColor: 'bg-emerald-500 text-white',
+      hoverBg: 'hover:bg-emerald-500',
       ariaLabel: `Browse ${counts.fellowships ?? 0} fellowship opportunities`
+    },
+    {
+      id: 'training',
+      href: '/categories/training',
+      icon: BookOpen,
+      title: 'Training',
+      description: 'Skills development and certification programs',
+      count: counts.training ?? 0,
+      iconColor: 'bg-slate-500 text-white',
+      hoverBg: 'hover:bg-slate-500',
+      ariaLabel: `Browse ${counts.training ?? 0} training opportunities`
     }
   ];
   
@@ -95,7 +121,7 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
         
         {/* Category Cards Grid */}
         <div 
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 gap-5"
           role="list"
           aria-label="Opportunity categories"
         >
@@ -105,36 +131,35 @@ export const CategoriesSection = ({ counts }: CategoriesSectionProps) => {
               <Link
                 key={cat.title}
                 href={cat.href}
-                className="group bg-white border border-[#E2E8F0] rounded-2xl p-5 hover:shadow-lg hover:border-[#2D8FDD]/20 transition-all hover-lift focus:outline-none focus:ring-2 focus:ring-[#2D8FDD] focus:ring-offset-2"
+                className={`group rounded-2xl border border-[#CFD8E3] bg-white p-6 transition-all duration-300 hover:shadow-xl ${cat.hoverBg} focus:outline-none focus:ring-2 focus:ring-[#2D8FDD] focus:ring-offset-2`}
                 role="listitem"
                 aria-label={cat.ariaLabel}
               >
                 {/* Category Icon */}
                 <div 
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${cat.color} border transition-transform group-hover:scale-110`}
+                  className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 ${cat.iconColor} transition-transform duration-300 group-hover:scale-105`}
                   aria-hidden="true"
                 >
                   <Icon size={24} />
                 </div>
                 
                 {/* Category Title */}
-                <h3 className="text-lg font-bold text-[#2D8FDD] mb-1 group-hover:text-[#1E6BB8]">
+                <h3 className="text-3xl font-black text-slate-900 mb-2 leading-tight group-hover:text-white transition-colors">
                   {cat.title}
                 </h3>
                 
-                {/* Description (hidden on mobile) */}
-                <p className="text-sm text-slate-500 mb-3 hidden md:block">
+                <p className="text-lg text-slate-700 mb-5 max-w-md group-hover:text-white/90 transition-colors">
                   {cat.description}
                 </p>
                 
                 {/* Count and Arrow */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#F5D300]">
-                    {cat.count} listings
+                  <span className="text-4xl font-extrabold text-[#2D8FDD] group-hover:text-white transition-colors">
+                    {cat.count}
                   </span>
                   <ArrowRight 
-                    size={16} 
-                    className="text-[#2D8FDD] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" 
+                    size={24} 
+                    className="text-slate-400 transition-all duration-300 group-hover:text-white group-hover:translate-x-1" 
                     aria-hidden="true"
                   />
                 </div>

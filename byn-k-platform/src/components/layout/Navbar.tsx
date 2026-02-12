@@ -49,7 +49,11 @@ export const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+      })
       setUser(null)
       window.location.href = '/'
     } catch (error) {
@@ -118,7 +122,7 @@ export const Navbar = () => {
                   <div className="flex items-center gap-4">
                     {/* Bookmarks Link */}
                     <Link 
-                      href="/bookmarks" 
+                      href="/my-opportunities?tab=bookmarked" 
                       className="flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-[#2D8FDD] transition-colors"
                       title="My Bookmarks"
                     >
@@ -149,7 +153,7 @@ export const Navbar = () => {
                               <p className="text-xs text-slate-500 truncate">{user.email || ''}</p>
                             </div>
                             <Link
-                              href="/bookmarks"
+                              href="/my-opportunities?tab=bookmarked"
                               className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-[#2D8FDD]/5 hover:text-[#2D8FDD]"
                               onClick={() => setIsUserMenuOpen(false)}
                             >
@@ -251,7 +255,7 @@ export const Navbar = () => {
                         </div>
                       </div>
                       <Link 
-                        href="/bookmarks"
+                        href="/my-opportunities?tab=bookmarked"
                         className="flex items-center gap-2 py-2 text-slate-600 hover:text-[#2D8FDD] font-medium"
                         onClick={() => setIsMenuOpen(false)}
                       >

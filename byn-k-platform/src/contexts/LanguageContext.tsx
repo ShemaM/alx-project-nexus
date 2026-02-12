@@ -123,18 +123,6 @@ const translations: Translations = {
     fr: 'annonces'
   },
 
-  // Testimonials
-  'testimonials.title': {
-    en: 'Success Stories',
-    sw: 'Hadithi za Mafanikio',
-    fr: 'Histoires de Réussite'
-  },
-  'testimonials.subtitle': {
-    en: 'Hear from community members who have found opportunities through our platform',
-    sw: 'Sikia kutoka kwa wanajamii ambao wamepata fursa kupitia jukwaa letu',
-    fr: 'Écoutez les membres de la communauté qui ont trouvé des opportunités grâce à notre plateforme'
-  },
-
   // Footer
   'footer.stayUpdated': {
     en: 'Stay Updated',

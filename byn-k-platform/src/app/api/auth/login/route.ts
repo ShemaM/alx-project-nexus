@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     if (!djangoResponse.ok) {
       return NextResponse.json(
-        { error: responseData.detail || 'Invalid email or password' },
+        { error: responseData.error || responseData.detail || 'Invalid email or password' },
         { status: djangoResponse.status }
       )
     }
@@ -46,8 +46,13 @@ export async function POST(request: NextRequest) {
         id: responseData.id,
         email: responseData.email,
         username: responseData.username,
+        first_name: responseData.first_name,
+        last_name: responseData.last_name,
+        display_name: responseData.display_name,
         is_admin: responseData.is_admin,
         is_staff: responseData.is_staff,
+        is_superuser: responseData.is_superuser,
+        roles: responseData.roles,
       },
     })
 

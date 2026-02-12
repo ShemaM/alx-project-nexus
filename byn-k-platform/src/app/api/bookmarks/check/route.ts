@@ -3,14 +3,43 @@ import { NextRequest, NextResponse } from 'next/server'
 // Base API URL for Django backend
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '')
 
+async function resolveAuthContext(request: NextRequest) {
+  const authToken = request.cookies.get('auth-token')?.value
+  if (authToken) {
+    return { authenticated: true, authToken }
+  }
+
+  const cookieHeader = request.headers.get('cookie') || ''
+  if (!cookieHeader) {
+    return { authenticated: false, authToken: undefined as string | undefined }
+  }
+
+  try {
+    const meResponse = await fetch(`${API_BASE_URL}/auth/me/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        cookie: cookieHeader,
+      },
+      cache: 'no-store',
+    })
+
+    return {
+      authenticated: meResponse.ok,
+      authToken: undefined as string | undefined,
+    }
+  } catch {
+    return { authenticated: false, authToken: undefined as string | undefined }
+  }
+}
+
 // GET /api/bookmarks/check?opportunityId=123 - Check if opportunity is bookmarked
 // Note: Bookmarks feature is not yet implemented in Django backend
 export async function GET(request: NextRequest) {
   try {
-    // Get auth token from cookies
-    const authToken = request.cookies.get('auth-token')?.value
+    const { authenticated, authToken } = await resolveAuthContext(request)
 
-    if (!authToken) {
+    if (!authenticated) {
       return NextResponse.json({
         isBookmarked: false,
         authenticated: false,
@@ -41,7 +70,8 @@ export async function GET(request: NextRequest) {
         `${API_BASE_URL}/bookmarks/check/?opportunity_id=${opportunityIdNum}`,
         {
           headers: {
-            'Authorization': `Bearer ${authToken}`,
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+            cookie: request.headers.get('cookie') || '',
           },
         }
       )

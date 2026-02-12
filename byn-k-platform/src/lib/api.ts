@@ -4,41 +4,80 @@
  */
 
 import { Opportunity, OpportunityFilterParams, APIResponse, SubscriptionResponse } from '@/types'
+import { AuthUser } from '@/lib/authz'
 
 // Ensure no trailing slash on the base URL to maintain predictable concatenation
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
+const DIRECT_API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
+const CLIENT_PROXY_BASE_URL = '/api/proxy';
 
 /**
  * Generic fetch wrapper with error handling
  */
 async function apiFetch<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  config: { suppressErrorLogging?: boolean; timeoutMs?: number } = {}
 ): Promise<T> {
   // Ensure endpoint starts with a slash
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = `${API_BASE_URL}${cleanEndpoint}`;
+  const baseUrl = typeof globalThis === 'undefined' || globalThis.window === undefined ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
+  const url = `${baseUrl}${cleanEndpoint}`;
+  const timeoutMs = config.timeoutMs ?? 0;
   
   try {
-    const response = await fetch(url, {
+    const requestOptions: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
       credentials: 'include',
-      // Abort if request takes longer than 10 seconds
-      signal: AbortSignal.timeout(10000),
-    });
+    };
+
+    // Timeout is opt-in; avoid forcing short aborts on slower environments.
+    if (
+      !options.signal &&
+      timeoutMs > 0 &&
+      typeof AbortSignal !== 'undefined' &&
+      typeof AbortSignal.timeout === 'function'
+    ) {
+      requestOptions.signal = AbortSignal.timeout(timeoutMs);
+    }
+
+    const response = await fetch(url, requestOptions);
     
     if (!response.ok) {
-      console.error(`Fetch failed for ${url}: ${response.status}`);
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      let errorDetails = '';
+      try {
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const payload = await response.json();
+          errorDetails =
+            payload?.detail ||
+            payload?.error ||
+            payload?.message ||
+            JSON.stringify(payload);
+        } else {
+          const text = await response.text();
+          errorDetails = text.replace(/\s+/g, ' ').trim().slice(0, 300);
+        }
+      } catch {
+        // Keep default status-only message if response parsing fails.
+      }
+
+      if (!config.suppressErrorLogging) {
+        console.error(`Fetch failed for ${url}: ${response.status}`, errorDetails);
+      }
+      throw new Error(
+        `API Error: ${response.status} ${response.statusText}${errorDetails ? ` - ${errorDetails}` : ''}`
+      );
     }
     
     return response.json();
   } catch (error) {
-    console.error(`API fetch error for ${url}:`, error);
+    if (!config.suppressErrorLogging) {
+      console.error(`API fetch error for ${url}:`, error);
+    }
     throw error;
   }
 }
@@ -63,13 +102,9 @@ function addParamIfPresent(
 function addBasicFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
   addParamIfPresent(searchParams, 'docs', params.docs);
   addParamIfPresent(searchParams, 'category', params.category);
-<<<<<<< HEAD
-=======
-  // Support multi-select categories (comma-separated)
   if (params.categories && params.categories.length > 0) {
     searchParams.set('categories', params.categories.join(','));
   }
->>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
   addParamIfPresent(searchParams, 'location', params.location);
   addParamIfPresent(searchParams, 'city', params.city);
 }
@@ -79,13 +114,10 @@ function addBasicFilters(searchParams: URLSearchParams, params: OpportunityFilte
  */
 function addWorkFilters(searchParams: URLSearchParams, params: OpportunityFilterParams): void {
   addParamIfPresent(searchParams, 'work_mode', params.work_mode);
-<<<<<<< HEAD
-=======
   // Support multi-select work modes (comma-separated)
   if (params.work_modes && params.work_modes.length > 0) {
     searchParams.set('work_modes', params.work_modes.join(','));
   }
->>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
   addParamIfPresent(searchParams, 'commitment', params.commitment);
 }
 
@@ -139,7 +171,8 @@ function buildQueryString(params: OpportunityFilterParams): string {
   addFundingFilters(searchParams, params);
   addDeadlineFilters(searchParams, params);
   addStatusFilters(searchParams, params);
-  addParamIfPresent(searchParams, 'search', params.search);
+  const normalizedSearch = params.search?.trim().replaceAll(/\s+/g, ' ');
+  addParamIfPresent(searchParams, 'search', normalizedSearch);
   addParamIfPresent(searchParams, 'ordering', params.ordering);
   
   const query = searchParams.toString();
@@ -154,7 +187,7 @@ export async function getOpportunities(filters?: OpportunityFilterParams): Promi
   try {
     const queryString = filters ? buildQueryString(filters) : '';
     // Django requires the trailing slash before the query parameters
-    const response = await apiFetch<any>(`/opportunities/${queryString}`);
+    const response = await apiFetch<any>(`/opportunities/${queryString}`, {}, { suppressErrorLogging: true });
     
     return {
       data: response.results || [],
@@ -164,7 +197,10 @@ export async function getOpportunities(filters?: OpportunityFilterParams): Promi
       previous: response.previous
     };
   } catch (error) {
-    console.error("Failed to load opportunities:", error);
+    const message = error instanceof Error ? error.message : ''
+    if (!message.includes('404')) {
+      console.error('Failed to fetch opportunities:', error)
+    }
     return { data: [], disclaimer: '', count: 0 };
   }
 }
@@ -180,19 +216,19 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
  * @returns Opportunity data
  */
 export async function getOpportunityBySlug(slug: string): Promise<Opportunity> {
-  return apiFetch<Opportunity>(`/opportunities/${slug}/`);
+  return apiFetch<Opportunity>(`/opportunities/by-slug/${slug}/`);
 }
 
 export async function getFeaturedOpportunities(): Promise<APIResponse<Opportunity[]>> {
   try {
-    const response = await apiFetch<any>('/opportunities/?is_featured=true');
+    const response = await apiFetch<any>('/opportunities/?is_featured=true', {}, { suppressErrorLogging: true });
     return {
       data: response.results || [],
       disclaimer: response.disclaimer || '',
       count: response.count || 0
     };
   } catch (error) {
-    console.error("Failed to load featured opportunities:", error);
+    console.error('Failed to fetch featured opportunities:', error);
     return { data: [], disclaimer: '', count: 0 };
   }
 }
@@ -215,13 +251,17 @@ export async function trackClick(
 }
 
 export function getBrochureUrl(opportunityId: number): string {
-  return `${API_BASE_URL}/opportunities/${opportunityId}/brochure/`;
+  if (typeof globalThis === 'undefined' || globalThis.window === undefined) {
+    return `${DIRECT_API_BASE_URL}/opportunities/${opportunityId}/brochure/`;
+  }
+  return `${CLIENT_PROXY_BASE_URL}/opportunities/${opportunityId}/brochure/`;
 }
 
 export async function getAnalyticsOverview(): Promise<any> {
   try {
     return await apiFetch('/analytics/');
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch analytics overview:', error);
     return {};
   }
 }
@@ -243,10 +283,39 @@ export async function logout(): Promise<{ message: string }> {
   });
 }
 
-export async function getCurrentUser(): Promise<{ id: number; username: string; email: string } | null> {
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  const baseUrl = typeof globalThis === 'undefined' || globalThis.window === undefined ? DIRECT_API_BASE_URL : CLIENT_PROXY_BASE_URL;
+  const candidateEndpoints = ['/auth/me/', '/auth/me'];
+
   try {
-    return await apiFetch('/auth/me/');
-  } catch {
+    for (const endpoint of candidateEndpoints) {
+      const response = await fetch(`${baseUrl}${endpoint}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+
+      // Not logged in or endpoint variant mismatch: treat as anonymous user.
+      if (response.status === 401 || response.status === 403) {
+        return null;
+      }
+
+      // Try next endpoint variant if this one is missing.
+      if (response.status === 404) {
+        continue;
+      }
+
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch current user:', error);
     return null;
   }
 }
@@ -263,7 +332,8 @@ export async function getPartners(): Promise<APIResponse<any[]>> {
       disclaimer: response.disclaimer || '',
       count: response.count || 0
     };
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch partners:', error);
     return { data: [], disclaimer: '', count: 0 };
   }
 }
@@ -338,6 +408,7 @@ export interface CategoryCounts {
   scholarships: number;
   internships: number;
   fellowships: number;
+  training: number;
   partners: number;
 }
 
@@ -347,14 +418,15 @@ export interface CategoryCounts {
  */
 export async function getCategoryCounts(): Promise<CategoryCounts> {
   try {
-    return await apiFetch<CategoryCounts>('/category-counts/');
+    return await apiFetch<CategoryCounts>('/category-counts/', {}, { suppressErrorLogging: true });
   } catch (error) {
-    console.error('Failed to load category counts:', error);
+    console.error('Failed to fetch category counts:', error);
     return {
       jobs: 0,
       scholarships: 0,
       internships: 0,
       fellowships: 0,
+      training: 0,
       partners: 0,
     };
   }
@@ -376,10 +448,11 @@ export interface CategoryData {
  */
 export async function getCategories(): Promise<CategoryData[]> {
   try {
-    const response = await apiFetch<{ results: CategoryData[] }>('/categories/');
+    const response = await apiFetch<{ results: CategoryData[] }>('/categories/', {}, { suppressErrorLogging: true });
     return response.results || [];
   } catch (error) {
-    console.error('Failed to load categories:', error);
+    console.error('Failed to fetch categories:', error);
     return [];
   }
 }
+

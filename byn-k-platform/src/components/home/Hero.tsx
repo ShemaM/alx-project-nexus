@@ -21,6 +21,7 @@ import Link from 'next/link'
 import { ImageWithFallback } from '../ui/ImageWithFallback' // Import ImageWithFallback
 import { ArrowRight, Sparkles, TrendingUp, Clock, ChevronLeft, ChevronRight, Star } from 'lucide-react'
 import styles from './Hero.module.css'
+import { buildOpportunityPath } from '@/lib/opportunity-utils'
 
 export interface FeaturedOpportunity {
   id: string
@@ -271,7 +272,7 @@ export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {
 
                 {/* CTA Button - View Details linking to /opportunities/${slug} for better SEO */}
                 <Link 
-                  href={currentFeatured?.slug ? `/opportunities/${currentFeatured.slug}` : '/opportunities'}
+                  href={buildOpportunityPath(currentFeatured?.category, currentFeatured?.slug)}
                   className="group flex items-center justify-center gap-2 w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg hover:bg-[#F5D300] transition-all duration-300 mt-6"
                 >
                   <span>View Details</span>

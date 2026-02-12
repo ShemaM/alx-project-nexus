@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Mail, Lock, Eye, EyeOff, AlertCircle, User, CheckCircle } from 'lucide-react'
+import { signIn } from 'next-auth/react'
 
 // Google Icon Component
 const GoogleIcon = () => (
@@ -45,7 +46,7 @@ const getErrorMessage = (errorCode: string): string => {
 
 export default function SignupPage() {
   const searchParams = useSearchParams()
-  const redirectUrl = searchParams.get('redirect') || '/'
+  const redirectUrl = searchParams.get('redirect') || '/my-opportunities?tab=viewed'
   const errorParam = searchParams.get('error')
 
   const [formData, setFormData] = useState({
@@ -103,8 +104,10 @@ export default function SignupPage() {
         throw new Error(data.error || 'Signup failed')
       }
 
-      // Redirect to the original page or home
-      window.location.href = redirectUrl
+      const loginUrl = `/login?redirect=${encodeURIComponent(redirectUrl)}&message=${encodeURIComponent(
+        'Account created successfully. Please sign in.'
+      )}`
+      window.location.href = loginUrl
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -120,8 +123,11 @@ export default function SignupPage() {
   }
 
   const handleGoogleSignUp = () => {
-    const googleAuthUrl = `/api/auth/google?redirect=${encodeURIComponent(redirectUrl)}`
-    window.location.href = googleAuthUrl
+    void signIn('google', { callbackUrl: redirectUrl })
+  }
+
+  const handleLinkedInSignUp = () => {
+    void signIn('linkedin', { callbackUrl: redirectUrl })
   }
 
   return (
@@ -153,6 +159,13 @@ export default function SignupPage() {
             >
               <GoogleIcon />
               Continue with Google
+            </button>
+            <button
+              type="button"
+              onClick={handleLinkedInSignUp}
+              className="w-full flex items-center justify-center gap-3 bg-[#0A66C2] hover:bg-[#084f99] text-white py-3 rounded-lg font-semibold transition-colors mb-6"
+            >
+              Continue with LinkedIn
             </button>
 
             {/* Divider */}

@@ -14,9 +14,11 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Calendar, CheckCircle2, MapPin } from 'lucide-react'
+import { Calendar, CheckCircle2, FileText, MapPin } from 'lucide-react'
 import { Opportunity, OpportunityCategory } from '@/types'
 import { OrganizationLogo } from './OrganizationLogo'
+import { buildOpportunityPath } from '@/lib/opportunity-utils'
+import { addActivity } from '@/lib/opportunity-activity'
 
 interface OpportunityCardProps {
   opportunity: Opportunity
@@ -55,6 +57,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
     location,
     city,
     deadline,
+    brochure_url,
     is_verified,
     days_until_deadline,
   } = opportunity
@@ -65,11 +68,21 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   // Determine if deadline is urgent (7 days or less)
   const isUrgent = days_until_deadline !== null && days_until_deadline !== undefined && days_until_deadline <= 7 && days_until_deadline >= 0
 
-  const opportunityUrl = slug ? `/opportunities/${slug}` : `/opportunities/${id}`
+  const opportunityUrl = buildOpportunityPath(category, slug)
 
   return (
     <Link
       href={opportunityUrl}
+      onClick={() =>
+        addActivity('viewed', {
+          id,
+          title,
+          organizationName: organization_name,
+          category,
+          slug,
+          url: opportunityUrl,
+        })
+      }
       className={`group block bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 overflow-hidden ${className}`}
     >
       <div className="p-5">
@@ -91,6 +104,12 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium">
                   <CheckCircle2 size={12} />
                   Verified
+                </span>
+              )}
+              {brochure_url && (
+                <span className="inline-flex items-center gap-1 text-blue-600 text-xs font-medium">
+                  <FileText size={12} />
+                  Brochure
                 </span>
               )}
             </div>

@@ -4,21 +4,51 @@ User Serializers.
 
 from rest_framework import serializers
 from .models import User
+from allauth.socialaccount.models import SocialAccount
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for User model."""
     
     display_name = serializers.CharField(read_only=True)
+    social_avatar_url = serializers.SerializerMethodField()
+    roles = serializers.SerializerMethodField()
+
+    def get_social_avatar_url(self, obj):
+        social = SocialAccount.objects.filter(user=obj).first()
+        if not social:
+            return None
+
+        extra = social.extra_data or {}
+        return (
+            extra.get('picture')
+            or extra.get('profilePicture')
+            or extra.get('avatar_url')
+            or extra.get('pictureUrl')
+        )
+
+    def get_roles(self, obj):
+        """
+        Normalized role identifiers used by the frontend RBAC checks.
+        """
+        roles = {name.strip().lower() for name in obj.groups.values_list('name', flat=True) if name}
+
+        # Backward compatibility for existing flags.
+        if obj.is_superuser or obj.is_admin:
+            roles.add('super_admin')
+        elif obj.is_staff:
+            roles.add('staff')
+
+        return sorted(roles)
     
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'display_name', 'bio', 'is_admin', 'email_notifications',
-            'date_joined'
+            'display_name', 'bio', 'is_admin', 'is_staff', 'is_superuser',
+            'roles', 'email_notifications', 'date_joined', 'social_avatar_url'
         ]
-        read_only_fields = ['id', 'is_admin', 'date_joined']
+        read_only_fields = ['id', 'is_admin', 'is_staff', 'is_superuser', 'roles', 'date_joined']
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

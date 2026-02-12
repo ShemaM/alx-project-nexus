@@ -1,6 +1,15 @@
 import React from 'react';
+import { getCurrentUser } from '@/lib/api';
+import { AuthUser, canAccessAdminRoute } from '@/lib/authz';
+import { redirect } from 'next/navigation';
 
-export default function AdminUsersPage() {
+export default async function AdminUsersPage() {
+  const user = await getCurrentUser() as AuthUser | null
+
+  if (!canAccessAdminRoute(user, '/admin/users')) {
+    redirect('/admin')
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900">Users</h1>

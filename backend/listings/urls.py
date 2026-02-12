@@ -19,6 +19,7 @@ urlpatterns = [
 
     # 3. Opportunity Detail (Matches: /api/opportunities/<id>/)
     path('opportunities/<int:pk>/', views.JobDetailView.as_view(), name='opportunity-detail'),
+    path('opportunities/by-slug/<slug:slug>/', views.JobDetailBySlugView.as_view(), name='opportunity-detail-by-slug'),
     
     # 4. Protected brochure download (Matches: /api/opportunities/<id>/brochure/)
     path('opportunities/<int:job_id>/brochure/', views.ProtectedBrochureView.as_view(), name='brochure'),

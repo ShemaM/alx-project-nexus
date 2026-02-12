@@ -1,9 +1,9 @@
 import React from 'react'
 import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/components/home/Hero'
+import { LandingOpportunityFilter } from '@/components/home/LandingOpportunityFilter'
 import { CategoriesSection } from '@/components/home/CategoriesSection'
 import { PartnersSection } from '@/components/home/PartnersSection'
-import { TestimonialsSection } from '@/components/home/TestimonialsSection'
 import Footer from '@/components/layout/Footer'
 import { getOpportunities, getFeaturedOpportunities, getCategoryCounts, getPartners } from '@/lib/api'
 
@@ -19,6 +19,7 @@ export default async function HomePage() {
     scholarships: 0,
     internships: 0,
     fellowships: 0,
+    training: 0,
     partners: 0,
   }
   let partnersData: Array<{ id: number; name: string; website?: string; logo?: string; is_featured?: boolean; opportunity_count?: number }> = []
@@ -72,6 +73,7 @@ export default async function HomePage() {
     scholarships: categoryCounts.scholarships || allOpportunities.filter((o: unknown) => isOpportunityWithCategory(o) && o.category === 'scholarship').length,
     internships: categoryCounts.internships || allOpportunities.filter((o: unknown) => isOpportunityWithCategory(o) && o.category === 'internship').length,
     fellowships: categoryCounts.fellowships || allOpportunities.filter((o: unknown) => isOpportunityWithCategory(o) && o.category === 'fellowship').length,
+    training: categoryCounts.training || allOpportunities.filter((o: unknown) => isOpportunityWithCategory(o) && o.category === 'training').length,
     partners: categoryCounts.partners || partnersData.length, 
   }
 
@@ -90,8 +92,8 @@ export default async function HomePage() {
       <Navbar />
       {/* Passing the mapped data and counts to your components */}
       <Hero featuredOpportunities={featuredOpportunities} counts={counts} />
+      <LandingOpportunityFilter />
       <CategoriesSection counts={counts} /> 
-      <TestimonialsSection />
       <PartnersSection partners={partners} />
       <Footer />
     </div>

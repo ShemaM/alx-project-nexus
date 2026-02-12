@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { getProviders, signIn } from 'next-auth/react'
 
 // Google Icon Component
 const GoogleIcon = () => (
@@ -45,8 +46,9 @@ const getErrorMessage = (errorCode: string): string => {
 
 export default function LoginPage() {
   const searchParams = useSearchParams()
-  const redirectUrl = searchParams.get('redirect') || '/'
+  const redirectUrl = searchParams.get('redirect') || '/my-opportunities?tab=viewed'
   const errorParam = searchParams.get('error')
+  const messageParam = searchParams.get('message')
 
   const [formData, setFormData] = useState({
     email: '',
@@ -55,13 +57,53 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const [oauthProviders, setOauthProviders] = useState<Record<string, unknown>>({})
+
+  const getPreferredName = (rawName: string) => {
+    const cleaned = (rawName || '').trim()
+    if (!cleaned) return 'there'
+    return cleaned.split(/\s+/)[0]
+  }
+
+  const buildWelcomeMessage = (name: string) => {
+    const hour = new Date().getHours()
+    const period = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
+    return `Good ${period}, ${getPreferredName(name)}, welcome to Banyamulenge Youth Kenya.`
+  }
+
+  const appendWelcomeToRedirect = (target: string, welcome: string) => {
+    try {
+      const parsed = new URL(target, window.location.origin)
+      parsed.searchParams.set('welcome', welcome)
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`
+    } catch {
+      return target
+    }
+  }
 
   // Handle error from URL params (e.g., from Google OAuth callback)
   useEffect(() => {
     if (errorParam) {
       setError(getErrorMessage(errorParam))
     }
-  }, [errorParam])
+    if (messageParam) {
+      setMessage(messageParam)
+    }
+  }, [errorParam, messageParam])
+
+  useEffect(() => {
+    const loadProviders = async () => {
+      try {
+        const providers = await getProviders()
+        setOauthProviders(providers || {})
+      } catch {
+        setOauthProviders({})
+      }
+    }
+
+    void loadProviders()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,8 +125,14 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed')
       }
 
-      // Redirect to the original page or home
-      window.location.href = redirectUrl
+      const name =
+        data?.user?.display_name ||
+        data?.user?.first_name ||
+        data?.user?.username ||
+        data?.user?.email?.split?.('@')?.[0] ||
+        'there'
+      const welcome = buildWelcomeMessage(name)
+      window.location.href = appendWelcomeToRedirect(redirectUrl, welcome)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -93,8 +141,11 @@ export default function LoginPage() {
   }
 
   const handleGoogleSignIn = () => {
-    const googleAuthUrl = `/api/auth/google?redirect=${encodeURIComponent(redirectUrl)}`
-    window.location.href = googleAuthUrl
+    void signIn('google', { callbackUrl: redirectUrl })
+  }
+
+  const handleLinkedInSignIn = () => {
+    void signIn('linkedin', { callbackUrl: redirectUrl })
   }
 
   return (
@@ -117,26 +168,46 @@ export default function LoginPage() {
                 <span>{error}</span>
               </div>
             )}
-
-            {/* Google Sign In Button */}
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-lg font-semibold transition-colors mb-6"
-            >
-              <GoogleIcon />
-              Continue with Google
-            </button>
-
-            {/* Divider */}
-            <div className="relative mb-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200"></div>
+            {message && (
+              <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-3 text-emerald-700">
+                <AlertCircle size={20} />
+                <span>{message}</span>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500">or continue with email</span>
-              </div>
-            </div>
+            )}
+
+            {(oauthProviders.google || oauthProviders.linkedin) && (
+              <>
+                {oauthProviders.google && (
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-lg font-semibold transition-colors mb-6"
+                  >
+                    <GoogleIcon />
+                    Continue with Google
+                  </button>
+                )}
+                {oauthProviders.linkedin && (
+                  <button
+                    type="button"
+                    onClick={handleLinkedInSignIn}
+                    className="w-full flex items-center justify-center gap-3 bg-[#0A66C2] hover:bg-[#084f99] text-white py-3 rounded-lg font-semibold transition-colors mb-6"
+                  >
+                    Continue with LinkedIn
+                  </button>
+                )}
+
+                {/* Divider */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-slate-500">or continue with email</span>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">

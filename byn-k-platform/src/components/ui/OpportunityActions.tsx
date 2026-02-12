@@ -4,10 +4,15 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ExternalLink, Mail, Star } from 'lucide-react'
 import ShareButton from '@/components/ui/ShareButton'
+import { OpportunityCategory } from '@/types'
+import { addActivity, isBookmarkedActivity, removeBookmarkedActivity } from '@/lib/opportunity-activity'
 
 interface OpportunityActionsProps {
   opportunityId: string
   title: string
+  organizationName?: string
+  category?: OpportunityCategory
+  slug?: string
   applyUrl: string
   isEmailApplication: boolean
 }
@@ -15,6 +20,9 @@ interface OpportunityActionsProps {
 export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
   opportunityId,
   title,
+  organizationName,
+  category,
+  slug,
   applyUrl,
   isEmailApplication,
 }) => {
@@ -35,7 +43,8 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
       try {
         const response = await fetch(`/api/bookmarks/check?opportunityId=${opportunityId}`)
         const data = await response.json()
-        setIsBookmarked(data.isBookmarked)
+        const idNum = Number(opportunityId)
+        setIsBookmarked(data.isBookmarked || (!isNaN(idNum) && isBookmarkedActivity(idNum)))
         setIsAuthenticated(data.authenticated)
       } catch (error) {
         console.error('Error checking bookmark status:', error)
@@ -47,8 +56,7 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
 
   const handleToggleBookmark = async () => {
     if (!isAuthenticated) {
-      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
-      router.push('/login?redirect=' + encodeURIComponent(currentPath))
+      router.push('/login?redirect=' + encodeURIComponent('/my-opportunities?tab=bookmarked'))
       return
     }
 
@@ -59,8 +67,9 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
         const response = await fetch(`/api/bookmarks?opportunityId=${opportunityId}`, {
           method: 'DELETE',
         })
-        if (response.ok) {
+        if (response.ok || response.status === 501 || response.status === 404) {
           setIsBookmarked(false)
+          removeBookmarkedActivity(Number(opportunityId))
         }
       } else {
         const response = await fetch('/api/bookmarks', {
@@ -70,8 +79,16 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
           },
           body: JSON.stringify({ opportunityId: Number(opportunityId) }),
         })
-        if (response.ok) {
+        if (response.ok || response.status === 501) {
           setIsBookmarked(true)
+          addActivity('bookmarked', {
+            id: Number(opportunityId),
+            title,
+            organizationName,
+            category,
+            slug,
+            url: typeof window !== 'undefined' ? window.location.pathname : '/opportunities',
+          })
         }
       }
     } catch (error) {
@@ -89,6 +106,16 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
           href={applyUrl}
           target={isEmailApplication ? undefined : '_blank'}
           rel={isEmailApplication ? undefined : 'noopener noreferrer'}
+          onClick={() =>
+            addActivity('applied', {
+              id: Number(opportunityId),
+              title,
+              organizationName,
+              category,
+              slug,
+              url: typeof window !== 'undefined' ? window.location.pathname : '/opportunities',
+            })
+          }
           className="flex-1 flex items-center justify-center gap-2 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-6 py-4 rounded-xl font-bold text-base transition-colors"
         >
           {isEmailApplication ? (

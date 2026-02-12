@@ -7,9 +7,24 @@ to external NGO portals (Forms, Emails, Websites).
 """
 
 import os
+import warnings
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+
+# Silence known deprecation warnings emitted by dj-rest-auth on allauth>=65.
+warnings.filterwarnings(
+    "ignore",
+    message=r"app_settings\.USERNAME_REQUIRED is deprecated, use: app_settings\.SIGNUP_FIELDS\['username'\]\['required'\]",
+    category=UserWarning,
+    module=r"dj_rest_auth\.registration\.serializers",
+)
+warnings.filterwarnings(
+    "ignore",
+    message=r"app_settings\.EMAIL_REQUIRED is deprecated, use: app_settings\.SIGNUP_FIELDS\['email'\]\['required'\]",
+    category=UserWarning,
+    module=r"dj_rest_auth\.registration\.serializers",
+)
 
 # Load environment variables
 load_dotenv()
@@ -34,13 +49,22 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party apps
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
     'django_celery_results',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.linkedin_oauth2',
     # Local apps
     'users',
     'listings',
@@ -54,6 +78,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'listings.middleware.DisclaimerMiddleware',
@@ -89,6 +114,12 @@ DATABASES = {
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
+SITE_ID = int(os.environ.get('SITE_ID', 1))
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -139,6 +170,7 @@ CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
@@ -224,3 +256,41 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 86400.0,  # every 24 hours
     },
 }
+
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': os.environ.get('JWT_AUTH_COOKIE', 'bynk_access'),
+    'JWT_AUTH_REFRESH_COOKIE': os.environ.get('JWT_AUTH_REFRESH_COOKIE', 'bynk_refresh'),
+}
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['openid', 'email', 'profile'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'APP': {
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
+            'key': '',
+        },
+    },
+    'linkedin_oauth2': {
+        'SCOPE': ['openid', 'profile', 'email'],
+        'APP': {
+            'client_id': os.environ.get('LINKEDIN_CLIENT_ID', ''),
+            'secret': os.environ.get('LINKEDIN_CLIENT_SECRET', ''),
+            'key': '',
+        },
+    },
+}
+
+GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI', 'http://localhost:3000/api/auth/callback/google')
+LINKEDIN_REDIRECT_URI = os.environ.get('LINKEDIN_REDIRECT_URI', 'http://localhost:3000/api/auth/callback/linkedin')

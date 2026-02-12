@@ -5,6 +5,9 @@ django-cors-headers==4.9.0
 django-filter==24.3
 django-unfold==0.78.1
 djangorestframework==3.16.1
+dj-rest-auth==6.0.0
+django-allauth==65.11.2
+djangorestframework-simplejwt==5.5.1
 gunicorn==21.2.0
 packaging==26.0
 pillow==10.4.0
@@ -17,3 +20,5 @@ redis==5.0.7
 celery==5.4.0
 django-celery-results==2.5.1
 flower==2.0.1
+requests==2.32.3
+cryptography==44.0.3

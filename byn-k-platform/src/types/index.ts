@@ -119,15 +119,6 @@ export interface APIResponse<T> {
 export interface OpportunityFilterParams {
   // Document filter
   docs?: DocumentType
-<<<<<<< HEAD
-  // Category
-  category?: OpportunityCategory
-  // Location
-  location?: string
-  city?: string
-  // Work mode & commitment
-  work_mode?: WorkMode
-=======
   // Category - single selection
   category?: OpportunityCategory
   // Categories - multiple selection (comma-separated)
@@ -140,7 +131,6 @@ export interface OpportunityFilterParams {
   // Work modes - multiple selection (comma-separated)
   work_modes?: WorkMode[]
   // Commitment
->>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
   commitment?: Commitment
   // Eligibility
   target_group?: TargetGroup

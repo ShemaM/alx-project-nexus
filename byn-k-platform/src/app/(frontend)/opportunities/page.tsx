@@ -79,11 +79,30 @@ function OpportunitiesPageContent() {
     const fundingType = searchParams.get('funding_type')
     if (fundingType) params.funding_type = fundingType as OpportunityFilterParams['funding_type']
 
+    const isPaidParam = searchParams.get('is_paid')
+    if (isPaidParam === 'true') params.is_paid = true
+    if (isPaidParam === 'false') params.is_paid = false
+
+    const closingSoonParam = searchParams.get('closing_soon')
+    if (closingSoonParam === 'true') params.closing_soon = true
+
+    const isRollingParam = searchParams.get('is_rolling')
+    if (isRollingParam === 'true') params.is_rolling = true
+
+    const deadlineBefore = searchParams.get('deadline_before')
+    if (deadlineBefore) params.deadline_before = deadlineBefore
+
+    const deadlineAfter = searchParams.get('deadline_after')
+    if (deadlineAfter) params.deadline_after = deadlineAfter
+
     const targetGroup = searchParams.get('target_group')
     if (targetGroup) params.target_group = targetGroup as OpportunityFilterParams['target_group']
 
     const educationLevel = searchParams.get('education_level')
     if (educationLevel) params.education_level = educationLevel as OpportunityFilterParams['education_level']
+
+    const ordering = searchParams.get('ordering')
+    if (ordering) params.ordering = ordering as OpportunityFilterParams['ordering']
 
     return params
   }, [searchParams])

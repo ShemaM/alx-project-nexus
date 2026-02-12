@@ -14,6 +14,7 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
 from rest_framework.filters import OrderingFilter
+import logging
 
 from .models import Job, ClickAnalytics, Subscription, Partner
 from .serializers import (
@@ -27,6 +28,31 @@ from .serializers import (
 )
 from .filters import JobFilter
 from .tasks import send_subscription_confirmation_email
+
+logger = logging.getLogger(__name__)
+
+
+def dispatch_subscription_confirmation_email(subscription_id):
+    """
+    Best-effort email dispatch.
+
+    Prefer async delivery via Celery. If a worker/broker is unavailable,
+    fall back to synchronous execution without breaking subscription creation.
+    """
+    try:
+        send_subscription_confirmation_email.delay(subscription_id)
+    except Exception:
+        logger.exception(
+            "Failed to dispatch subscription confirmation email asynchronously. Falling back to sync send.",
+            extra={"subscription_id": subscription_id},
+        )
+        try:
+            send_subscription_confirmation_email(subscription_id)
+        except Exception:
+            logger.exception(
+                "Failed to send subscription confirmation email synchronously.",
+                extra={"subscription_id": subscription_id},
+            )
 
 
 class JobListView(generics.ListAPIView):
@@ -86,6 +112,16 @@ class JobDetailView(generics.RetrieveAPIView):
     queryset = Job.objects.filter(is_active=True)
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]
+
+class JobDetailBySlugView(generics.RetrieveAPIView):
+    """
+    Retrieve a single job listing by slug.
+    """
+
+    queryset = Job.objects.filter(is_active=True)
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'slug'
 
 
 class FeaturedJobsView(generics.ListAPIView):
@@ -235,6 +271,7 @@ class CategoryCountsView(APIView):
             'scholarship': 0,
             'internship': 0,
             'fellowship': 0,
+            'training': 0,
         }
 
         category_totals = (
@@ -253,6 +290,7 @@ class CategoryCountsView(APIView):
             'scholarships': counts['scholarship'],
             'internships': counts['internship'],
             'fellowships': counts['fellowship'],
+            'training': counts['training'],
             'partners': Partner.objects.count(),
         })
 
@@ -327,7 +365,7 @@ class SubscriptionCreateView(APIView):
                 else:
                     # Regenerate token and resend confirmation
                     existing.regenerate_token()
-                    send_subscription_confirmation_email.delay(existing.id)
+                    dispatch_subscription_confirmation_email(existing.id)
                     return Response({
                         'success': True,
                         'message': 'Please check your email to confirm your subscription.',
@@ -338,7 +376,7 @@ class SubscriptionCreateView(APIView):
             subscription = Subscription.objects.create(email=email)
             
             # Send confirmation email asynchronously
-            send_subscription_confirmation_email.delay(subscription.id)
+            dispatch_subscription_confirmation_email(subscription.id)
             
             return Response({
                 'success': True,

@@ -2,14 +2,24 @@
 
 import React, { useState, useEffect } from 'react'
 import { Star } from 'lucide-react'
+import { addActivity, isBookmarkedActivity, removeBookmarkedActivity } from '@/lib/opportunity-activity'
+import { OpportunityCategory } from '@/types'
 
 interface BookmarkButtonProps {
   opportunityId: string | number
+  title?: string
+  organizationName?: string
+  category?: OpportunityCategory
+  slug?: string
   className?: string
 }
 
 export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   opportunityId,
+  title,
+  organizationName,
+  category,
+  slug,
   className = '',
 }) => {
   const [isBookmarked, setIsBookmarked] = useState(false)
@@ -22,7 +32,8 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
       try {
         const response = await fetch(`/api/bookmarks/check?opportunityId=${opportunityId}`)
         const data = await response.json()
-        setIsBookmarked(data.isBookmarked)
+        const idNum = typeof opportunityId === 'number' ? opportunityId : Number(opportunityId)
+        setIsBookmarked(data.isBookmarked || (!isNaN(idNum) && isBookmarkedActivity(idNum)))
         setIsAuthenticated(data.authenticated)
       } catch (error) {
         console.error('Error checking bookmark status:', error)
@@ -37,8 +48,7 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
     e.stopPropagation()
 
     if (!isAuthenticated) {
-      // Redirect to login page
-      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+      window.location.href = '/login?redirect=' + encodeURIComponent('/my-opportunities?tab=bookmarked')
       return
     }
 
@@ -50,8 +60,9 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         const response = await fetch(`/api/bookmarks?opportunityId=${opportunityId}`, {
           method: 'DELETE',
         })
-        if (response.ok) {
+        if (response.ok || response.status === 501 || response.status === 404) {
           setIsBookmarked(false)
+          removeBookmarkedActivity(Number(opportunityId))
         }
       } else {
         // Add bookmark - validate and convert ID
@@ -68,8 +79,16 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
           },
           body: JSON.stringify({ opportunityId: idNum }),
         })
-        if (response.ok) {
+        if (response.ok || response.status === 501) {
           setIsBookmarked(true)
+          addActivity('bookmarked', {
+            id: idNum,
+            title: title || 'Saved Opportunity',
+            organizationName,
+            category,
+            slug,
+            url: typeof window !== 'undefined' ? window.location.pathname : '/opportunities',
+          })
         }
       }
     } catch (error) {

@@ -429,10 +429,7 @@ class JobFilterTests(TestCase):
         self.remote_job = Job.objects.create(
             title='Remote Developer',
             organization_name='Remote Tech',
-<<<<<<< HEAD
-=======
             category='job',
->>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
             work_mode='remote',
             commitment='full_time',
             target_group='youth',
@@ -440,19 +437,13 @@ class JobFilterTests(TestCase):
             funding_type='fully',
             is_paid=True,
             is_active=True,
-<<<<<<< HEAD
-=======
             is_verified=True,
->>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
         )
         
         self.onsite_job = Job.objects.create(
             title='Office Manager',
             organization_name='Local Corp',
-<<<<<<< HEAD
-=======
             category='internship',
->>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
             work_mode='onsite',
             commitment='part_time',
             target_group='refugees',
@@ -460,8 +451,6 @@ class JobFilterTests(TestCase):
             funding_type='none',
             is_paid=False,
             is_active=True,
-<<<<<<< HEAD
-=======
             is_verified=False,
         )
         
@@ -477,7 +466,6 @@ class JobFilterTests(TestCase):
             is_paid=False,
             is_active=True,
             is_verified=True,
->>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
         )
     
     def test_filter_by_work_mode(self):
@@ -529,8 +517,6 @@ class JobFilterTests(TestCase):
         
         self.assertEqual(data['count'], 1)
         self.assertEqual(data['results'][0]['title'], 'Remote Developer')
-<<<<<<< HEAD
-=======
     
     def test_filter_by_multiple_categories(self):
         """Test filtering by multiple categories (in lookup)."""
@@ -590,4 +576,56 @@ class JobFilterTests(TestCase):
         
         self.assertEqual(data['count'], 1)
         self.assertEqual(data['results'][0]['title'], 'Remote Developer')
->>>>>>> e9e2226a8e8cc65ff9b2fd85636946ef2c9a6d62
+
+    def test_search_keyword_matching_in_title(self):
+        """Test search tokenizes input and matches title keywords."""
+        self.remote_job.title = 'Technical Skills Trainer'
+        self.remote_job.save()
+
+        response = self.client.get('/api/opportunities/?search=skills trainer')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Technical Skills Trainer')
+
+    def test_search_keyword_matching_with_extra_spaces(self):
+        """Test search ignores repeated spaces between keywords."""
+        self.remote_job.title = 'Technical Skills Trainer'
+        self.remote_job.save()
+
+        response = self.client.get('/api/opportunities/?search=technical%20%20trainer')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Technical Skills Trainer')
+
+    def test_search_by_slug(self):
+        """Test search matches opportunity slug."""
+        self.remote_job.title = 'Technical Skills Trainer'
+        self.remote_job.slug = 'technical-skills-trainer'
+        self.remote_job.save()
+
+        response = self.client.get('/api/opportunities/?search=technical-skills-trainer')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Technical Skills Trainer')
+
+    def test_search_hyphenated_keywords(self):
+        """Test search splits hyphenated keywords for title matches."""
+        self.remote_job.title = 'Technical Skills Trainer'
+        self.remote_job.save()
+
+        response = self.client.get('/api/opportunities/?search=technical-skills')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(data['results'][0]['title'], 'Technical Skills Trainer')
