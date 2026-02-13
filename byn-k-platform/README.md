@@ -1,22 +1,20 @@
-# BYN-K Platform
+# Opportunities for Banyamulenge Youth in Kenya (BYN-K Platform)
 
-> A dedicated opportunity hub for Banyamulenge refugee youth in Kenya — the flagship implementation of Project Nexus.
+> A dedicated opportunity hub for Banyamulenge refugee youth in Kenya.
 
 [![CI/CD Pipeline](https://github.com/ShemaM/alx-project-nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/ShemaM/alx-project-nexus/actions/workflows/ci.yml)
 
 ---
 
-## 🌟 About Project Nexus
+## 🌟 About This Platform
 
-**Project Nexus** is an initiative to build a scalable, multi-tenant platform for creating community-focused web applications. The goal is to provide a reusable, robust, and customizable foundation that can be rapidly deployed and configured for various communities, each with its unique content and needs.
-
-This core platform, "Nexus," is designed to be a configurable system that different organizations can use as a starting point, saving significant time and resources in development.
+**Opportunities for Banyamulenge Youth in Kenya** is a community-driven platform designed to connect Banyamulenge refugee youth with verified opportunities including jobs, scholarships, internships, and fellowships. The platform serves as a central hub for discovering career opportunities and building connections.
 
 ---
 
-## 📚 Case Study: The Banyamulenge Youth of Kenya (BYN-K) Platform
+## 📚 The Banyamulenge Youth of Kenya (BYN-K) Platform
 
-This repository is the first implementation of the Project Nexus vision—a dedicated platform for the Banyamulenge Youth of Kenya (BYN-K). It serves as a central hub for this community, offering:
+This platform is a dedicated hub for the Banyamulenge Youth of Kenya (BYN-K) community, offering:
 
 ### Core Features
 
@@ -53,7 +51,7 @@ This repository is the first implementation of the Project Nexus vision—a dedi
 
 ## 🛠️ Tech Stack & Rationale
 
-The technologies for Project Nexus were chosen to prioritize developer experience, scalability, and maintainability.
+The technologies for this platform were chosen to prioritize developer experience, scalability, and maintainability.
 
 ### Stack Overview
 
