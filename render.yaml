@@ -29,3 +29,9 @@ services:
         value: 4
       - key: PYTHON_VERSION
         value: 3.11.9
+      - key: PLATFORM_SUPERADMIN_USERNAME
+        sync: false
+      - key: PLATFORM_SUPERADMIN_EMAIL
+        sync: false
+      - key: PLATFORM_SUPERADMIN_PASSWORD
+        sync: false
