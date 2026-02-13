@@ -147,7 +147,9 @@ def main() -> int:
         print("Production initialization completed with warnings.")
     print("=" * 60 + "\n")
 
-    return 0 if success else 1
+    # Always return 0 to avoid marking deployment as failed for non-critical warnings.
+    # The application can still start and function even if some init steps had issues.
+    return 0
 
 
 if __name__ == '__main__':

@@ -21,6 +21,11 @@ const CLIENT_PROXY_BASE_URL = '/api/proxy';
 /**
  * Classify API errors for better debugging in production.
  * Distinguishes between network/CORS issues and API response errors (like 404).
+ * 
+ * Error types handled:
+ * - TypeError: Network failures (CORS blocked, DNS failure, server unreachable)
+ * - Error with '404' in message: Thrown by apiFetch when response.status is 404
+ * - Error with 'CORS' in message: CORS-related errors
  */
 function classifyError(error: unknown, url: string): string {
   if (error instanceof TypeError) {
@@ -28,10 +33,12 @@ function classifyError(error: unknown, url: string): string {
     return `[Network Error] Failed to fetch ${url}. This may be a CORS policy issue or the server is unreachable. Check that NEXT_PUBLIC_API_URL is correctly set and the backend allows requests from this origin.`;
   }
   if (error instanceof Error) {
+    // Check for 404 errors thrown by apiFetch (message contains "API Error: 404")
     if (error.message.includes('404')) {
       return `[404 Not Found] The endpoint ${url} was not found. This may indicate a schema mismatch between frontend and backend API routes.`;
     }
-    if (error.message.includes('CORS')) {
+    // Check for explicit CORS errors in the message
+    if (error.message.toLowerCase().includes('cors')) {
       return `[CORS Error] Cross-origin request blocked for ${url}. Ensure CORS_ALLOWED_ORIGINS in Django settings includes the frontend domain.`;
     }
     return error.message;
