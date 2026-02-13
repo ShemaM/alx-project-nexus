@@ -122,6 +122,54 @@ Every API response includes this mandatory disclaimer:
    - Upload PDF brochure if available
    - Click "Save"
 
+## Deployment
+
+### Render Deployment
+
+This backend is configured for deployment on Render. The `render.yaml` at the repository root defines the service configuration.
+
+**Key configuration:**
+- **Root directory:** `backend`
+- **Build command:** `./build.sh`
+- **Start command:** `gunicorn config.wsgi:application`
+
+### Troubleshooting Deployment
+
+#### ModuleNotFoundError: No module named 'config' (or similar)
+
+If you see an error like `ModuleNotFoundError: No module named 'your_application'` when deploying:
+
+1. **Verify the start command matches your project structure:**
+   - The WSGI module is located at `backend/config/wsgi.py`
+   - The correct Gunicorn command is: `gunicorn config.wsgi:application`
+   - Ensure `rootDir` is set to `backend` in `render.yaml`
+
+2. **Verify the project structure:**
+   ```bash
+   # From the backend directory
+   ls -la config/
+   # Should show: __init__.py, wsgi.py, settings.py, etc.
+   ```
+
+3. **Test the WSGI import locally:**
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   python -c "import config.wsgi; print('WSGI module loaded successfully')"
+   ```
+
+4. **Common issues:**
+   - Missing `__init__.py` in the config directory
+   - Incorrect working directory (Gunicorn must run from `backend/`)
+   - Missing dependencies (run `pip install -r requirements.txt`)
+   - Typos in the module name (case-sensitive on Linux)
+
+5. **Verify Gunicorn can start:**
+   ```bash
+   cd backend
+   gunicorn config.wsgi:application --bind 0.0.0.0:8000
+   ```
+
 ## License
 
 MIT

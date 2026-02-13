@@ -93,6 +93,9 @@ jobs:
       - name: Check for missing migrations
         run: python manage.py makemigrations --check --dry-run
 
+      - name: Verify WSGI module import
+        run: python -c "import config.wsgi; print('WSGI module loaded successfully')"
+
   # ============================================
   # Unit & Integration Tests
   # ============================================
