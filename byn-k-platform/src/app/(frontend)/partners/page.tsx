@@ -54,9 +54,21 @@ function getSafePartnerLogoSrc(logo?: string): string | null {
   }
 }
 
+// Type for partner data from API
+interface PartnerAPIData {
+  id: number
+  name: string
+  website_url?: string
+  logo_url?: string
+  logo?: string
+  is_featured?: boolean
+  opportunity_count?: number
+  description?: string
+}
+
 export default async function PartnersPage() {
   // Fetch partners and category counts from Django API
-  let partnersData: Array<{ id: number; name: string; website_url?: string; logo_url?: string; logo?: string; is_featured?: boolean; opportunity_count?: number; description?: string }> = []
+  let partnersData: PartnerAPIData[] = []
   let categoryCounts = {
     jobs: 0,
     scholarships: 0,
@@ -65,6 +77,7 @@ export default async function PartnersPage() {
     training: 0,
     partners: 0,
   }
+  let fetchError = false
   
   try {
     const [partnersResponse, countsResponse] = await Promise.all([
@@ -75,6 +88,7 @@ export default async function PartnersPage() {
     categoryCounts = countsResponse || categoryCounts
   } catch (error) {
     console.error('Error fetching partners:', error)
+    fetchError = true
   }
 
   // Map partners data to display format
@@ -123,7 +137,9 @@ export default async function PartnersPage() {
                 <Building2 className="w-8 h-8 text-slate-400" />
               </div>
               <p className="text-slate-500">
-                Partner organizations will appear here once they are added.
+                {fetchError 
+                  ? 'Unable to load partners at this time. Please try again later.'
+                  : 'Partner organizations will appear here once they are added.'}
               </p>
             </div>
           ) : (
