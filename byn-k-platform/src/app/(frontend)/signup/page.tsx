@@ -171,12 +171,12 @@ export default function SignupPage() {
             </div>
 
             {/* Error Message */}
-            {error ? (
+            {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
                 <AlertCircle size={20} />
                 <span>{error}</span>
               </div>
-            ) : null}
+            )}
 
             {(oauthProviders.google || oauthProviders.linkedin) && (
               <>
