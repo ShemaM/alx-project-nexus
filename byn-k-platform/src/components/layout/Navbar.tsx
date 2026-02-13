@@ -32,6 +32,7 @@ export const Navbar = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [user, setUser] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const segmentLabelMap: Record<string, string> = {
     about: 'About',
@@ -93,16 +94,36 @@ export const Navbar = () => {
   }, [])
 
   const handleLogout = async () => {
+    if (isLoggingOut) return
+    
+    setIsLoggingOut(true)
+    setIsUserMenuOpen(false)
+    setIsMenuOpen(false)
+    
     try {
-      await fetch('/api/auth/logout', {
+      const response = await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
         cache: 'no-store',
       })
-      setUser(null)
-      window.location.href = '/'
+      
+      if (response.ok) {
+        setUser(null)
+        // Force a hard navigation to clear all client-side state
+        window.location.replace('/')
+      } else {
+        console.error('Logout failed with status:', response.status)
+        // Still redirect even if server returns error, to clear local state
+        setUser(null)
+        window.location.replace('/')
+      }
     } catch (error) {
       console.error('Error logging out:', error)
+      // Even on error, clear local state and redirect
+      setUser(null)
+      window.location.replace('/')
+    } finally {
+      setIsLoggingOut(false)
     }
   }
 
@@ -207,11 +228,13 @@ export const Navbar = () => {
                               My Bookmarks
                             </Link>
                             <button
+                              type="button"
                               onClick={handleLogout}
-                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                              disabled={isLoggingOut}
+                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <LogOut size={16} />
-                              Sign Out
+                              <LogOut size={16} className={isLoggingOut ? 'animate-spin' : ''} />
+                              {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
                             </button>
                           </div>
                         </>
@@ -309,14 +332,13 @@ export const Navbar = () => {
                         My Bookmarks
                       </Link>
                       <button
-                        onClick={() => {
-                          setIsMenuOpen(false)
-                          handleLogout()
-                        }}
-                        className="flex items-center gap-2 py-2 text-red-600 font-medium"
+                        type="button"
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className="flex items-center gap-2 py-2 text-red-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <LogOut size={18} />
-                        Sign Out
+                        <LogOut size={18} className={isLoggingOut ? 'animate-spin' : ''} />
+                        {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
                       </button>
                     </div>
                   ) : (
