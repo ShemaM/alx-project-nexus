@@ -59,7 +59,7 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [oauthProviders, setOauthProviders] = useState<Record<string, unknown>>({})
+  const [oauthProviders, setOauthProviders] = useState<Record<string, boolean>>({})
 
   // Handle error from URL params (e.g., from Google OAuth callback)
   useEffect(() => {
@@ -72,7 +72,14 @@ export default function SignupPage() {
     const loadProviders = async () => {
       try {
         const providers = await getProviders()
-        setOauthProviders(providers || {})
+        // Convert provider objects to boolean map
+        const providerMap: Record<string, boolean> = {}
+        if (providers) {
+          for (const key of Object.keys(providers)) {
+            providerMap[key] = true
+          }
+        }
+        setOauthProviders(providerMap)
       } catch {
         setOauthProviders({})
       }
