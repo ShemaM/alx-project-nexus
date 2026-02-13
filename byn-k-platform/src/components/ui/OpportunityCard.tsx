@@ -149,7 +149,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
               </span>
               {is_verified && (
                 <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">
-                  <CheckCircle2 size={12} className="animate-pulse" />
+                  <CheckCircle2 size={12} />
                   Verified
                 </span>
               )}

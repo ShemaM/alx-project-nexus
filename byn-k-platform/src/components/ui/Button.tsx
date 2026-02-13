@@ -28,7 +28,7 @@ const Button: React.FC<ButtonProps> = ({
     outline: 'border-2 border-[#2D8FDD] text-[#2D8FDD] hover:bg-[#2D8FDD] hover:text-white focus:ring-[#2D8FDD] hover:shadow-lg hover:shadow-[#2D8FDD]/20 hover:-translate-y-0.5',
     ghost: 'text-slate-600 hover:bg-slate-100 hover:text-[#2D8FDD] focus:ring-slate-400',
     danger: 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-500 text-white focus:ring-red-500 shadow-md hover:shadow-lg hover:shadow-red-500/20 hover:-translate-y-0.5',
-    gradient: 'bg-gradient-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] text-white focus:ring-[#2D8FDD] shadow-md hover:shadow-lg hover:-translate-y-0.5 bg-size-200 hover:bg-pos-100',
+    gradient: 'bg-gradient-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] text-white focus:ring-[#2D8FDD] shadow-md hover:shadow-lg hover:-translate-y-0.5 animate-gradient-shift',
   }
   
   const sizeClasses = {

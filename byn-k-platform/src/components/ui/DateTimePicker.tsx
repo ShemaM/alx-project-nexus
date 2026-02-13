@@ -3,6 +3,13 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Calendar, Clock, ChevronDown } from 'lucide-react'
 
+// Constants for default values
+const DEFAULT_HOUR = '12'
+const DEFAULT_MINUTES = '00'
+const DEFAULT_PERIOD = 'AM' as const
+const MINUTE_INTERVAL = 5
+const MINUTES_PER_HOUR = 60
+
 interface DateTimePickerProps {
   value?: string // ISO datetime string
   onChange: (value: string) => void
@@ -36,10 +43,10 @@ export function DateTimePicker({
 }: DateTimePickerProps) {
   // Parse the initial value
   const parseValue = useCallback((val: string | undefined) => {
-    if (!val) return { date: '', hours: '12', minutes: '00', period: 'AM' as const }
+    if (!val) return { date: '', hours: DEFAULT_HOUR, minutes: DEFAULT_MINUTES, period: DEFAULT_PERIOD }
     
     const dateObj = new Date(val)
-    if (isNaN(dateObj.getTime())) return { date: '', hours: '12', minutes: '00', period: 'AM' as const }
+    if (isNaN(dateObj.getTime())) return { date: '', hours: DEFAULT_HOUR, minutes: DEFAULT_MINUTES, period: DEFAULT_PERIOD }
     
     const date = dateObj.toISOString().split('T')[0]
     let hours = dateObj.getHours()
@@ -116,8 +123,9 @@ export function DateTimePicker({
   // Generate hour options (1-12)
   const hourOptions = Array.from({ length: 12 }, (_, i) => i + 1)
   
-  // Generate minute options (00, 05, 10, ... 55)
-  const minuteOptions = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'))
+  // Generate minute options based on MINUTE_INTERVAL (00, 05, 10, ... 55)
+  const minuteOptionsCount = MINUTES_PER_HOUR / MINUTE_INTERVAL
+  const minuteOptions = Array.from({ length: minuteOptionsCount }, (_, i) => (i * MINUTE_INTERVAL).toString().padStart(2, '0'))
 
   return (
     <div className={`space-y-2 ${className}`}>
