@@ -36,8 +36,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-this-in-production')
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-# Allowed Hosts
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
+# Allowed Hosts - includes Render backend and Vercel frontend domains
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com,.vercel.app').split(',')
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000').rstrip('/')
 
@@ -168,12 +168,16 @@ def _dedupe_non_empty(values):
 
 backend_public_url = os.environ.get('BACKEND_PUBLIC_URL', '').rstrip('/')
 
+# Build CORS allowed origins list
+# Include localhost for development and FRONTEND_URL for production (Vercel)
 CORS_ALLOWED_ORIGINS = _dedupe_non_empty([
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     FRONTEND_URL,
 ])
 
+# Build CSRF trusted origins list
+# Include frontend and backend URLs for cross-origin POST requests (subscriptions, social login)
 CSRF_TRUSTED_ORIGINS = _dedupe_non_empty([
     'http://localhost:3000',
     'http://127.0.0.1:3000',
@@ -181,7 +185,31 @@ CSRF_TRUSTED_ORIGINS = _dedupe_non_empty([
     backend_public_url,
 ])
 
+# Allow credentials for authenticated requests
 CORS_ALLOW_CREDENTIALS = True
+
+# Allow specific headers for API requests
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Allow specific methods for API requests
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 # REST Framework Configuration
 REST_FRAMEWORK = {

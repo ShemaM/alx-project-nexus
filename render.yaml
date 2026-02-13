@@ -8,7 +8,7 @@ services:
     name: nexus-backend
     runtime: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn config.wsgi:application"
+    startCommand: "python init_prod.py && gunicorn config.wsgi:application"
     rootDir: "backend"
     envVars:
       - key: DATABASE_URL
@@ -20,7 +20,7 @@ services:
       - key: DEBUG
         value: "false"
       - key: ALLOWED_HOSTS
-        value: "localhost,127.0.0.1,.onrender.com"
+        value: "localhost,127.0.0.1,.onrender.com,.vercel.app"
       - key: FRONTEND_URL
         sync: false
       - key: BACKEND_PUBLIC_URL
@@ -34,4 +34,10 @@ services:
       - key: PLATFORM_SUPERADMIN_EMAIL
         sync: false
       - key: PLATFORM_SUPERADMIN_PASSWORD
+        sync: false
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
         sync: false

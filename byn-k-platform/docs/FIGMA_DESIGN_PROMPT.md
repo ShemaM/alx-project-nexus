@@ -794,5 +794,5 @@ Before submitting your Figma link, ensure:
 
 ---
 
-*Document created for the BYN-K Platform - ALX Project Nexus*
+*Document created for the BYN-K Platform - Opportunities for Banyamulenge Youth in Kenya*
 *Last updated: February 2026*

@@ -6,9 +6,38 @@
 import { Opportunity, OpportunityFilterParams, APIResponse, SubscriptionResponse } from '@/types'
 import { AuthUser } from '@/lib/authz'
 
+/**
+ * Sanitize API base URL by removing trailing slashes to prevent double-slash 404 errors.
+ * Example: "https://api.example.com/api/" -> "https://api.example.com/api"
+ */
+function sanitizeBaseUrl(url: string): string {
+  return url.replace(/\/+$/, '');
+}
+
 // Ensure no trailing slash on the base URL to maintain predictable concatenation
-const DIRECT_API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
+const DIRECT_API_BASE_URL = sanitizeBaseUrl(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api');
 const CLIENT_PROXY_BASE_URL = '/api/proxy';
+
+/**
+ * Classify API errors for better debugging in production.
+ * Distinguishes between network/CORS issues and API response errors (like 404).
+ */
+function classifyError(error: unknown, url: string): string {
+  if (error instanceof TypeError) {
+    // TypeError typically indicates network failure (CORS blocked, DNS failure, etc.)
+    return `[Network Error] Failed to fetch ${url}. This may be a CORS policy issue or the server is unreachable. Check that NEXT_PUBLIC_API_URL is correctly set and the backend allows requests from this origin.`;
+  }
+  if (error instanceof Error) {
+    if (error.message.includes('404')) {
+      return `[404 Not Found] The endpoint ${url} was not found. This may indicate a schema mismatch between frontend and backend API routes.`;
+    }
+    if (error.message.includes('CORS')) {
+      return `[CORS Error] Cross-origin request blocked for ${url}. Ensure CORS_ALLOWED_ORIGINS in Django settings includes the frontend domain.`;
+    }
+    return error.message;
+  }
+  return String(error);
+}
 
 /**
  * Generic fetch wrapper with error handling
@@ -81,8 +110,13 @@ async function apiFetch<T>(
         // Keep default status-only message if response parsing fails.
       }
 
+      // Log with classification for easier debugging
       if (!config.suppressErrorLogging) {
-        console.error(`Fetch failed for ${url}: ${response.status}`, errorDetails);
+        if (response.status === 404) {
+          console.error(`[404 Not Found] Endpoint not found: ${url}`, errorDetails);
+        } else {
+          console.error(`[API Error ${response.status}] ${url}:`, errorDetails);
+        }
       }
       throw new Error(
         `API Error: ${response.status} ${response.statusText}${errorDetails ? ` - ${errorDetails}` : ''}`
@@ -92,7 +126,8 @@ async function apiFetch<T>(
     return response.json();
   } catch (error) {
     if (!config.suppressErrorLogging) {
-      console.error(`API fetch error for ${url}:`, error);
+      const classifiedError = classifyError(error, url);
+      console.error(classifiedError);
     }
     throw error;
   }
