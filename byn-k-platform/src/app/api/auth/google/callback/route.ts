@@ -31,7 +31,9 @@ export async function GET(request: NextRequest) {
 
     // Handle error from Google
     if (error) {
-      console.error('Google OAuth error:', error)
+      // Sanitize user-controlled error parameter to prevent log injection
+      const sanitizedError = String(error).replace(/[\r\n\t]/g, '').slice(0, 100)
+      console.error('Google OAuth error:', sanitizedError)
       return NextResponse.redirect(new URL('/login?error=google_auth_failed', request.url))
     }
 
