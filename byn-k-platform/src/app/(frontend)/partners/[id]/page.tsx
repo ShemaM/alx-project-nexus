@@ -4,7 +4,8 @@ import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { Building2, ArrowLeft, Briefcase } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+// Use ISR with revalidation instead of force-dynamic for better performance
+export const revalidate = 60
 
 interface PartnerPageProps {
   params: Promise<{ id: string }>

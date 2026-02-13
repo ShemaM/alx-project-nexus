@@ -20,8 +20,8 @@ import { OpportunityCategory, Opportunity } from '@/types'
 import CategoryBrowseFilters, { CategorySortControl } from '@/components/filters/CategoryBrowseFilters'
 import { buildOpportunityPath } from '@/lib/opportunity-utils'
 
-// Force dynamic rendering to fetch data at runtime
-export const dynamic = 'force-dynamic'
+// Use ISR with revalidation instead of force-dynamic for better performance
+export const revalidate = 60
 
 // Map URL category to Django model category
 const categoryUrlToDb: Record<string, string> = {

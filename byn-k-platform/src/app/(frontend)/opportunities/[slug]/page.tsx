@@ -20,8 +20,9 @@ import ShareButton from '@/components/ui/ShareButton'
 import OpportunityActivityTracker from '@/components/ui/OpportunityActivityTracker'
 import BookmarkButton from '@/components/ui/BookmarkButton'
 
-// Force dynamic rendering to fetch data at runtime (requires database connection)
-export const dynamic = 'force-dynamic'
+// Use ISR with revalidation instead of force-dynamic for better performance
+// Pages are cached and revalidated every 60 seconds
+export const revalidate = 60
 
 const getDaysRemaining = (deadline: string | null) => {
   if (!deadline) return null
