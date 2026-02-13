@@ -30,7 +30,7 @@ Set these in your Vercel project settings → Environment Variables:
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
-| `NEXT_PUBLIC_API_URL` | ✅ | Render backend API URL | `https://nexus-backend-lkps.onrender.com/api` |
+| `NEXT_PUBLIC_API_URL` | ✅ | Render backend API URL | `https://alx-project-nexus-53hq.onrender.com/api` |
 | `NEXTAUTH_URL` | ✅ | Vercel deployment URL | `https://byn-k.vercel.app` |
 | `NEXTAUTH_SECRET` | ✅ | Auth secret (32+ chars) | `openssl rand -base64 32` |
 | `GOOGLE_CLIENT_ID` | Optional | Google OAuth client ID | `xxx.apps.googleusercontent.com` |
@@ -49,7 +49,7 @@ Set these in your Render service dashboard → Environment:
 | `DEBUG` | ✅ | Must be "false" in production | `false` |
 | `ALLOWED_HOSTS` | ✅ | Comma-separated hostnames | `localhost,127.0.0.1,.onrender.com,.vercel.app` |
 | `FRONTEND_URL` | ✅ | Vercel frontend URL | `https://byn-k.vercel.app` |
-| `BACKEND_PUBLIC_URL` | ✅ | Render backend URL | `https://nexus-backend-lkps.onrender.com` |
+| `BACKEND_PUBLIC_URL` | ✅ | Render backend URL | `https://alx-project-nexus-53hq.onrender.com` |
 | `DJANGO_SUPERUSER_USERNAME` | ✅ | Admin username | `admin` |
 | `DJANGO_SUPERUSER_PASSWORD` | ✅ | Admin password (strong!) | `SecureP@ss123!` |
 | `DJANGO_SUPERUSER_EMAIL` | ✅ | Admin email | `admin@example.com` |

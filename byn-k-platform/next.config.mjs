@@ -45,7 +45,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'nexus-backend-lkps.onrender.com',
+        hostname: 'alx-project-nexus-53hq.onrender.com',
         pathname: '/media/**',
       },
       {
