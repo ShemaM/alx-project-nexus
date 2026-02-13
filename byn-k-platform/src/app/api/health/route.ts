@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
+// Construct base URLs properly
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
+// Extract backend base URL (remove /api suffix if present)
+const BACKEND_BASE_URL = API_URL.endsWith('/api') 
+  ? API_URL.slice(0, -4) 
+  : API_URL.replace(/\/api$/, '');
 
 export async function GET() {
   const startTime = Date.now();
@@ -11,7 +16,8 @@ export async function GET() {
   let backendError = null;
   
   try {
-    const response = await fetch(`${API_BASE_URL.replace('/api', '')}/health/`, {
+    const healthUrl = `${BACKEND_BASE_URL}/health/`;
+    const response = await fetch(healthUrl, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       cache: 'no-store',
@@ -37,7 +43,7 @@ export async function GET() {
     timestamp: new Date().toISOString(),
     response_time_ms: responseTime,
     backend: {
-      url: API_BASE_URL,
+      url: BACKEND_BASE_URL,
       status: backendStatus,
       response: backendResponse,
       error: backendError,

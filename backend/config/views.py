@@ -51,8 +51,12 @@ def health_check(request):
     }
     
     response = JsonResponse(response_data)
-    # Add CORS headers for health check to work from any origin
-    response["Access-Control-Allow-Origin"] = origin if origin != 'No origin header' else "*"
+    # Add CORS headers for health check - only allow configured origins or same-origin requests
+    if origin != 'No origin header' and (
+        origin in settings.CORS_ALLOWED_ORIGINS or 
+        any(origin.endswith(allowed) for allowed in ['.onrender.com', '.vercel.app', 'localhost'])
+    ):
+        response["Access-Control-Allow-Origin"] = origin
     response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     response["Access-Control-Allow-Headers"] = "Content-Type"
     return response
