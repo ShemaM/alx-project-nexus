@@ -19,13 +19,12 @@ const LOADING_MESSAGES: Record<string, string> = {
 }
 
 const PATIENT_MESSAGES = [
-  'Please hold on while we prepare your page.',
-  'Still working. This usually takes 2-6 seconds.',
-  'Almost there. Thank you for your patience.',
-  'Finalizing your request now.',
+  'Loading your content...',
+  'Almost ready...',
+  'Just a moment...',
 ]
 
-const MAX_LOADING_MS = 10_000
+const MAX_LOADING_MS = 5_000
 
 function LoadingIndicatorContent() {
   const pathname = usePathname()
@@ -126,7 +125,7 @@ function LoadingIndicatorContent() {
 
   const isLoading = isNavigationLoading || activeLoadingKeys.length > 0
   const message = contextMessage || navigationMessage
-  const remainingSeconds = Math.max(0, Math.ceil((MAX_LOADING_MS - elapsedMs) / 1000))
+  // Note: remainingSeconds removed as it's no longer displayed in the new UI
 
   useEffect(() => {
     if (!isLoading) {
@@ -144,14 +143,14 @@ function LoadingIndicatorContent() {
       const startedAt = loadingStartedAt ?? Date.now()
       const elapsed = Date.now() - startedAt
       setElapsedMs(elapsed)
-      setPatientMessageIndex(Math.min(PATIENT_MESSAGES.length - 1, Math.floor(elapsed / 2500)))
+      setPatientMessageIndex(Math.min(PATIENT_MESSAGES.length - 1, Math.floor(elapsed / 1500)))
 
-      // Never keep loader visible for more than 10 seconds.
+      // Never keep loader visible for more than 5 seconds.
       if (elapsed >= MAX_LOADING_MS) {
         setIsNavigationLoading(false)
         clearAllLoading()
       }
-    }, 1000)
+    }, 500)
 
     return () => {
       window.clearInterval(timer)
@@ -164,30 +163,86 @@ function LoadingIndicatorContent() {
 
   return (
     <div 
-      className="fixed inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-[9998] transition-opacity duration-300"
+      className="fixed inset-0 bg-gradient-to-br from-white via-slate-50 to-blue-50/30 backdrop-blur-md flex items-center justify-center z-[9998] transition-all duration-300"
       role="progressbar"
       aria-label="Page loading"
     >
-      <div className="flex flex-col items-center gap-6">
-        {/* Logo spinner */}
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-[#2D8FDD]/10 to-transparent rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-tr from-[#F5D300]/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-[#D52B2B]/5 to-transparent rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="flex flex-col items-center gap-8 relative">
+        {/* Stylish branded loader */}
         <div className="relative">
-          <div className="w-20 h-20 border-4 border-[#2D8FDD]/20 rounded-full"></div>
-          <div className="w-20 h-20 border-4 border-transparent border-t-[#2D8FDD] border-r-[#2D8FDD]/50 rounded-full absolute top-0 left-0 animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#2D8FDD] to-[#1E6BB8] rounded-lg shadow-lg"></div>
+          {/* Outer glow ring */}
+          <div className="absolute -inset-4 bg-gradient-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full opacity-20 blur-xl animate-pulse"></div>
+          
+          {/* Main spinner container */}
+          <div className="relative w-24 h-24">
+            {/* Outer ring */}
+            <div className="absolute inset-0 rounded-full border-4 border-slate-200/50"></div>
+            
+            {/* Animated gradient ring */}
+            <svg className="absolute inset-0 w-24 h-24 animate-spin" style={{ animationDuration: '1.5s' }}>
+              <defs>
+                <linearGradient id="loader-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#2D8FDD" />
+                  <stop offset="50%" stopColor="#F5D300" />
+                  <stop offset="100%" stopColor="#D52B2B" />
+                </linearGradient>
+              </defs>
+              <circle 
+                cx="48" 
+                cy="48" 
+                r="44" 
+                fill="none" 
+                stroke="url(#loader-gradient)" 
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray="180 90"
+              />
+            </svg>
+            
+            {/* Inner logo element */}
+            <div className="absolute inset-3 flex items-center justify-center">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#2D8FDD] via-[#2D8FDD] to-[#1E6BB8] rounded-xl shadow-lg shadow-[#2D8FDD]/30 flex items-center justify-center transform hover:scale-105 transition-transform">
+                <span className="text-white font-black text-lg tracking-tight">BYN</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Orbiting dots */}
+          <div className="absolute inset-0 animate-spin" style={{ animationDuration: '3s' }}>
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#F5D300] rounded-full shadow-sm shadow-[#F5D300]/50"></div>
+          </div>
+          <div className="absolute inset-0 animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }}>
+            <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 bg-[#D52B2B] rounded-full shadow-sm shadow-[#D52B2B]/50"></div>
           </div>
         </div>
-        {/* Loading text */}
-        <div className="text-center">
-          <p className="text-lg font-semibold text-slate-700">Loading</p>
-          <p className="text-sm text-slate-500 mt-1">{message}</p>
-          <p className="text-xs text-slate-400 mt-2">{PATIENT_MESSAGES[patientMessageIndex]}</p>
-          <p className="text-xs text-slate-400 mt-1">Approx. {remainingSeconds}s remaining</p>
+
+        {/* Loading text with brand styling */}
+        <div className="text-center space-y-2">
+          <p className="text-xl font-bold bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8] bg-clip-text text-transparent">
+            {message}
+          </p>
+          <p className="text-sm text-slate-500 font-medium animate-pulse">
+            {PATIENT_MESSAGES[patientMessageIndex]}
+          </p>
         </div>
-        {/* Progress bar */}
-        <div className="w-48 h-1 bg-slate-200 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8] rounded-full animate-shimmer" 
-               style={{ width: '100%', backgroundSize: '200% 100%' }}>
+
+        {/* Modern progress bar */}
+        <div className="w-56 h-1.5 bg-slate-200/70 rounded-full overflow-hidden backdrop-blur-sm">
+          <div 
+            className="h-full bg-gradient-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full relative"
+            style={{ 
+              width: `${Math.min(100, (elapsedMs / MAX_LOADING_MS) * 100)}%`,
+              transition: 'width 0.5s ease-out'
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
           </div>
         </div>
       </div>

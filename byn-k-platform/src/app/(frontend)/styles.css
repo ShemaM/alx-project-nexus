@@ -677,3 +677,343 @@ button, a, input, select, textarea {
   opacity: 1;
   transition: transform 0s, opacity 0s;
 }
+
+/* ============================================
+   Advanced Magical Touch Effects
+   ============================================ */
+
+/* Gradient text effect */
+.text-gradient-brand {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-accent) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+}
+
+.text-gradient-brand.animate {
+  animation: gradient 3s ease infinite;
+}
+
+/* Magical card with 3D perspective */
+.card-magical {
+  position: relative;
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.card-magical::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(45, 143, 221, 0.05) 0%,
+    transparent 50%,
+    rgba(245, 211, 0, 0.05) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-magical:hover {
+  transform: translateY(-8px) rotateX(2deg);
+  box-shadow: 
+    0 20px 40px -15px rgba(45, 143, 221, 0.2),
+    0 10px 20px -10px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary);
+}
+
+.card-magical:hover::before {
+  opacity: 1;
+}
+
+/* Glowing border effect */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary), var(--color-accent));
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-border:hover::before {
+  opacity: 1;
+  filter: blur(8px);
+}
+
+/* Neon glow effect for buttons */
+.btn-neon {
+  position: relative;
+  color: var(--color-primary);
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.btn-neon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.btn-neon:hover {
+  color: white;
+  box-shadow: 0 0 20px rgba(45, 143, 221, 0.5);
+}
+
+.btn-neon:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Magnetic button effect (CSS only approximation) */
+.btn-magnetic {
+  transition: transform 0.15s ease-out;
+}
+
+.btn-magnetic:hover {
+  transform: scale(1.05);
+}
+
+.btn-magnetic:active {
+  transform: scale(0.98);
+}
+
+/* Gradient border animation */
+@keyframes border-gradient-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.border-gradient-animated {
+  position: relative;
+  background: white;
+  border-radius: 1rem;
+  padding: 1px;
+}
+
+.border-gradient-animated::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-accent), var(--color-primary));
+  background-size: 300% 100%;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: border-gradient-rotate 3s linear infinite;
+}
+
+/* Spotlight effect for hero sections */
+.spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(45, 143, 221, 0.1),
+    transparent 40%
+  );
+  pointer-events: none;
+}
+
+/* Floating animation for decorative elements */
+.float-element {
+  animation: float-gentle 6s ease-in-out infinite;
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+  75% {
+    transform: translateY(5px) rotate(-1deg);
+  }
+}
+
+.float-element.delay-1 { animation-delay: 0.5s; }
+.float-element.delay-2 { animation-delay: 1s; }
+.float-element.delay-3 { animation-delay: 1.5s; }
+
+/* Morphing shapes for background */
+.morph-shape {
+  animation: morph 15s ease-in-out infinite;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+@keyframes morph {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    border-radius: 50% 60% 50% 50% / 40% 40% 60% 60%;
+  }
+  75% {
+    border-radius: 40% 60% 40% 70% / 70% 40% 60% 30%;
+  }
+}
+
+/* Typewriter effect */
+.typewriter {
+  overflow: hidden;
+  border-right: 3px solid var(--color-primary);
+  white-space: nowrap;
+  animation: 
+    typing 3.5s steps(40, end),
+    blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: var(--color-primary); }
+}
+
+/* Text reveal animation */
+.text-reveal {
+  position: relative;
+  display: inline-block;
+}
+
+.text-reveal::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  animation: text-reveal-animation 0.8s ease forwards;
+  animation-delay: inherit;
+}
+
+@keyframes text-reveal-animation {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0;
+  }
+}
+
+/* Particle-like dots background */
+.dots-pattern {
+  background-image: radial-gradient(circle, rgba(45, 143, 221, 0.15) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Subtle noise texture overlay */
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Focus states for accessibility with style */
+.focus-magical:focus-visible {
+  outline: none;
+  box-shadow: 
+    0 0 0 3px white,
+    0 0 0 5px var(--color-primary),
+    0 0 20px rgba(45, 143, 221, 0.3);
+}
+
+/* Smooth page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+}
+
+/* Staggered list animations */
+.stagger-list > * {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: stagger-appear 0.4s ease-out forwards;
+}
+
+.stagger-list > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-list > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-list > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-list > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-list > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-list > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-list > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-list > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-list > *:nth-child(n+9) { animation-delay: 0.45s; }
+
+@keyframes stagger-appear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
