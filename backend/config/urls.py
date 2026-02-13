@@ -6,10 +6,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import admin_portal_landing
+from .views import admin_portal_landing, health_check
 
 urlpatterns = [
     path('', admin_portal_landing, name='admin-portal-landing'),
+    path('health/', health_check, name='health-check'),
+    path('api/health/', health_check, name='api-health-check'),
     path('admin/', admin.site.urls),
     path('api/', include('listings.urls')),
     path('api/auth/', include('users.urls')),
