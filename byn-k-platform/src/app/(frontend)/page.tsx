@@ -43,7 +43,7 @@ export default async function HomePage() {
     console.error('Error fetching opportunities:', error)
   }
 
-  const allowedCategories = new Set(['job', 'scholarship', 'internship', 'fellowship'] as const)
+  const allowedCategories = new Set(['job', 'scholarship', 'internship', 'fellowship', 'training'] as const)
   type AllowedCategory = (typeof allowedCategories extends Set<infer T> ? T : never)
   const toAllowedCategory = (category: unknown): AllowedCategory =>
     allowedCategories.has(category as AllowedCategory) ? (category as AllowedCategory) : 'job'

@@ -29,7 +29,7 @@ export interface FeaturedOpportunity {
   id: string
   title: string
   organization: string
-  category: 'job' | 'scholarship' | 'internship' | 'fellowship'
+  category: 'job' | 'scholarship' | 'internship' | 'fellowship' | 'training'
   deadline: string
   isHot?: boolean
   slug?: string
@@ -53,6 +53,7 @@ const categoryColors: Record<FeaturedOpportunity['category'], string> = {
   scholarship: 'from-purple-500 to-fuchsia-500',
   internship: 'from-blue-500 to-cyan-500',
   fellowship: 'from-emerald-500 to-green-500',
+  training: 'from-rose-500 to-pink-500',
 }
 
 const categoryLabels: Record<FeaturedOpportunity['category'], string> = {
@@ -60,6 +61,7 @@ const categoryLabels: Record<FeaturedOpportunity['category'], string> = {
   scholarship: 'Scholarship',
   internship: 'Internship',
   fellowship: 'Fellowship',
+  training: 'Training',
 }
 
 export const Hero = ({ featuredOpportunities = [], counts }: HeroProps) => {

@@ -59,7 +59,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
-  const [oauthProviders, setOauthProviders] = useState<Record<string, unknown>>({})
+  const [oauthProviders, setOauthProviders] = useState<Record<string, boolean>>({})
 
   const getPreferredName = (rawName: string) => {
     const cleaned = (rawName || '').trim()
@@ -108,7 +108,14 @@ export default function LoginPage() {
     const loadProviders = async () => {
       try {
         const providers = await getProviders()
-        setOauthProviders(providers || {})
+        // Convert provider objects to boolean map
+        const providerMap: Record<string, boolean> = {}
+        if (providers) {
+          for (const key of Object.keys(providers)) {
+            providerMap[key] = true
+          }
+        }
+        setOauthProviders(providerMap)
       } catch {
         setOauthProviders({})
       }
@@ -175,12 +182,12 @@ export default function LoginPage() {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {error ? (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
                 <AlertCircle size={20} />
                 <span>{error}</span>
               </div>
-            )}
+            ) : null}
             {message && (
               <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-3 text-emerald-700">
                 <AlertCircle size={20} />
