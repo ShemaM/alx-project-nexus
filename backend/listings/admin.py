@@ -12,7 +12,7 @@ from django.conf import settings
 from django import forms
 from django.utils.text import slugify
 from unfold.admin import ModelAdmin
-from .models import Job, ClickAnalytics, Partner
+from .models import Job, ClickAnalytics, Partner, Event
 from .tasks import send_immediate_opportunity_notification
 
 # ============================================
@@ -237,6 +237,57 @@ class PartnerAdmin(ModelAdmin):
             return mark_safe(f'<img src="{obj.logo.url}" width="120" height="120" style="object-fit:contain;border-radius:10px;border:1px solid #e2e8f0;padding:8px;background:#fff;" />')
         return "No uploaded logo yet."
     logo_preview.short_description = 'Logo Preview'
+
+
+@admin.register(Event)
+# Admin UI configuration for managing curated events and livestreams exposed to the frontend.
+class EventAdmin(ModelAdmin):
+    list_display = ['title', 'partner', 'category', 'start_time', 'is_virtual', 'is_active']
+    list_filter = ['category', 'is_virtual', 'is_active']
+    ordering = ['-start_time']
+    search_fields = ['title', 'partner', 'location']
+    prepopulated_fields = {"slug": ("title",)}
+    readonly_fields = ['created_at', 'updated_at']
+
+    fieldsets = (
+        ('Event Details', {
+            'fields': (
+                'title',
+                'slug',
+                'partner',
+                'category',
+                'description',
+            ),
+            'classes': ['tab'],
+        }),
+        ('Timing & Access', {
+            'fields': (
+                'start_time',
+                'end_time',
+                'is_virtual',
+                'stream_url',
+                'is_active',
+            ),
+            'classes': ['tab'],
+            'description': 'Control the event status and livestream links.'
+        }),
+        ('Venue & Logistics', {
+            'fields': (
+                'location',
+                'directions',
+                'requirements',
+            ),
+            'classes': ['tab'],
+            'description': 'Provide venue and attendance guidance.'
+        }),
+        ('Metadata', {
+            'fields': (
+                'created_at',
+                'updated_at',
+            ),
+            'classes': ['tab'],
+        }),
+    )
 
 
 # Hide noisy technical models from the main admin navigation.

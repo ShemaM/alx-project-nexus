@@ -17,6 +17,29 @@ export type ApplicationType = 'link' | 'email' | 'pdf'
 // Opportunity category types
 export type OpportunityCategory = 'job' | 'scholarship' | 'internship' | 'training' | 'fellowship'
 
+/** Event categories curated for the landing page and event feed. */
+export type EventCategory = 'tech' | 'policy' | 'community' | 'climate'
+
+/** Shared shape for events returned by the backend API. */
+export interface Event {
+  id: number
+  slug?: string | null
+  title: string
+  partner?: string | null
+  category?: EventCategory
+  description?: string | null
+  requirements?: string | null
+  location?: string | null
+  directions?: string | null
+  start_time: string
+  end_time?: string | null
+  is_virtual?: boolean
+  stream_url?: string | null
+  starts_in_seconds?: number
+  is_live?: boolean
+  is_active?: boolean
+}
+
 // Work mode types (Filter Parity)
 export type WorkMode = 'remote' | 'hybrid' | 'onsite'
 
@@ -102,6 +125,8 @@ export interface Partner {
   website_url?: string | null;
   is_featured?: boolean;
   opportunity_count?: number;
+  /** Optional narrative that appears on partner cards. */
+  description?: string | null;
 }
 
 // API Response wrapper with metadata for pagination
@@ -152,9 +177,11 @@ export interface OpportunityFilterParams {
   is_verified?: boolean
   is_active?: boolean
   is_featured?: boolean
+  partner?: number
   // Search & sort
   search?: string
   ordering?: 'deadline' | '-deadline' | 'created_at' | '-created_at' | 'title' | '-title'
+  page_size?: number
 }
 
 

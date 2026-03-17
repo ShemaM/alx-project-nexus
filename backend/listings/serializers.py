@@ -7,7 +7,8 @@ Phase 3 Security NFRs (Protected Media & Disclaimers).
 
 from rest_framework import serializers
 from django.conf import settings
-from .models import Job, ClickAnalytics, Subscription, Partner
+from django.utils import timezone
+from .models import Job, ClickAnalytics, Subscription, Partner, Event
 
 
 class PrepChecklistItemSerializer(serializers.Serializer):
@@ -166,6 +167,48 @@ class JobListSerializer(serializers.ModelSerializer):
         if obj.brochure_upload:
             return f"/api/opportunities/{obj.id}/brochure/"
         return None
+
+
+class EventSerializer(serializers.ModelSerializer):
+    """Serializer for events page data."""
+
+    starts_in_seconds = serializers.SerializerMethodField()
+    is_live = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = [
+            'id',
+            'slug',
+            'title',
+            'partner',
+            'category',
+            'description',
+            'requirements',
+            'location',
+            'directions',
+            'start_time',
+            'end_time',
+            'is_virtual',
+            'stream_url',
+            'is_active',
+            'starts_in_seconds',
+            'is_live',
+        ]
+        read_only_fields = [
+            'id',
+            'starts_in_seconds',
+            'is_live',
+        ]
+
+    def get_starts_in_seconds(self, obj):
+        # Provide a client-friendly countdown so the homepage can show timers.
+        delta = obj.start_time - timezone.now()
+        return max(int(delta.total_seconds()), 0)
+
+    def get_is_live(self, obj):
+        # Mirror the model helper so clients know the current status flag.
+        return obj.is_live
 
 
 class ClickAnalyticsSerializer(serializers.ModelSerializer):

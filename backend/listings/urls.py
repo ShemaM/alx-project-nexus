@@ -12,6 +12,8 @@ urlpatterns = [
     # 1. Main Opportunities List (Matches: /api/opportunities/)
     # Handles both the full list and filtered featured list via query params
     path('opportunities/', views.JobListView.as_view(), name='opportunity-list'),
+    # 1.5. Upcoming events feed consumed by the landing and events pages.
+    path('events/', views.EventListView.as_view(), name='event-list'),
     
     # 2. Featured Opportunities (Specific endpoint if you prefer this over query params)
     # Matches: /api/opportunities/featured/

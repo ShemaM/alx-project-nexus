@@ -301,6 +301,76 @@ class Job(models.Model):
             return False
         return timezone.now() > self.deadline
 
+class Event(models.Model):
+    """Upcoming events, webinars, and conferences curated for Banyamulenge youth."""
+
+    CLASSIFICATION_TECH = 'tech'
+    CLASSIFICATION_POLICY = 'policy'
+    CLASSIFICATION_COMMUNITY = 'community'
+    CLASSIFICATION_CLIMATE = 'climate'
+
+    CLASSIFICATION_CHOICES = [
+        (CLASSIFICATION_TECH, 'Tech & Innovation'),
+        (CLASSIFICATION_POLICY, 'Policy & Governance'),
+        (CLASSIFICATION_COMMUNITY, 'Community Action'),
+        (CLASSIFICATION_CLIMATE, 'Climate & Sustainability'),
+    ]
+
+    title = models.CharField(max_length=255, help_text='Event title')
+    slug = models.SlugField(max_length=250, unique=True, blank=True)
+    partner = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Partner organization hosting or amplifying the event'
+    )
+    category = models.CharField(
+        max_length=30,
+        choices=CLASSIFICATION_CHOICES,
+        default=CLASSIFICATION_COMMUNITY,
+        help_text='What field or theme does this event line up with?'
+    )
+    description = models.TextField(blank=True, help_text='Event description and storyline')
+    requirements = models.TextField(blank=True, help_text='Requirements to attend (documents, registration)')
+    location = models.CharField(max_length=255, blank=True, help_text='Physical location or online platform')
+    directions = models.TextField(blank=True, help_text='Directions or entrance notes for the venue')
+    start_time = models.DateTimeField(help_text='When the event starts')
+    end_time = models.DateTimeField(null=True, blank=True, help_text='When the event ends (optional)')
+    is_virtual = models.BooleanField(default=False, help_text='Is this event fully virtual?')
+    stream_url = models.URLField(blank=True, help_text='Livestream link when virtual')
+    is_active = models.BooleanField(default=True, help_text='Hide events that have passed or are canceled')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['start_time']
+        verbose_name = 'Event'
+        verbose_name_plural = 'Events'
+
+    def __str__(self):
+        return f"{self.title} ({self.partner or 'Community'})"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)[:240] or str(uuid.uuid4())
+            slug_candidate = base_slug
+            counter = 1
+
+            while self.__class__.objects.filter(slug=slug_candidate).exclude(pk=self.pk).exists():
+                slug_candidate = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = slug_candidate
+
+        super().save(*args, **kwargs)
+
+    @property
+    def is_live(self):
+        # Indicates whether the event is currently running based on start/end timestamps.
+        now = timezone.now()
+        if self.start_time <= now and (self.end_time is None or now <= self.end_time):
+            return True
+        return False
+
 
 class ClickAnalytics(models.Model):
     """

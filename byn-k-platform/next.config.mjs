@@ -29,12 +29,8 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 1. ADDED THESE LINES TO FIX YOUR BUILD ERROR
   typescript: {
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 
   // Trailing slash configuration to avoid 301 redirects

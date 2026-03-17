@@ -7,12 +7,14 @@
  * @module components/admin/AnalyticsDashboard
  */
 import React from 'react';
+import Link from 'next/link';
 import {
   TrendingUp,
   Users,
   Briefcase,
   Building2,
   BarChart3,
+  CalendarDays,
 } from 'lucide-react';
 import { getAnalyticsOverview, getOpportunities } from '@/lib/api';
 
@@ -34,6 +36,13 @@ const StatCard = ({ title, value, icon: Icon, color }: StatCardProps) => (
     </div>
   </div>
 );
+
+interface QuickLink {
+  label: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+}
 
 interface AnalyticsData {
   total_jobs?: number;
@@ -78,6 +87,32 @@ export async function AnalyticsDashboard() {
   }
 
   const hasData = opportunityCounts.total > 0;
+  const quickLinks: QuickLink[] = [
+    {
+      label: 'Opportunities',
+      description: 'Curate jobs, scholarships, and internships that the homepage highlights.',
+      href: '/admin/opportunities',
+      icon: Briefcase,
+    },
+    {
+      label: 'Partners',
+      description: 'Keep partner logos, websites, and featured badges up to date.',
+      href: '/admin/partners',
+      icon: Building2,
+    },
+    {
+      label: 'Events',
+      description: 'Publish webinars, conferences, and field activations for youth.',
+      href: '/admin/events',
+      icon: CalendarDays,
+    },
+    {
+      label: 'Users',
+      description: 'Manage access for super admins and staff coordinators.',
+      href: '/admin/users',
+      icon: Users,
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -85,6 +120,35 @@ export async function AnalyticsDashboard() {
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-500 mt-1">An overview of the platform&apos;s performance.</p>
       </div>
+
+      <section className="space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">Core management</h2>
+          <p className="text-sm text-gray-500">
+            Navigate between opportunities, partners, and events without leaving the dashboard.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {quickLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="group flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-4 transition hover:border-blue-300 hover:shadow-lg"
+            >
+              <div className="flex items-center gap-3">
+                <link.icon className="h-5 w-5 text-blue-500 transition group-hover:text-blue-600" />
+                <div>
+                  <p className="text-base font-semibold text-gray-900">{link.label}</p>
+                  <p className="text-sm text-gray-500">{link.description}</p>
+                </div>
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-500">
+                Manage
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

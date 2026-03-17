@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X, ChevronDown, ChevronRight, Bookmark, LogOut } from 'lucide-react'
@@ -8,11 +8,13 @@ import { usePathname } from 'next/navigation'
 
 import { getCurrentUser } from '@/lib/api'
 
-const categories = [
-  { href: '/categories/jobs', label: 'Jobs' },
-  { href: '/categories/scholarships', label: 'Scholarships' },
-  { href: '/categories/internships', label: 'Internships' },
-  { href: '/categories/fellowships', label: 'Fellowships' },
+// Primary navigation entries for the desktop/mobile navbar.
+const navLinks = [
+  { href: '/opportunities', label: 'Opportunities' },
+  { href: '/events', label: 'Events' },
+  { href: '/partners', label: 'Partners' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
 ]
 
 interface UserData {
@@ -25,10 +27,10 @@ interface UserData {
   roles?: string[]
 }
 
+/** Global navigation bar with authentication controls and responsive drawer handling. */
 export const Navbar = () => {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [user, setUser] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -49,6 +51,7 @@ export const Navbar = () => {
     'my-opportunities': 'My Opportunities',
     opportunities: 'Opportunities',
     partners: 'Partners',
+    events: 'Events',
     signup: 'Sign Up',
     training: 'Training',
     unsubscribe: 'Unsubscribe',
@@ -92,6 +95,13 @@ export const Navbar = () => {
 
     checkAuth()
   }, [])
+
+  // Highlight the nav link if the current pathname falls under it.
+  const isActiveLink = (href: string) => {
+    if (!pathname) return false
+    if (href === '/' && pathname === '/') return true
+    return pathname === href || pathname.startsWith(`${href}/`)
+  }
 
   const handleLogout = async () => {
     if (isLoggingOut) return
@@ -147,57 +157,30 @@ export const Navbar = () => {
             </div>
           </Link>
           
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {/* Categories Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                className="flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-[#2D8FDD] transition-colors"
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-semibold transition-colors ${isActiveLink(link.href) ? 'text-[#2D8FDD]' : 'text-slate-600 hover:text-[#2D8FDD]'}`}
               >
-                Opportunities
-                <ChevronDown size={16} className={`transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isCategoriesOpen && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsCategoriesOpen(false)}
-                  />
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-[#E2E8F0] py-2 z-20">
-                    {categories.map((cat) => (
-                      <Link
-                        key={cat.href}
-                        href={cat.href}
-                        className="block px-4 py-2 text-sm text-slate-600 hover:bg-[#2D8FDD]/5 hover:text-[#2D8FDD]"
-                        onClick={() => setIsCategoriesOpen(false)}
-                      >
-                        {cat.label}
-                      </Link>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            <Link href="/partners" className="text-sm font-semibold text-slate-600 hover:text-[#2D8FDD] transition-colors">Partners</Link>
-            <Link href="/about" className="text-sm font-semibold text-slate-600 hover:text-[#2D8FDD] transition-colors">About</Link>
-            
-            {/* User Auth Section */}
+                {link.label}
+              </Link>
+            ))}
+
             {!isLoading && (
               <>
                 {user ? (
                   <div className="flex items-center gap-4">
-                    {/* Bookmarks Link */}
-                    <Link 
-                      href="/my-opportunities?tab=bookmarked" 
+                    <Link
+                      href="/my-opportunities?tab=bookmarked"
                       className="flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-[#2D8FDD] transition-colors"
                       title="My Bookmarks"
                     >
                       <Bookmark size={18} />
                       <span className="hidden lg:inline">Bookmarks</span>
                     </Link>
-                    
-                    {/* User Menu */}
+
                     <div className="relative">
                       <button
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -210,7 +193,7 @@ export const Navbar = () => {
                       </button>
                       {isUserMenuOpen && (
                         <>
-                          <div 
+                          <div
                             className="fixed inset-0 z-10"
                             onClick={() => setIsUserMenuOpen(false)}
                           />
@@ -243,15 +226,15 @@ export const Navbar = () => {
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
-                    <Link 
-                      href="/login" 
+                    <Link
+                      href="/login"
                       className="text-sm font-semibold text-slate-600 hover:text-[#2D8FDD] transition-colors"
                     >
                       Sign In
                     </Link>
-                    <Link 
-                      href="/signup" 
-                      className="bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    <Link
+                      href="/signup"
+                      className="bg-[#F5D300] hover:bg-[#ffe533] text-[#091336] border border-[#F5D300] px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
                     >
                       Sign Up
                     </Link>
@@ -275,93 +258,69 @@ export const Navbar = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-[#E2E8F0]">
-          <div className="px-4 py-4 space-y-4">
-            {/* Categories */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Opportunities</p>
-              {categories.map((cat) => (
-                <Link
-                  key={cat.href}
-                  href={cat.href}
-                  className="block py-2 text-slate-600 hover:text-[#2D8FDD] font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {cat.label}
-                </Link>
-              ))}
-            </div>
-            
-            <div className="border-t border-[#E2E8F0] pt-4 space-y-4">
-              <Link 
-                href="/partners" 
-                className="block py-2 text-slate-600 hover:text-[#2D8FDD] font-medium"
+          <div className="px-4 py-5 space-y-3">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`block rounded-lg px-3 py-2 text-base font-medium transition ${isActiveLink(link.href) ? 'bg-[#2D8FDD]/10 text-[#2D8FDD]' : 'text-slate-600 hover:bg-[#2D8FDD]/5 hover:text-[#2D8FDD]'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Partners
+                {link.label}
               </Link>
-              <Link 
-                href="/about" 
-                className="block py-2 text-slate-600 hover:text-[#2D8FDD] font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
-            </div>
+            ))}
 
-            {/* Mobile Auth Section */}
-            <div className="border-t border-[#E2E8F0] pt-4">
-              {!isLoading && (
-                <>
-                  {user ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 py-2">
-                        <div className="w-10 h-10 bg-[#2D8FDD] text-white rounded-full flex items-center justify-center font-semibold">
-                          {(user.name || user.username || user.email || 'U')[0].toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-700">{user.name || user.username || 'User'}</p>
-                          <p className="text-sm text-slate-500">{user.email || ''}</p>
-                        </div>
+            {!isLoading && (
+              <div className="border-t border-[#E2E8F0] pt-4">
+                {user ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 py-2">
+                      <div className="w-10 h-10 bg-[#2D8FDD] text-white rounded-full flex items-center justify-center font-semibold">
+                        {(user.name || user.username || user.email || 'U')[0].toUpperCase()}
                       </div>
-                      <Link 
-                        href="/my-opportunities?tab=bookmarked"
-                        className="flex items-center gap-2 py-2 text-slate-600 hover:text-[#2D8FDD] font-medium"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <Bookmark size={18} />
-                        My Bookmarks
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        disabled={isLoggingOut}
-                        className="flex items-center gap-2 py-2 text-red-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <LogOut size={18} className={isLoggingOut ? 'animate-spin' : ''} />
-                        {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
-                      </button>
+                      <div>
+                        <p className="font-medium text-slate-700">{user.name || user.username || 'User'}</p>
+                        <p className="text-sm text-slate-500">{user.email || ''}</p>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <Link 
-                        href="/login"
-                        className="block w-full text-center py-2.5 border border-[#2D8FDD] text-[#2D8FDD] rounded-lg font-semibold hover:bg-[#2D8FDD]/5 transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Sign In
-                      </Link>
-                      <Link 
-                        href="/signup"
-                        className="block w-full text-center py-2.5 bg-[#2D8FDD] text-white rounded-lg font-semibold hover:bg-[#1E6BB8] transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Sign Up
-                      </Link>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+                    <Link
+                      href="/my-opportunities?tab=bookmarked"
+                      className="flex items-center gap-2 py-2 text-slate-600 hover:text-[#2D8FDD] font-medium"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Bookmark size={18} />
+                      My Bookmarks
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="flex items-center gap-2 py-2 text-red-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <LogOut size={18} className={isLoggingOut ? 'animate-spin' : ''} />
+                      {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <Link
+                      href="/login"
+                      className="block w-full text-center py-2.5 border border-[#2D8FDD] text-[#2D8FDD] rounded-lg font-semibold hover:bg-[#2D8FDD]/5 transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="block w-full text-center py-2.5 bg-[#F5D300] text-[#091336] rounded-lg font-semibold hover:bg-[#ffe533] transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Building2, Handshake, ArrowRight } from 'lucide-react';
 import { getPartners, getCategoryCounts } from '@/lib/api';
+import { getSafePartnerLogoSrc } from '@/lib/partner-utils';
 
 export const metadata = {
   title: 'Our Partners | Opportunities for Banyamulenge Youth in Kenya',
@@ -13,46 +14,6 @@ export const metadata = {
 
 // Use ISR with revalidation for better performance
 export const revalidate = 60
-
-// Partner logo URL validation (same as PartnersSection)
-const ALLOWED_REMOTE_IMAGE_HOSTS = new Set([
-  'localhost',
-  '127.0.0.1',
-  'nexus-backend-lkps.onrender.com',
-])
-
-function getSafePartnerLogoSrc(logo?: string): string | null {
-  if (!logo) return null
-
-  // Local static/public or proxied media path
-  if (logo.startsWith('/')) {
-    return logo
-  }
-
-  try {
-    const parsed = new URL(logo)
-    const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:'
-    if (!isHttp) return null
-
-    // Reject Google Image Search result links (not direct image files)
-    if (parsed.hostname.includes('google.') && parsed.pathname.startsWith('/imgres')) {
-      return null
-    }
-
-    // Match next.config.mjs remote image allowlist
-    if (!ALLOWED_REMOTE_IMAGE_HOSTS.has(parsed.hostname)) {
-      return null
-    }
-
-    if (parsed.pathname.startsWith('/media/')) {
-      return logo
-    }
-
-    return null
-  } catch {
-    return null
-  }
-}
 
 // Type for partner data from API
 interface PartnerAPIData {
@@ -67,7 +28,7 @@ interface PartnerAPIData {
 }
 
 export default async function PartnersPage() {
-  // Fetch partners and category counts from Django API
+  // Build the partners grid and impact metrics page.
   let partnersData: PartnerAPIData[] = []
   let categoryCounts = {
     jobs: 0,
@@ -91,7 +52,7 @@ export default async function PartnersPage() {
     fetchError = true
   }
 
-  // Map partners data to display format
+  // Normalize the API payload into frontend-friendly partner cards.
   const partners = partnersData.map(p => ({
     id: p.id,
     name: p.name,

@@ -15,7 +15,7 @@ def admin_dashboard_context(request):
         return {}
 
     # Lazy imports to avoid startup dependency issues.
-    from listings.models import Job, ClickAnalytics, Partner, Subscription
+    from listings.models import Job, ClickAnalytics, Partner, Subscription, Event
 
     now = timezone.localtime()
     period = "morning" if now.hour < 12 else "afternoon" if now.hour < 18 else "evening"
@@ -30,6 +30,12 @@ def admin_dashboard_context(request):
     latest_jobs = list(
         Job.objects.order_by("-created_at").values("id", "title", "organization_name", "created_at")[:6]
     )
+    # Provide upcoming event metrics for dashboard tiles and quick links.
+    upcoming_events_qs = Event.objects.filter(is_active=True, start_time__gte=now).order_by("start_time")
+    upcoming_events = list(
+        upcoming_events_qs.values("id", "title", "partner", "start_time", "category")[:6]
+    )
+    upcoming_events_count = upcoming_events_qs.count()
 
     # Basic system health indicators
     db_status = "Healthy"
@@ -53,8 +59,10 @@ def admin_dashboard_context(request):
             "active_subscribers": active_subscribers,
             "total_clicks": total_clicks,
             "created_today": created_today,
+            "upcoming_events": upcoming_events_count,
         },
         "admin_latest_jobs": latest_jobs,
+        "admin_latest_events": upcoming_events,
         "admin_system_health": {
             "database": db_status,
             "timezone": str(timezone.get_current_timezone()),

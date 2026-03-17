@@ -47,6 +47,12 @@ export default async function RootLayout(props: Readonly<{ children: React.React
   return (
     <html lang="en">
       <body className="antialiased" suppressHydrationWarning>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-slate-900 focus:rounded-md focus:ring-2 focus:ring-[color:var(--color-primary)]"
+        >
+          Skip to main content
+        </a>
         <Providers>
           {children}
         </Providers>

@@ -1,9 +1,11 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin, Heart } from 'lucide-react'
+import { MapPin, Phone, Facebook, Twitter, Instagram, Linkedin, Heart } from 'lucide-react'
 import SubscriptionForm from '@/components/forms/SubscriptionForm'
+import GmailIcon from '@/components/ui/icons/GmailIcon'
 
+/** Footer containing contact details, social links, and the newsletter form. */
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
 
@@ -130,12 +132,14 @@ const Footer: React.FC = () => {
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <Mail size={18} className="text-[#F5D300] flex-shrink-0" />
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#D52B2B]">
+                  <GmailIcon />
+                </span>
                 <a
-                  href="mailto:contact@bynk-platform.org"
-                  className="text-blue-100 hover:text-[#F5D300] transition-colors text-sm"
+                  href="mailto:opportunitiesbanyamulengeyouth@gmail.com"
+                  className="text-blue-100 hover:text-[#F5D300] transition-colors text-sm font-semibold"
                 >
-                  contact@bynk-platform.org
+                  opportunitiesbanyamulengeyouth@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-3">

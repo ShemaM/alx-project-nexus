@@ -26,6 +26,7 @@ const PATIENT_MESSAGES = [
 
 const MAX_LOADING_MS = 5_000
 
+// Internal component that listens for navigation events and renders the overlay.
 function LoadingIndicatorContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -35,20 +36,22 @@ function LoadingIndicatorContent() {
   const [patientMessageIndex, setPatientMessageIndex] = useState(0)
   const [elapsedMs, setElapsedMs] = useState(0)
   const [loadingStartedAt, setLoadingStartedAt] = useState<number | null>(null)
-  const [prevPath, setPrevPath] = useState(pathname)
+  const searchString = searchParams?.toString() || ''
+  const currentUrl = `${pathname}${searchString ? `?${searchString}` : ''}`
+  const [prevUrl, setPrevUrl] = useState(currentUrl)
 
   useEffect(() => {
-    // If path changed, stop loading
-    if (prevPath !== pathname) {
+    // If URL changed (including search), stop loading
+    if (prevUrl !== currentUrl) {
       setIsNavigationLoading(false)
       setNavigationMessage('Loading, please wait...')
       setPatientMessageIndex(0)
       setElapsedMs(0)
       setLoadingStartedAt(null)
       clearAllLoading()
-      setPrevPath(pathname)
+      setPrevUrl(currentUrl)
     }
-  }, [pathname, prevPath, searchParams, clearAllLoading])
+  }, [currentUrl, prevUrl, clearAllLoading])
 
   // Listen for navigation events via custom events
   useEffect(() => {
@@ -68,12 +71,12 @@ function LoadingIndicatorContent() {
       setLoadingStartedAt(null)
     }
 
-    window.addEventListener('navigation-start', handleStart)
-    window.addEventListener('navigation-end', handleEnd)
+    globalThis.addEventListener('navigation-start', handleStart)
+    globalThis.addEventListener('navigation-end', handleEnd)
 
     return () => {
-      window.removeEventListener('navigation-start', handleStart)
-      window.removeEventListener('navigation-end', handleEnd)
+      globalThis.removeEventListener('navigation-start', handleStart)
+      globalThis.removeEventListener('navigation-end', handleEnd)
     }
   }, [])
 
@@ -83,23 +86,23 @@ function LoadingIndicatorContent() {
       if (!target) return
 
       // Support explicit button-triggered loading pages.
-      const buttonWithMessage = target.closest('button[data-loading-message]') as HTMLButtonElement | null
+      const buttonWithMessage = target.closest<HTMLButtonElement>('button[data-loading-message]')
       if (buttonWithMessage && !buttonWithMessage.disabled) {
         triggerNavigationLoading(buttonWithMessage.dataset.loadingMessage || 'Working on your request...')
         return
       }
 
-      const anchor = target.closest('a[href]') as HTMLAnchorElement | null
+      const anchor = target.closest<HTMLAnchorElement>('a[href]')
       if (!anchor) return
       if (anchor.target === '_blank' || anchor.hasAttribute('download')) return
 
       const href = anchor.getAttribute('href') || ''
       if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return
 
-      const url = new URL(anchor.href, window.location.origin)
-      if (url.origin !== window.location.origin) return
+      const url = new URL(anchor.href, globalThis.location.origin)
+      if (url.origin !== globalThis.location.origin) return
 
-      const current = `${window.location.pathname}${window.location.search}`
+      const current = `${globalThis.location.pathname}${globalThis.location.search}`
       const next = `${url.pathname}${url.search}`
       if (current === next) return
 
@@ -114,14 +117,14 @@ function LoadingIndicatorContent() {
 
   const activeLoadingKeys = Object.keys(loadingStates).filter((key) => loadingStates[key])
   const firstLoadingKey = activeLoadingKeys[0] || ''
-  const contextMessage = activeLoadingKeys.length > 0
-    ? (
+  let contextMessage = ''
+  if (activeLoadingKeys.length > 0) {
+    contextMessage =
       LOADING_MESSAGES[firstLoadingKey] ||
       (firstLoadingKey.startsWith('view-details-') ? 'Opening opportunity details...' : '') ||
       (firstLoadingKey.startsWith('explore-') ? 'Opening opportunities...' : '') ||
       'Working on your request...'
-    )
-    : ''
+  }
 
   const isLoading = isNavigationLoading || activeLoadingKeys.length > 0
   const message = contextMessage || navigationMessage
@@ -139,7 +142,7 @@ function LoadingIndicatorContent() {
       setLoadingStartedAt(Date.now())
     }
 
-    const timer = window.setInterval(() => {
+    const timer = globalThis.setInterval(() => {
       const startedAt = loadingStartedAt ?? Date.now()
       const elapsed = Date.now() - startedAt
       setElapsedMs(elapsed)
@@ -153,7 +156,7 @@ function LoadingIndicatorContent() {
     }, 500)
 
     return () => {
-      window.clearInterval(timer)
+      globalThis.clearInterval(timer)
     }
   }, [isLoading, loadingStartedAt, clearAllLoading])
 
@@ -163,14 +166,14 @@ function LoadingIndicatorContent() {
 
   return (
     <div 
-      className="fixed inset-0 bg-gradient-to-br from-white via-slate-50 to-blue-50/30 backdrop-blur-md flex items-center justify-center z-[9998] transition-all duration-300"
-      role="progressbar"
-      aria-label="Page loading"
+      className="fixed inset-0 bg-linear-to-br from-white via-slate-50 to-blue-50/30 backdrop-blur-md flex items-center justify-center z-9998 transition-all duration-300"
+      role="status"
+      aria-live="polite"
     >
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-[#2D8FDD]/10 to-transparent rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-tr from-[#F5D300]/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-linear-to-br from-[#2D8FDD]/10 to-transparent rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-linear-to-tr from-[#F5D300]/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-[#D52B2B]/5 to-transparent rounded-full blur-3xl"></div>
       </div>
 
@@ -178,7 +181,7 @@ function LoadingIndicatorContent() {
         {/* Stylish branded loader */}
         <div className="relative">
           {/* Outer glow ring */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full opacity-20 blur-xl animate-pulse"></div>
+          <div className="absolute -inset-4 bg-linear-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full opacity-20 blur-xl animate-pulse"></div>
           
           {/* Main spinner container */}
           <div className="relative w-24 h-24">
@@ -208,7 +211,7 @@ function LoadingIndicatorContent() {
             
             {/* Inner logo element */}
             <div className="absolute inset-3 flex items-center justify-center">
-              <div className="w-14 h-14 bg-gradient-to-br from-[#2D8FDD] via-[#2D8FDD] to-[#1E6BB8] rounded-xl shadow-lg shadow-[#2D8FDD]/30 flex items-center justify-center transform hover:scale-105 transition-transform">
+              <div className="w-14 h-14 bg-linear-to-br from-[#2D8FDD] via-[#2D8FDD] to-[#1E6BB8] rounded-xl shadow-lg shadow-[#2D8FDD]/30 flex items-center justify-center transform hover:scale-105 transition-transform">
                 <span className="text-white font-black text-lg tracking-tight">BYN</span>
               </div>
             </div>
@@ -225,7 +228,7 @@ function LoadingIndicatorContent() {
 
         {/* Loading text with brand styling */}
         <div className="text-center space-y-2">
-          <p className="text-xl font-bold bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8] bg-clip-text text-transparent">
+          <p className="text-xl font-bold bg-linear-to-r from-[#2D8FDD] to-[#1E6BB8] bg-clip-text text-transparent">
             {message}
           </p>
           <p className="text-sm text-slate-500 font-medium animate-pulse">
@@ -236,13 +239,13 @@ function LoadingIndicatorContent() {
         {/* Modern progress bar */}
         <div className="w-56 h-1.5 bg-slate-200/70 rounded-full overflow-hidden backdrop-blur-sm">
           <div 
-            className="h-full bg-gradient-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full relative"
+            className="h-full bg-linear-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full relative"
             style={{ 
               width: `${Math.min(100, (elapsedMs / MAX_LOADING_MS) * 100)}%`,
               transition: 'width 0.5s ease-out'
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
           </div>
         </div>
       </div>
@@ -250,6 +253,7 @@ function LoadingIndicatorContent() {
   )
 }
 
+// Suspense wrapper that ensures LoadingIndicatorContent can render on the client.
 export function GlobalLoadingIndicator() {
   return (
     <Suspense fallback={null}>
@@ -259,16 +263,18 @@ export function GlobalLoadingIndicator() {
 }
 
 // Helper function to trigger navigation loading
+// Dispatch custom events so the loader can react to manual navigation triggers.
 export function triggerNavigationLoading(message?: string) {
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('navigation-start', { detail: { message } }))
+  if (globalThis.window !== undefined) {
+    globalThis.dispatchEvent(new CustomEvent('navigation-start', { detail: { message } }))
   }
 }
 
 // Helper function to end navigation loading
+// Signal that navigation has finished so the loader can disappear.
 export function endNavigationLoading() {
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('navigation-end'))
+  if (globalThis.window !== undefined) {
+    globalThis.dispatchEvent(new CustomEvent('navigation-end'))
   }
 }
 

@@ -15,6 +15,7 @@ interface OpportunityActionsProps {
   slug?: string
   applyUrl: string
   isEmailApplication: boolean
+  children?: React.ReactNode
 }
 
 export const OpportunityActions: React.FC<OpportunityActionsProps> = ({

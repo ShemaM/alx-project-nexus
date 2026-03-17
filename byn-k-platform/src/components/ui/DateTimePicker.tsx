@@ -46,7 +46,7 @@ export function DateTimePicker({
     if (!val) return { date: '', hours: DEFAULT_HOUR, minutes: DEFAULT_MINUTES, period: DEFAULT_PERIOD }
     
     const dateObj = new Date(val)
-    if (isNaN(dateObj.getTime())) return { date: '', hours: DEFAULT_HOUR, minutes: DEFAULT_MINUTES, period: DEFAULT_PERIOD }
+    if (Number.isNaN(dateObj.getTime())) return { date: '', hours: DEFAULT_HOUR, minutes: DEFAULT_MINUTES, period: DEFAULT_PERIOD }
     
     const date = dateObj.toISOString().split('T')[0]
     let hours = dateObj.getHours()
@@ -79,7 +79,7 @@ export function DateTimePicker({
     (date: string, hrs: string, mins: string, prd: 'AM' | 'PM') => {
       if (!date) return ''
       
-      let hour24 = parseInt(hrs, 10)
+      let hour24 = Number.parseInt(hrs, 10)
       if (prd === 'AM' && hour24 === 12) hour24 = 0
       else if (prd === 'PM' && hour24 !== 12) hour24 += 12
       
@@ -225,7 +225,7 @@ export function DateTimePicker({
               disabled={disabled}
               className={`px-3 py-3 text-sm font-semibold transition-all duration-200
                 ${period === 'AM'
-                  ? 'bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8] text-white shadow-inner'
+                  ? 'bg-linear-to-r from-[#2D8FDD] to-[#1E6BB8] text-white shadow-inner'
                   : 'bg-white text-slate-600 hover:bg-slate-50'
                 }
                 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
@@ -239,7 +239,7 @@ export function DateTimePicker({
               disabled={disabled}
               className={`px-3 py-3 text-sm font-semibold transition-all duration-200
                 ${period === 'PM'
-                  ? 'bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8] text-white shadow-inner'
+                  ? 'bg-linear-to-r from-[#2D8FDD] to-[#1E6BB8] text-white shadow-inner'
                   : 'bg-white text-slate-600 hover:bg-slate-50'
                 }
                 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
@@ -265,7 +265,7 @@ export function formatTime12Hour(date: string | Date | null | undefined): string
   if (!date) return ''
   
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  if (isNaN(dateObj.getTime())) return ''
+  if (Number.isNaN(dateObj.getTime())) return ''
   
   return dateObj.toLocaleTimeString('en-US', {
     hour: 'numeric',
@@ -281,7 +281,7 @@ export function formatDateTime12Hour(date: string | Date | null | undefined): st
   if (!date) return ''
   
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  if (isNaN(dateObj.getTime())) return ''
+  if (Number.isNaN(dateObj.getTime())) return ''
   
   return dateObj.toLocaleString('en-US', {
     year: 'numeric',

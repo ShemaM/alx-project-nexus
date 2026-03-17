@@ -1,5 +1,6 @@
 'use client'
 
+// Comprehensive opportunities listing page with responsive filter sidebar and live counts.
 import React, { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -133,7 +134,7 @@ function OpportunitiesPageContent() {
       <Navbar />
       
       {/* Header */}
-      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-8 md:py-12">
+      <section className="bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-8 md:py-12">
         <div className="max-w-7xl mx-auto px-4">
           <Link 
             href="/" 

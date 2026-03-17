@@ -1,14 +1,10 @@
 {
   "compilerOptions": {
-    
-    "ignoreDeprecations": "5.0",
     "lib": [
       "DOM",
       "DOM.Iterable",
       "ES2022"
     ],
-
-    
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,7 +14,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -27,16 +23,19 @@
     ],
     "target": "ES2022",
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

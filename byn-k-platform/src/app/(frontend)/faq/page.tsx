@@ -8,6 +8,7 @@ export const metadata = {
   description: 'Frequently asked questions about the BYN-K platform - find answers about browsing opportunities, account creation, verification process, and more.',
 }
 
+// FAQ data that maps icons/questions/answers for the accordion list.
 const faqs = [
   {
     icon: Target,
@@ -32,12 +33,13 @@ const faqs = [
 ]
 
 export default function FAQPage() {
+  // Renders the FAQ hero, accordion list, and CTA prompting contact.
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-20">
+      <section className="bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <HelpCircle className="w-8 h-8 text-[#F5D300]" />
@@ -63,7 +65,7 @@ export default function FAQPage() {
                   className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <summary className="flex items-center gap-4 p-6 cursor-pointer list-none">
-                    <div className="w-12 h-12 bg-[#2D8FDD]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 bg-[#2D8FDD]/10 rounded-xl flex items-center justify-center shrink-0">
                       <Icon className="w-6 h-6 text-[#2D8FDD]" />
                     </div>
                     <h3 className="flex-1 text-lg font-bold text-slate-900">
@@ -86,7 +88,7 @@ export default function FAQPage() {
       </section>
 
       {/* Still Have Questions Section */}
-      <section className="py-16 bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8]">
+      <section className="py-16 bg-linear-to-r from-[#2D8FDD] to-[#1E6BB8]">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Still Have Questions?

@@ -64,9 +64,9 @@ function buildPathCandidates(path: string, method: string): string[] {
 
 async function handler(
   request: NextRequest,
-  { params }: { params: { path: string[] } | Promise<{ path: string[] }> }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const resolvedParams = await Promise.resolve(params)
+  const resolvedParams = await params
   const pathSegments = resolvedParams.path || []
   const proxyPrefix = '/api/proxy/'
   const requestPathname = request.nextUrl.pathname

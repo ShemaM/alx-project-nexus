@@ -3,7 +3,7 @@
  * Client for connecting to the Django REST Framework backend.
  */
 
-import { Opportunity, OpportunityFilterParams, APIResponse, SubscriptionResponse } from '@/types'
+import { Opportunity, OpportunityFilterParams, APIResponse, SubscriptionResponse, Event, EventCategory, Partner } from '@/types'
 import { AuthUser } from '@/lib/authz'
 
 /**
@@ -117,16 +117,20 @@ async function apiFetch<T>(
         // Keep default status-only message if response parsing fails.
       }
 
+      const operationalFailureMessage = errorDetails.includes('OperationalError')
+        ? 'The backend database could not be reached. Please try again in a few minutes.'
+        : errorDetails;
+
       // Log with classification for easier debugging
       if (!config.suppressErrorLogging) {
         if (response.status === 404) {
-          console.error(`[404 Not Found] Endpoint not found: ${url}`, errorDetails);
+          console.error(`[404 Not Found] Endpoint not found: ${url}`, operationalFailureMessage);
         } else {
-          console.error(`[API Error ${response.status}] ${url}:`, errorDetails);
+          console.error(`[API Error ${response.status}] ${url}:`, operationalFailureMessage);
         }
       }
       throw new Error(
-        `API Error: ${response.status} ${response.statusText}${errorDetails ? ` - ${errorDetails}` : ''}`
+        `API Error: ${response.status} ${response.statusText}${operationalFailureMessage ? ` - ${operationalFailureMessage}` : ''}`
       );
     }
     
@@ -165,6 +169,8 @@ function addBasicFilters(searchParams: URLSearchParams, params: OpportunityFilte
   }
   addParamIfPresent(searchParams, 'location', params.location);
   addParamIfPresent(searchParams, 'city', params.city);
+  addParamIfPresent(searchParams, 'partner', params.partner);
+  addParamIfPresent(searchParams, 'page_size', params.page_size);
 }
 
 /**
@@ -246,7 +252,7 @@ export async function getOpportunities(filters?: OpportunityFilterParams): Promi
     const queryString = filters ? buildQueryString(filters) : '';
     // Django requires the trailing slash before the query parameters
     // Use 60-second cache for homepage data to improve load times
-    const response = await apiFetch<any>(`/opportunities/${queryString}`, {}, { suppressErrorLogging: true, revalidate: 60 });
+    const response = await apiFetch<{ results: Opportunity[], disclaimer: string, count: number, next: string | null, previous: string | null }>(`/opportunities/${queryString}`, {}, { suppressErrorLogging: true, revalidate: 60 });
     
     return {
       data: response.results || [],
@@ -397,6 +403,16 @@ export async function getPartners(): Promise<APIResponse<any[]>> {
   } catch (error) {
     console.error('Failed to fetch partners:', error);
     return { data: [], disclaimer: '', count: 0 };
+  }
+}
+
+/** Fetch an individual partner by ID to back the detailed partner page. */
+export async function getPartnerById(id: number): Promise<Partner | null> {
+  try {
+    return await apiFetch<Partner>(`/partners/${id}/`, {}, { revalidate: 60 });
+  } catch (error) {
+    console.error(`Failed to fetch partner ${id}:`, error);
+    return null;
   }
 }
 
@@ -561,6 +577,62 @@ export async function getCategories(): Promise<CategoryData[]> {
   } catch (error) {
     console.error('Failed to fetch categories:', error);
     return [];
+  }
+}
+
+export interface Announcement {
+  id: number
+  title: string
+  summary?: string
+  published_at?: string
+}
+
+/** Load the latest announcements for the announcement page. */
+export async function getAnnouncements(limit = 3): Promise<{ results: Announcement[] }> {
+  try {
+    return await apiFetch<{ results: Announcement[] }>(`/announcements/?page_size=${limit}`, {}, { revalidate: 60 });
+  } catch (error) {
+    console.error('Failed to fetch announcements:', error);
+    return { results: [] };
+  }
+}
+
+/** Request a paginated list of active events for the landing/events pages. */
+export async function getEvents(limit = 5): Promise<{ results: Event[] }> {
+  try {
+    return await apiFetch<{ results: Event[] }>(`/events/?page_size=${limit}`, {}, { revalidate: 60 });
+  } catch (error) {
+    console.error('Failed to fetch events:', error);
+    return { results: [] };
+  }
+}
+
+/** Payload shape used when creating or updating events via the admin UI. */
+export interface EventPayload {
+  title: string;
+  partner?: string | null;
+  category: EventCategory;
+  description?: string | null;
+  requirements?: string | null;
+  location?: string | null;
+  directions?: string | null;
+  start_time: string;
+  end_time?: string | null;
+  is_virtual?: boolean;
+  stream_url?: string | null;
+  is_active?: boolean;
+}
+
+/** Create a new event record for the backend, used by the admin events console. */
+export async function createEvent(payload: EventPayload): Promise<Event> {
+  try {
+    return await apiFetch<Event>('/events/', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.error('Failed to create event:', error);
+    throw error;
   }
 }
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Briefcase, Users, Building } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, Building, CalendarDays } from 'lucide-react';
 import { AuthUser, isSuperAdmin } from '@/lib/authz';
 
 const sidebarNavLinks = [
@@ -10,12 +10,14 @@ const sidebarNavLinks = [
   { href: '/admin/opportunities', label: 'Opportunities', icon: Briefcase },
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/partners', label: 'Partners', icon: Building },
+  { href: '/admin/events', label: 'Events', icon: CalendarDays },
 ];
 
 interface AdminSidebarProps {
   user: AuthUser
 }
 
+// Sidebar shown to super admins so they can navigate the admin portal.
 export function AdminSidebar({ user }: AdminSidebarProps) {
   const pathname = usePathname();
   // Super admin can see all links

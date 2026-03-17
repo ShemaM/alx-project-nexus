@@ -7,6 +7,7 @@ to external NGO portals (Forms, Emails, Websites).
 """
 
 import os
+import sys
 import warnings
 from pathlib import Path
 from dotenv import load_dotenv
@@ -31,6 +32,8 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Detect test runs early so we can relax security headers without disabling them for real traffic.
+IS_TESTING = 'test' in sys.argv
 
 # Security settings
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-this-in-production')
@@ -109,11 +112,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database Configuration for Render/Local
+default_db_config = dj_database_url.config(
+    default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+    conn_max_age=600
+)
+
+# Render's managed Postgres services expose hosts like `dpg-xxx-a`.
+# When the connection string only contains that short host, DNS lookup fails
+# because the full `*.postgres.render.com` name is required. Append the suffix
+# automatically so the backend works even if Render truncates the hostname.
+host = default_db_config.get('HOST')
+if host and host.startswith('dpg-') and '.' not in host:
+    default_db_config['HOST'] = f"{host}.postgres.render.com"
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600
-    )
+    'default': default_db_config
 }
 
 # Custom User Model
@@ -251,22 +264,25 @@ LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/admin/login/'
 
 if not DEBUG:
-    # HTTPS/SSL settings
-    SECURE_SSL_REDIRECT = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    
-    # Session & CSRF cookie security
-    SESSION_COOKIE_SECURE = True
+    if not IS_TESTING:
+        # HTTPS/SSL settings that should stay enabled for real deployments.
+        SECURE_SSL_REDIRECT = True
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+        # Session & CSRF cookie security
+        SESSION_COOKIE_SECURE = True
+        SESSION_COOKIE_SAMESITE = 'Lax'
+
+        CSRF_COOKIE_SECURE = True
+        CSRF_COOKIE_SAMESITE = 'Lax'
+
+        # Additional security headers
+        SECURE_BROWSER_XSS_FILTER = True
+        SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    # Always lock down cookies and framing when DEBUG=False, even during tests.
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    
-    CSRF_COOKIE_SECURE = True
     CSRF_COOKIE_HTTPONLY = True
-    CSRF_COOKIE_SAMESITE = 'Lax'
-    
-    # Additional security headers
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
 else:
     SESSION_COOKIE_HTTPONLY = True
@@ -304,6 +320,12 @@ UNFOLD = {
                         "icon": "work",
                         "link": "/admin/listings/job/",
                     },
+                    # Surface the new Event admin model directly in the primary nav.
+                    {
+                        "title": "Events",
+                        "icon": "event",
+                        "link": "/admin/listings/event/",
+                    },
                     {
                         "title": "Partners",
                         "icon": "handshake",
@@ -313,6 +335,12 @@ UNFOLD = {
                         "title": "Analytics",
                         "icon": "monitoring",
                         "link": "/admin/listings/clickanalytics/",
+                    },
+                    {
+                        # Provide quick access to the standalone subscriber update screen.
+                        "title": "Update Subscribers",
+                        "icon": "email",
+                        "link": "/admin/users/updatesubscriber/",
                     },
                 ],
             },
@@ -324,11 +352,6 @@ UNFOLD = {
                         "title": "Signed Up Users",
                         "icon": "group",
                         "link": "/admin/users/signedupuser/",
-                    },
-                    {
-                        "title": "Update Subscribers",
-                        "icon": "email",
-                        "link": "/admin/users/updatesubscriber/",
                     },
                 ],
             },

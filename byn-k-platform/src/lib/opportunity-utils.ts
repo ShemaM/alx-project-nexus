@@ -6,6 +6,7 @@
 
 import { OpportunityCategory } from '@/types'
 
+/** Build a detail URL given a category and slug, used across opportunity links. */
 export function buildOpportunityPath(
   category?: OpportunityCategory | string | null,
   slug?: string | null,

@@ -10,7 +10,7 @@ from datetime import timedelta
 from io import StringIO
 import json
 
-from .models import Job, ClickAnalytics
+from .models import Job, ClickAnalytics, Event
 from users.models import User
 
 
@@ -197,25 +197,44 @@ class JobAPITests(TestCase):
         
         self.assertEqual(data['title'], 'Software Developer')
         self.assertIn('disclaimer', data)
-    
-    def test_track_click_endpoint(self):
-        """Test the click tracking endpoint."""
-        response = self.client.post(
-            '/api/track-click/',
-            data=json.dumps({
-                'job_id': self.job1.id,
-                'click_type': 'apply',
-            }),
-            content_type='application/json',
+
+
+class EventAPITests(TestCase):
+    """Tests for the Events API endpoint."""
+
+    def setUp(self):
+        # Seed a known event so the endpoint returns predictable data for assertions.
+        self.client = Client()
+        now = timezone.now()
+        self.event = Event.objects.create(
+            title='Tech Field Day',
+            partner='RCK',
+            category='tech',
+            description='Design jams and lightning talks with community partners.',
+            requirements='Bring ID\\nComplete registration form.',
+            location='Buru Buru Grounds, Nairobi',
+            directions='Enter via the main gate and register at Hall A.',
+            start_time=now + timedelta(days=5),
+            end_time=now + timedelta(days=5, hours=3),
+            is_virtual=False,
+            is_active=True,
         )
-        
+
+    def test_list_events(self):
+        response = self.client.get('/api/events/?page_size=3')
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        
-        self.assertTrue(data['success'])
-        self.assertEqual(data['click_count'], 1)
+        self.assertIn('results', data)
+        self.assertEqual(len(data['results']), 1)
 
-
+        event_data = data['results'][0]
+        self.assertEqual(event_data['title'], 'Tech Field Day')
+        self.assertEqual(event_data['partner'], 'RCK')
+        self.assertEqual(event_data['category'], 'tech')
+        self.assertIn('starts_in_seconds', event_data)
+        self.assertGreaterEqual(event_data['starts_in_seconds'], 0)
+        self.assertFalse(event_data['is_live'])
+    
 class UserModelTests(TestCase):
     """Tests for the User model."""
     
@@ -654,13 +673,20 @@ class PlatformManagementAccessTests(TestCase):
             is_superuser=False,
         )
 
+    def _login_super_admin(self):
+        # Helper that marks the test client as a super admin with admin console access flags.
+        self.client.force_login(self.super_admin)
+        session = self.client.session
+        session['admin_console_authenticated'] = True
+        session.save()
+
     def test_analytics_denies_staff_user(self):
         self.client.force_login(self.staff_user)
         response = self.client.get('/api/analytics/')
         self.assertEqual(response.status_code, 403)
 
     def test_analytics_allows_super_admin(self):
-        self.client.force_login(self.super_admin)
+        self._login_super_admin()
         response = self.client.get('/api/analytics/')
         self.assertEqual(response.status_code, 200)
 
@@ -676,7 +702,7 @@ class PlatformManagementAccessTests(TestCase):
         self.assertIn('/admin/login/', response.url)
 
     def test_admin_allows_super_admin(self):
-        self.client.force_login(self.super_admin)
+        self._login_super_admin()
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 200)
 

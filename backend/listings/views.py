@@ -17,7 +17,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import logging
 
-from .models import Job, ClickAnalytics, Subscription, Partner
+from .models import Job, ClickAnalytics, Subscription, Partner, Event
 from .serializers import (
     JobSerializer, 
     JobListSerializer, 
@@ -26,6 +26,7 @@ from .serializers import (
     SubscriptionSerializer,
     SubscriptionCreateSerializer,
     PartnerSerializer,
+    EventSerializer,
 )
 from .filters import JobFilter
 from .tasks import send_subscription_confirmation_email
@@ -157,6 +158,37 @@ class FeaturedJobsView(generics.ListAPIView):
             'disclaimer': settings.PLATFORM_DISCLAIMER
         }
         return response
+
+
+class EventListView(generics.ListCreateAPIView):
+    """
+    Upcoming events list exposed to the frontend.
+    """
+
+    # Limit responses to events that are still active or scheduled soon.
+    serializer_class = EventSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        now = timezone.now()
+        return Event.objects.filter(is_active=True, start_time__gte=now)
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsSuperUser()]
+        return [permissions.AllowAny()]
+
+    def list(self, request, *args, **kwargs):
+        # Use the optional page_size query param (1-50 range) to throttle frontend payloads.
+        limit = request.GET.get('page_size')
+        try:
+            limit_value = int(limit) if limit else 6
+        except (TypeError, ValueError):
+            limit_value = 6
+        limit_value = max(1, min(limit_value, 50))
+        events = self.get_queryset().order_by('start_time')[:limit_value]
+        serializer = self.get_serializer(events, many=True, context={'request': request})
+        return Response({'results': serializer.data})
 
 
 class TrackClickView(APIView):

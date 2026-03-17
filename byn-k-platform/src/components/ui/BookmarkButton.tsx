@@ -12,6 +12,7 @@ interface BookmarkButtonProps {
   category?: OpportunityCategory
   slug?: string
   className?: string
+  children?: React.ReactNode
 }
 
 export const BookmarkButton: React.FC<BookmarkButtonProps> = ({

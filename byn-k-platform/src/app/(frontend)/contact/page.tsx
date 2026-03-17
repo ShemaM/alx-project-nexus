@@ -2,19 +2,21 @@ import React from 'react'
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { Mail, Phone, MapPin, Clock, MessageSquare } from 'lucide-react'
+import { Phone, MapPin, Clock, MessageSquare } from 'lucide-react'
+import GmailIcon from '@/components/ui/icons/GmailIcon'
 
 export const metadata = {
   title: 'Contact Us | Opportunities for Banyamulenge Youth in Kenya',
   description: 'Get in touch with the BYN-K platform team. We are here to help Banyamulenge youth in Kenya find verified opportunities.',
 }
 
+// Contact cards that drive users to email, call, or visit the community center.
 const contactInfo = [
   {
-    icon: Mail,
+    icon: GmailIcon,
     title: 'Email',
-    value: 'contact@bynk-platform.org',
-    href: 'mailto:contact@bynk-platform.org',
+    value: 'opportunitiesbanyamulengeyouth@gmail.com',
+    href: 'mailto:opportunitiesbanyamulengeyouth@gmail.com',
     description: 'Send us an email and we will respond within 24-48 hours.',
   },
   {
@@ -41,6 +43,7 @@ const contactInfo = [
 ]
 
 export default function ContactPage() {
+  // Renders a hero, contact cards, location details, and CTA funnel.
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
