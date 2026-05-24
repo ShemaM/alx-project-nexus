@@ -34,7 +34,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             onClick={() => setLanguage(lang.code)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               language === lang.code
-                ? 'bg-[#2D8FDD] text-white'
+                ? 'bg-primary text-white'
                 : 'text-slate-600 hover:bg-slate-100'
             }`}
             aria-current={language === lang.code ? 'true' : 'false'}
@@ -51,7 +51,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-[#2D8FDD] transition-colors rounded-lg hover:bg-slate-50"
+        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors rounded-lg hover:bg-slate-50"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={`Current language: ${currentLanguage?.name}. Click to change language`}
@@ -75,7 +75,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           <ul
             role="listbox"
             aria-label="Select language"
-            className="absolute top-full right-0 mt-1 w-40 bg-white rounded-xl shadow-lg border border-[#E2E8F0] py-1 z-20"
+            className="absolute top-full right-0 mt-1 w-40 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-20"
           >
             {availableLanguages.map((lang) => (
               <li key={lang.code}>
@@ -86,7 +86,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
                   }}
                   className={`w-full px-4 py-2 text-left text-sm transition-colors ${
                     language === lang.code
-                      ? 'bg-[#2D8FDD]/5 text-[#2D8FDD] font-medium'
+                      ? 'bg-primary/5 text-primary font-medium'
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}
                   role="option"

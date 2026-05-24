@@ -154,7 +154,7 @@ export function DateTimePicker({
             className={`w-full pl-10 pr-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200
               ${error 
                 ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                : 'border-slate-200 focus:ring-2 focus:ring-[#2D8FDD] focus:border-[#2D8FDD]'
+                : 'border-slate-200 focus:ring-2 focus:ring-primary focus:border-primary'
               }
               ${disabled ? 'bg-slate-100 cursor-not-allowed opacity-60' : 'bg-white hover:border-slate-300'}
               outline-none
@@ -176,7 +176,7 @@ export function DateTimePicker({
               className={`appearance-none pl-10 pr-8 py-3 border rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer
                 ${error 
                   ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                  : 'border-slate-200 focus:ring-2 focus:ring-[#2D8FDD] focus:border-[#2D8FDD]'
+                  : 'border-slate-200 focus:ring-2 focus:ring-primary focus:border-primary'
                 }
                 ${disabled ? 'bg-slate-100 cursor-not-allowed opacity-60' : 'bg-white hover:border-slate-300'}
                 outline-none
@@ -202,7 +202,7 @@ export function DateTimePicker({
               className={`appearance-none px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer
                 ${error 
                   ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                  : 'border-slate-200 focus:ring-2 focus:ring-[#2D8FDD] focus:border-[#2D8FDD]'
+                  : 'border-slate-200 focus:ring-2 focus:ring-primary focus:border-primary'
                 }
                 ${disabled ? 'bg-slate-100 cursor-not-allowed opacity-60' : 'bg-white hover:border-slate-300'}
                 outline-none pr-8
@@ -225,7 +225,7 @@ export function DateTimePicker({
               disabled={disabled}
               className={`px-3 py-3 text-sm font-semibold transition-all duration-200
                 ${period === 'AM'
-                  ? 'bg-linear-to-r from-[#2D8FDD] to-[#1E6BB8] text-white shadow-inner'
+                  ? 'bg-linear-to-r from-primary to-primary-dark text-white shadow-inner'
                   : 'bg-white text-slate-600 hover:bg-slate-50'
                 }
                 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
@@ -239,7 +239,7 @@ export function DateTimePicker({
               disabled={disabled}
               className={`px-3 py-3 text-sm font-semibold transition-all duration-200
                 ${period === 'PM'
-                  ? 'bg-linear-to-r from-[#2D8FDD] to-[#1E6BB8] text-white shadow-inner'
+                  ? 'bg-linear-to-r from-primary to-primary-dark text-white shadow-inner'
                   : 'bg-white text-slate-600 hover:bg-slate-50'
                 }
                 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}

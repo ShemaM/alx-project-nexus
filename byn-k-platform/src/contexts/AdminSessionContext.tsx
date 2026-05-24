@@ -221,7 +221,7 @@ export function AdminSessionProvider({ children }: AdminSessionProviderProps) {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={extendSession}
-                  className="px-6 py-2.5 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white rounded-lg font-semibold transition-colors"
+                  className="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition-colors"
                 >
                   Stay Logged In
                 </button>

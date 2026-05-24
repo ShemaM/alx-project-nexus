@@ -1,6 +1,4 @@
-import React from 'react'
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
+﻿import React from 'react'
 import { ChevronDown, HelpCircle, Target, CheckCircle, UserPlus, Building2 } from 'lucide-react'
 
 export const metadata = {
@@ -36,18 +34,17 @@ export default function FAQPage() {
   // Renders the FAQ hero, accordion list, and CTA prompting contact.
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
       
       {/* Hero Section */}
-      <section className="bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-20">
+      <section className="bg-linear-to-br from-hero-dark via-primary-dark to-primary py-16 md:py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <HelpCircle className="w-8 h-8 text-[#F5D300]" />
+          <div className="w-16 h-16 bg-glass-on-dark border border-border-on-dark/70 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <HelpCircle className="w-8 h-8 text-secondary" />
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-on-dark mb-4">
             Frequently Asked Questions
           </h1>
-          <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-on-dark max-w-2xl mx-auto leading-relaxed">
             Find answers to common questions about the BYN-K platform and how we serve the Banyamulenge youth community in Kenya.
           </p>
         </div>
@@ -65,8 +62,8 @@ export default function FAQPage() {
                   className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <summary className="flex items-center gap-4 p-6 cursor-pointer list-none">
-                    <div className="w-12 h-12 bg-[#2D8FDD]/10 rounded-xl flex items-center justify-center shrink-0">
-                      <Icon className="w-6 h-6 text-[#2D8FDD]" />
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                      <Icon className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="flex-1 text-lg font-bold text-slate-900">
                       {faq.question}
@@ -88,24 +85,23 @@ export default function FAQPage() {
       </section>
 
       {/* Still Have Questions Section */}
-      <section className="py-16 bg-linear-to-r from-[#2D8FDD] to-[#1E6BB8]">
+      <section className="py-16 bg-linear-to-r from-hero-dark to-primary-dark">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-on-dark mb-4">
             Still Have Questions?
           </h2>
-          <p className="text-blue-100 mb-8 max-w-xl mx-auto">
+          <p className="text-muted-on-dark mb-8 max-w-xl mx-auto">
             Can&apos;t find what you&apos;re looking for? Reach out to our team and we&apos;ll be happy to help.
           </p>
           <a 
             href="/contact"
-            className="inline-block bg-[#F5D300] hover:bg-[#D4B500] text-[#1E6BB8] px-8 py-4 rounded-xl font-bold text-lg transition-colors"
+            className="inline-block bg-link-on-dark hover:bg-secondary-dark text-surface-dark px-8 py-4 rounded-xl font-bold text-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark"
           >
             Contact Us
           </a>
         </div>
       </section>
 
-      <Footer />
     </div>
   )
 }

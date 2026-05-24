@@ -1,10 +1,8 @@
-'use client'
+﻿'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 import { Eye, Send, Bookmark, ArrowRight } from 'lucide-react'
 import { getCurrentUser } from '@/lib/api'
 import { clearAllActivity, getActivity, OpportunityActivityItem } from '@/lib/opportunity-activity'
@@ -63,7 +61,6 @@ export default function MyOpportunitiesPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
       <main className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-black text-slate-900 mb-2">My Opportunities</h1>
         <p className="text-slate-600 mb-6">Track what you viewed, applied for, and saved.</p>
@@ -89,7 +86,7 @@ export default function MyOpportunitiesPage() {
                 key={tab}
                 href={`/my-opportunities?tab=${tab}`}
                 className={`rounded-xl border p-4 transition-colors ${
-                  active ? 'border-[#2D8FDD] bg-[#2D8FDD]/5' : 'border-slate-200 bg-white hover:bg-slate-50'
+                  active ? 'border-primary bg-primary/5' : 'border-slate-200 bg-white hover:bg-slate-50'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -97,7 +94,7 @@ export default function MyOpportunitiesPage() {
                     <Icon size={16} />
                     {tabConfig[tab].label}
                   </span>
-                  <span className="text-sm font-bold text-[#2D8FDD]">{count}</span>
+                  <span className="text-sm font-bold text-primary">{count}</span>
                 </div>
               </Link>
             )
@@ -114,7 +111,7 @@ export default function MyOpportunitiesPage() {
               <Link
                 key={`${activeTab}-${item.id}`}
                 href={item.url || '/opportunities'}
-                className="block rounded-xl border border-slate-200 bg-white p-4 hover:border-[#2D8FDD]/40 hover:shadow-sm transition-all"
+                className="block rounded-xl border border-slate-200 bg-white p-4 hover:border-primary/40 hover:shadow-sm transition-all"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -129,7 +126,6 @@ export default function MyOpportunitiesPage() {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   )
 }

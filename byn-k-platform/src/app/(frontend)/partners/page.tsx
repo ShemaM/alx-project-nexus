@@ -1,8 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Navbar } from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import { Building2, Handshake, ArrowRight } from 'lucide-react';
 import { getPartners, getCategoryCounts } from '@/lib/api';
 import { getSafePartnerLogoSrc } from '@/lib/partner-utils';
@@ -72,18 +70,17 @@ export default async function PartnersPage() {
     (categoryCounts.training || 0)
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-20">
+      <section className="bg-gradient-to-br from-hero-dark via-primary-dark to-primary py-16 md:py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Handshake className="w-8 h-8 text-[#F5D300]" />
+          <div className="w-16 h-16 bg-glass-on-dark border border-border-on-dark/70 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Handshake className="w-8 h-8 text-secondary" />
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-on-dark mb-4">
             Our Partners
           </h1>
-          <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-on-dark max-w-2xl mx-auto leading-relaxed">
             We are proud to collaborate with a diverse range of organizations dedicated to empowering Banyamulenge refugee youth in Kenya.
           </p>
         </div>
@@ -111,10 +108,10 @@ export default async function PartnersPage() {
                   <Link 
                     key={partner.id}
                     href={`/partners/${partner.id}`}
-                    className="bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all duration-300 hover:border-[#2D8FDD]/30 group block"
+                    className="bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all duration-300 hover:border-primary/30 group block"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 bg-[#2D8FDD]/10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
+                      <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
                         {safeLogoSrc ? (
                           <Image 
                             src={safeLogoSrc}
@@ -124,16 +121,16 @@ export default async function PartnersPage() {
                             className="object-contain w-full h-full"
                           />
                         ) : (
-                          <Building2 className="w-7 h-7 text-[#2D8FDD]" />
+                          <Building2 className="w-7 h-7 text-primary" />
                         )}
                       </div>
                       <div className="flex-1">
                         {partner.is_featured && (
-                          <span className="text-xs font-semibold text-[#F5D300] uppercase tracking-wider">
+                          <span className="text-xs font-semibold text-secondary uppercase tracking-wider">
                             Featured Partner
                           </span>
                         )}
-                        <h3 className="text-xl font-bold text-slate-900 mt-1 mb-2 group-hover:text-[#2D8FDD] transition-colors">
+                        <h3 className="text-xl font-bold text-slate-900 mt-1 mb-2 group-hover:text-primary transition-colors">
                           {partner.name}
                         </h3>
                         {partner.description && (
@@ -143,9 +140,9 @@ export default async function PartnersPage() {
                         )}
                         <div className="flex items-center justify-between pt-3 border-t border-slate-200">
                           <span className="text-sm text-slate-500">
-                            <span className="font-bold text-[#F5D300]">{partner.opportunitiesCount}</span> opportunities
+                            <span className="font-bold text-secondary">{partner.opportunitiesCount}</span> opportunities
                           </span>
-                          <span className="flex items-center gap-1 text-[#2D8FDD] text-xs font-semibold group-hover:text-[#1E6BB8] transition-colors">
+                          <span className="flex items-center gap-1 text-primary text-xs font-semibold group-hover:text-primary-dark transition-colors">
                             View <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                           </span>
                         </div>
@@ -160,9 +157,9 @@ export default async function PartnersPage() {
       </section>
 
       {/* Partnership Impact Section */}
-      <section className="py-16 bg-gradient-to-br from-[#2D8FDD]/5 to-[#F5D300]/5">
+      <section className="py-16 bg-gradient-to-br from-primary/5 to-secondary/5">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#2D8FDD] mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-6">
             Together, We Create Impact
           </h2>
           <p className="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto mb-8">
@@ -170,19 +167,19 @@ export default async function PartnersPage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="text-3xl font-bold text-[#2D8FDD]">100%</div>
+              <div className="text-3xl font-bold text-primary">100%</div>
               <div className="text-sm text-slate-600 mt-1">Verified Listings</div>
             </div>
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="text-3xl font-bold text-[#F5D300]">{partners.length || 0}</div>
+              <div className="text-3xl font-bold text-secondary">{partners.length || 0}</div>
               <div className="text-sm text-slate-600 mt-1">Key Partners</div>
             </div>
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="text-3xl font-bold text-[#2D8FDD]">{totalOpportunities.toLocaleString()}</div>
+              <div className="text-3xl font-bold text-primary">{totalOpportunities.toLocaleString()}</div>
               <div className="text-sm text-slate-600 mt-1">Opportunities</div>
             </div>
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="text-3xl font-bold text-[#F5D300]">5+</div>
+              <div className="text-3xl font-bold text-secondary">5+</div>
               <div className="text-sm text-slate-600 mt-1">Categories</div>
             </div>
           </div>
@@ -190,24 +187,23 @@ export default async function PartnersPage() {
       </section>
 
       {/* Become a Partner CTA */}
-      <section className="py-16 bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8]">
+      <section className="py-16 bg-gradient-to-r from-hero-dark to-primary-dark">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-on-dark mb-4">
             Become a Partner
           </h2>
-          <p className="text-blue-100 mb-8 max-w-xl mx-auto">
+          <p className="text-muted-on-dark mb-8 max-w-xl mx-auto">
             Are you an NGO, employer, or community organization? Partner with us to reach and empower Banyamulenge youth in Kenya.
           </p>
           <a 
             href="/contact"
-            className="inline-block bg-[#F5D300] hover:bg-[#D4B500] text-[#1E6BB8] px-8 py-4 rounded-xl font-bold text-lg transition-colors"
+            className="inline-block bg-link-on-dark hover:bg-secondary-dark text-surface-dark px-8 py-4 rounded-xl font-bold text-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark"
           >
             Contact Us
           </a>
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

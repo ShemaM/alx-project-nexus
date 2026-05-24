@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin Dashboard Landing Page
  *
  * Main admin entry point with quick access to management features.
@@ -8,8 +8,6 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link'
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 import { getCurrentUser } from '@/lib/api'
 import { isSuperAdmin } from '@/lib/authz'
 import { redirect } from 'next/navigation'
@@ -102,7 +100,6 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -111,15 +108,15 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Quick Link to Payload Admin */}
-        <div className="bg-linear-to-r from-blue-600 to-blue-700 rounded-xl p-6 mb-8 text-white">
+        <div className="bg-linear-to-r from-hero-dark to-primary-dark rounded-xl p-6 mb-8 text-on-dark">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold mb-2">Full CMS Admin Panel</h2>
-              <p className="text-blue-100">Access the complete Payload CMS admin interface for advanced management</p>
+              <p className="text-muted-on-dark">Access the complete Payload CMS admin interface for advanced management</p>
             </div>
             <Link
               href="/admin"
-              className="flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+              className="flex items-center gap-2 bg-link-on-dark text-surface-dark px-6 py-3 rounded-lg font-semibold hover:bg-secondary-dark transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark"
             >
               Open CMS Admin
               <ExternalLink size={18} />
@@ -184,7 +181,6 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }

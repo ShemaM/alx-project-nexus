@@ -1,16 +1,23 @@
-/**
- * Root Layout for Frontend
- * 
- * Main layout component for the public-facing frontend.
- * Includes global providers, metadata, and styling.
- * 
- * @module app/(frontend)/layout
- */
 import React from 'react'
+import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
 import { Providers } from '@/components/layout/Providers'
+import AppShell from '@/components/layout/AppShell'
 import './styles.css'
 
-// SEO Metadata
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-syne',   // keeps all existing font-syne classes working
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-dm-sans', // keeps all existing font-sans classes working
+  display: 'swap',
+})
+
 export const metadata = {
   title: {
     default: 'Banyamulenge Youth Kenya Platform - Opportunities for Banyamulenge Youth',
@@ -45,8 +52,8 @@ export default async function RootLayout(props: Readonly<{ children: React.React
   const { children } = props
 
   return (
-    <html lang="en">
-      <body className="antialiased" suppressHydrationWarning>
+    <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable}`}>
+      <body className="antialiased font-sans" suppressHydrationWarning>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-slate-900 focus:rounded-md focus:ring-2 focus:ring-[color:var(--color-primary)]"
@@ -54,7 +61,7 @@ export default async function RootLayout(props: Readonly<{ children: React.React
           Skip to main content
         </a>
         <Providers>
-          {children}
+          <AppShell>{children}</AppShell>
         </Providers>
       </body>
     </html>

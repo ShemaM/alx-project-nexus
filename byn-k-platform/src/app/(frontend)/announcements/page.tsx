@@ -1,7 +1,5 @@
-import React from 'react'
+﻿import React from 'react'
 import Link from 'next/link'
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 import { ArrowRight, Megaphone } from 'lucide-react'
 import { getAnnouncements, Announcement } from '@/lib/api'
 
@@ -28,14 +26,13 @@ export default async function AnnouncementsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
-      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-20">
+      <section className="bg-gradient-to-br from-hero-dark via-primary-dark to-primary py-20">
         <div className="mx-auto max-w-5xl px-4 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-border-on-dark/70 bg-glass-on-dark">
             <Megaphone className="h-7 w-7 text-amber-400" />
           </div>
-          <h1 className="mt-6 text-4xl font-extrabold text-white">Announcements</h1>
-          <p className="mt-4 text-lg text-blue-100">
+          <h1 className="mt-6 text-4xl font-extrabold text-on-dark">Announcements</h1>
+          <p className="mt-4 text-lg text-muted-on-dark">
             Stay in the loop with the newest opportunity drops, system notices, and community updates.
           </p>
         </div>
@@ -89,7 +86,6 @@ export default async function AnnouncementsPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   )
 }

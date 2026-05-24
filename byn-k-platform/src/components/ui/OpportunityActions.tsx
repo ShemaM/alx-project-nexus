@@ -28,6 +28,7 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
   isEmailApplication,
 }) => {
   const router = useRouter()
+  const isApplyUnavailable = applyUrl.startsWith('#')
   const [shareUrl, setShareUrl] = useState('')
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLoadingBookmark, setIsLoadingBookmark] = useState(false)
@@ -100,14 +101,21 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
   }
 
   return (
-    <div className="p-6 md:p-8 border-t border-[#E2E8F0] bg-slate-50">
+    <div className="p-6 md:p-8 border-t border-slate-200 bg-slate-50">
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Apply Button */}
-        <a 
+        <a
           href={applyUrl}
-          target={isEmailApplication ? undefined : '_blank'}
-          rel={isEmailApplication ? undefined : 'noopener noreferrer'}
-          onClick={() =>
+          aria-disabled={isApplyUnavailable}
+          target={isEmailApplication || isApplyUnavailable ? undefined : '_blank'}
+          rel={isEmailApplication || isApplyUnavailable ? undefined : 'noopener noreferrer'}
+          onClick={(event) => {
+            if (isApplyUnavailable) {
+              event.preventDefault()
+              document.querySelector(applyUrl)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              return
+            }
+
             addActivity('applied', {
               id: Number(opportunityId),
               title,
@@ -116,10 +124,16 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
               slug,
               url: typeof window !== 'undefined' ? window.location.pathname : '/opportunities',
             })
-          }
-          className="flex-1 flex items-center justify-center gap-2 bg-[#2D8FDD] hover:bg-[#1E6BB8] text-white px-6 py-4 rounded-xl font-bold text-base transition-colors"
+          }}
+          className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-base transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+            isApplyUnavailable
+              ? 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+              : 'bg-primary hover:bg-primary-dark text-white'
+          }`}
         >
-          {isEmailApplication ? (
+          {isApplyUnavailable ? (
+            <>Review Requirements <ExternalLink size={18} /></>
+          ) : isEmailApplication ? (
             <>Apply via Email <Mail size={18} /></>
           ) : (
             <>Apply Now <ExternalLink size={18} /></>
@@ -130,8 +144,8 @@ export const OpportunityActions: React.FC<OpportunityActionsProps> = ({
         <button 
           onClick={handleToggleBookmark}
           disabled={isLoadingBookmark}
-          className={`flex items-center justify-center gap-2 bg-white border border-[#E2E8F0] hover:bg-slate-50 px-6 py-4 rounded-xl font-bold text-base transition-colors ${
-            isBookmarked ? 'text-[#F5D300]' : 'text-slate-700'
+          className={`flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 px-6 py-4 rounded-xl font-bold text-base transition-colors ${
+            isBookmarked ? 'text-secondary' : 'text-slate-700'
           } ${isLoadingBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
           title={!isAuthenticated ? 'Sign in to save' : isBookmarked ? 'Remove from saved' : 'Save opportunity'}
         >

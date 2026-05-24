@@ -1,7 +1,5 @@
-import React from 'react'
+﻿import React from 'react'
 import Link from 'next/link'
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 import { Target, Users, Shield, Heart, Globe, Award } from 'lucide-react'
 import { getCategoryCounts } from '@/lib/api'
 
@@ -51,15 +49,14 @@ export default async function AboutPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
       
       {/* Hero Section */}
-      <section className="bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-16 md:py-24">
+      <section className="bg-linear-to-br from-hero-dark via-primary-dark to-primary py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
-            Empowering Refugee Youth Through <span className="text-[#F5D300]">Opportunities</span>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-on-dark mb-6">
+            Empowering Refugee Youth Through <span className="text-secondary">Opportunities</span>
           </h1>
-          <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-on-dark max-w-2xl mx-auto leading-relaxed">
             BYN-K is a dedicated platform connecting Banyamulenge refugee youth in Kenya with verified jobs, scholarships, internships, and training opportunities.
           </p>
         </div>
@@ -71,10 +68,10 @@ export default async function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-[#F5D300]/10 rounded-xl flex items-center justify-center">
-                  <Target className="w-6 h-6 text-[#F5D300]" />
+                <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center">
+                  <Target className="w-6 h-6 text-secondary" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#2D8FDD]">Our Mission</h2>
+                <h2 className="text-2xl font-bold text-primary">Our Mission</h2>
               </div>
               <p className="text-slate-600 text-lg leading-relaxed mb-6">
                 To bridge the gap between talented refugee youth and meaningful opportunities by providing a trusted, accessible platform that filters opportunities based on documentation requirements.
@@ -83,28 +80,28 @@ export default async function AboutPage() {
                 We believe that documentation status should not be a barrier to accessing education and employment opportunities. Our platform is designed to help you find opportunities that match your documentation, saving time and reducing frustration.
               </p>
             </div>
-            <div className="bg-linear-to-br from-[#2D8FDD]/5 to-[#F5D300]/5 rounded-2xl p-8">
+            <div className="bg-linear-to-br from-primary/5 to-secondary/5 rounded-2xl p-8">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-[#2D8FDD]/10 rounded-xl flex items-center justify-center">
-                  <Users className="w-6 h-6 text-[#2D8FDD]" />
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#2D8FDD]">Who We Serve</h2>
+                <h2 className="text-2xl font-bold text-primary">Who We Serve</h2>
               </div>
               <ul className="space-y-4 text-slate-600">
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0"></span>
+                  <span className="w-2 h-2 bg-secondary rounded-full mt-2 shrink-0"></span>
                   <span>Banyamulenge refugee youth living in Kenya</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0"></span>
+                  <span className="w-2 h-2 bg-secondary rounded-full mt-2 shrink-0"></span>
                   <span>Holders of Alien Cards, CTDs, and Passports</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0"></span>
+                  <span className="w-2 h-2 bg-secondary rounded-full mt-2 shrink-0"></span>
                   <span>Job seekers, students, and career changers</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F5D300] rounded-full mt-2 shrink-0"></span>
+                  <span className="w-2 h-2 bg-secondary rounded-full mt-2 shrink-0"></span>
                   <span>Organizations looking to hire diverse talent</span>
                 </li>
               </ul>
@@ -114,18 +111,18 @@ export default async function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-linear-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD]">
+      <section className="py-16 bg-linear-to-br from-hero-dark via-primary-dark to-primary">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-on-dark text-center mb-12">
             Making an Impact
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="text-4xl md:text-5xl font-extrabold text-[#F5D300] mb-2">
+                <div className="text-4xl md:text-5xl font-extrabold text-secondary mb-2">
                   {stat.value.toLocaleString()}
                 </div>
-                <div className="text-blue-100 font-medium">{stat.label}</div>
+                <div className="text-muted-on-dark font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -136,7 +133,7 @@ export default async function AboutPage() {
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#2D8FDD] mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-primary mb-4">
               Our Values
             </h2>
             <p className="text-slate-600 max-w-2xl mx-auto">
@@ -148,8 +145,8 @@ export default async function AboutPage() {
               const Icon = value.icon
               return (
                 <div key={value.title} className="bg-slate-50 rounded-2xl p-6 hover:shadow-md transition-shadow">
-                  <div className="w-12 h-12 bg-[#2D8FDD]/10 rounded-xl flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-[#2D8FDD]" />
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                    <Icon className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-bold text-slate-900 mb-2">{value.title}</h3>
                   <p className="text-slate-600 text-sm">{value.description}</p>
@@ -161,24 +158,23 @@ export default async function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-linear-to-rrom-[#2D8FDD] to-[#1E6BB8]">
+      <section className="py-16 bg-linear-to-r from-hero-dark to-primary-dark">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-on-dark mb-6">
             Ready to Find Your Next Opportunity?
           </h2>
-          <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-muted-on-dark mb-8 max-w-2xl mx-auto">
             Browse our verified listings and take the next step in your career or education journey.
           </p>
           <Link 
             href="/opportunities" 
-            className="inline-block bg-[#F5D300] hover:bg-[#D4B500] text-[#1E6BB8] px-8 py-4 rounded-xl font-bold text-lg transition-colors"
+            className="inline-block bg-link-on-dark hover:bg-secondary-dark text-surface-dark px-8 py-4 rounded-xl font-bold text-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark"
           >
             Explore Opportunities
           </Link>
         </div>
       </section>
 
-      <Footer />
     </div>
   )
 }

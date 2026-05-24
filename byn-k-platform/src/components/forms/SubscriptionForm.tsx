@@ -34,7 +34,7 @@ const SubscriptionForm = () => {
     <div>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-200" size={20} />
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-link-on-dark" size={20} />
           <input
             type="email"
             placeholder="Enter your email"
@@ -42,13 +42,13 @@ const SubscriptionForm = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
             disabled={status === 'loading'}
-            className="w-full h-12 rounded-xl border border-white/20 bg-white/10 pl-11 pr-4 text-white placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-[#F5D300]/50 focus:border-[#F5D300] disabled:opacity-50"
+            className="h-12 w-full rounded-lg border border-border-on-dark bg-surface-dark-elevated pl-11 pr-4 text-on-dark placeholder:text-muted-on-dark/70 focus:border-link-on-dark focus:outline-none focus:ring-2 focus:ring-focus-on-dark/60 disabled:opacity-50"
           />
         </div>
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="h-12 px-6 rounded-xl bg-[#F5D300] text-[#1E6BB8] font-bold hover:bg-[#D4B500] transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex h-12 items-center justify-center gap-2 rounded-lg bg-link-on-dark px-6 font-bold text-surface-dark transition-colors hover:bg-secondary-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark disabled:cursor-not-allowed disabled:opacity-70"
         >
           {status === 'loading' ? (
             <>
@@ -63,7 +63,7 @@ const SubscriptionForm = () => {
       {message && (
         <div className={`mt-3 flex items-center gap-2 text-sm ${
           status === 'success' ? 'text-emerald-300' : 
-          status === 'error' ? 'text-red-300' : 'text-blue-100'
+          status === 'error' ? 'text-red-300' : 'text-muted-on-dark'
         }`}>
           {status === 'success' && <CheckCircle size={16} />}
           {status === 'error' && <AlertCircle size={16} />}

@@ -17,6 +17,7 @@ export interface OpportunityFilterState {
   fundingType: string
   targetGroup: string
   educationLevel: string
+  docs: string
 }
 
 const defaultFilters: OpportunityFilterState = {
@@ -29,6 +30,7 @@ const defaultFilters: OpportunityFilterState = {
   fundingType: '',
   targetGroup: '',
   educationLevel: '',
+  docs: '',
 }
 
 /**
@@ -62,6 +64,7 @@ export function useOpportunityFilters(debounceMs: number = 300) {
     const fundingTypeParam = searchParams.get('funding_type')
     const targetGroupParam = searchParams.get('target_group')
     const educationLevelParam = searchParams.get('education_level')
+    const docsParam = searchParams.get('docs')
     
     // Also support legacy single category param
     const categoryParam = searchParams.get('category')
@@ -78,6 +81,7 @@ export function useOpportunityFilters(debounceMs: number = 300) {
       fundingType: fundingTypeParam || '',
       targetGroup: targetGroupParam || '',
       educationLevel: educationLevelParam || '',
+      docs: docsParam || '',
     }
 
     setFilters(initialFilters)
@@ -134,6 +138,7 @@ export function useOpportunityFilters(debounceMs: number = 300) {
     if (filters.fundingType) newParams.set('funding_type', filters.fundingType)
     if (filters.targetGroup) newParams.set('target_group', filters.targetGroup)
     if (filters.educationLevel) newParams.set('education_level', filters.educationLevel)
+    if (filters.docs) newParams.set('docs', filters.docs)
 
     const queryString = newParams.toString()
     const newUrl = queryString ? `?${queryString}` : window.location.pathname
@@ -149,6 +154,7 @@ export function useOpportunityFilters(debounceMs: number = 300) {
     filters.fundingType,
     filters.targetGroup,
     filters.educationLevel,
+    filters.docs,
     debouncedSearchQuery,
     router,
   ])
@@ -229,6 +235,8 @@ export function useOpportunityFilters(debounceMs: number = 300) {
         updated.targetGroup = ''
       } else if (filterKey === 'educationLevel') {
         updated.educationLevel = ''
+      } else if (filterKey === 'docs') {
+        updated.docs = ''
       }
       
       return updated
@@ -250,7 +258,8 @@ export function useOpportunityFilters(debounceMs: number = 300) {
     (filters.commitment ? 1 : 0) +
     (filters.fundingType ? 1 : 0) +
     (filters.targetGroup ? 1 : 0) +
-    (filters.educationLevel ? 1 : 0)
+    (filters.educationLevel ? 1 : 0) +
+    (filters.docs ? 1 : 0)
 
   // Get all active filters for pill display
   const getActiveFilters = useCallback(() => {
@@ -330,6 +339,14 @@ export function useOpportunityFilters(debounceMs: number = 300) {
         key: 'educationLevel',
         value: filters.educationLevel,
         label: getEducationLevelLabel(filters.educationLevel),
+      })
+    }
+
+    if (filters.docs) {
+      activeFilters.push({
+        key: 'docs',
+        value: filters.docs,
+        label: getDocumentLabel(filters.docs),
       })
     }
 
@@ -424,4 +441,17 @@ function getEducationLevelLabel(educationLevel: string): string {
     any: 'Any Level',
   }
   return labels[educationLevel] || educationLevel
+}
+
+function getDocumentLabel(document: string): string {
+  const labels: Record<string, string> = {
+    refugee_id: 'Refugee ID',
+    ctd: 'CTD',
+    alien_card: 'Alien Card',
+    proof_of_registration: 'Proof of Registration',
+    mandate: 'Mandate Letter',
+    waiting_slip: 'Waiting Slip',
+    any_id: 'Any ID',
+  }
+  return labels[document] || document
 }

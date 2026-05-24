@@ -14,6 +14,7 @@ from django.utils.text import slugify
 from unfold.admin import ModelAdmin
 from .models import Job, ClickAnalytics, Partner, Event
 from .tasks import send_immediate_opportunity_notification
+from .widgets import DocumentCheckboxWidget, PrepChecklistWidget
 
 # ============================================
 # Admin Site Customization
@@ -32,64 +33,149 @@ def _superuser_admin_access(request):
 admin.site.has_permission = _superuser_admin_access
 
 
+# ============================================
+# Custom Forms
+# ============================================
+
 class JobAdminForm(forms.ModelForm):
     """
-    Custom admin form for Job with "Raw Data" text area.
+    Non-technical-friendly admin form for Job listings.
+
+    - required_documents → checkboxes (no JSON knowledge needed)
+    - prep_checklist → row-by-row text inputs (no JSON knowledge needed)
+    - All field labels are plain English with helpful descriptions
     """
 
     class Meta:
         model = Job
-        # We include slug here so the form recognizes it
         fields = [
-            'title', 'slug', 'organization_name', 'org_logo', 'category', 'location', 'city',
+            'title', 'slug', 'organization_name', 'org_logo',
+            'category', 'location', 'city',
             'deadline', 'is_rolling', 'is_verified', 'is_active', 'is_featured',
             'work_mode', 'commitment', 'target_group', 'education_level',
             'funding_type', 'is_paid', 'stipend_min', 'stipend_max',
             'application_type', 'external_url', 'application_email',
-            'email_subject_line', 'brochure_upload', 'required_documents',
-            'prep_checklist', 'created_by', 'raw_data',
+            'email_subject_line', 'brochure_upload',
+            'required_documents', 'prep_checklist',
+            'description',
+            'created_by', 'raw_data',
         ]
         widgets = {
+            'required_documents': DocumentCheckboxWidget(),
+            'prep_checklist': PrepChecklistWidget(),
             'raw_data': forms.Textarea(attrs={
                 'rows': 10,
-                'placeholder': 'Paste the raw WhatsApp message here...'
+                'placeholder': 'Paste the raw WhatsApp message or job advert text here...'
             }),
-            'prep_checklist': forms.Textarea(attrs={
-                'rows': 5,
-                'placeholder': '[{"item": "Resume", "required": true}]'
+            'description': forms.Textarea(attrs={
+                'rows': 6,
+                'placeholder': (
+                    'Describe the opportunity in 2–4 sentences. '
+                    'What will the person do? Who is it for? What skills are needed?'
+                ),
             }),
-            'required_documents': forms.Textarea(attrs={
-                'rows': 3,
-                'placeholder': '["passport", "id"]'
+            'email_subject_line': forms.TextInput(attrs={
+                'placeholder': 'e.g. Application – Field Officer Position – [Your Name]'
+            }),
+            'external_url': forms.URLInput(attrs={
+                'placeholder': 'https://forms.office.com/... or https://org.org/apply'
+            }),
+            'application_email': forms.EmailInput(attrs={
+                'placeholder': 'hr@organization.org'
+            }),
+            'city': forms.TextInput(attrs={
+                'placeholder': 'e.g. Nairobi, Nakuru, Kakuma'
             }),
         }
 
+        labels = {
+            'title': 'Opportunity Title',
+            'slug': 'URL Slug (auto-filled)',
+            'organization_name': 'Organization Name',
+            'org_logo': 'Organization Logo',
+            'category': 'Type of Opportunity',
+            'location': 'Country',
+            'city': 'City / Town',
+            'deadline': 'Application Deadline',
+            'is_rolling': 'Rolling Deadline (no fixed date)',
+            'is_verified': 'Verified (WhatsApp Group Confirmed)',
+            'is_active': 'Visible on Website',
+            'is_featured': 'Featured on Homepage',
+            'work_mode': 'Work Arrangement',
+            'commitment': 'Time Commitment',
+            'target_group': 'Who is this for?',
+            'education_level': 'Education Required',
+            'funding_type': 'Funding Status',
+            'is_paid': 'Is this a paid opportunity?',
+            'stipend_min': 'Minimum Stipend (KES)',
+            'stipend_max': 'Maximum Stipend (KES)',
+            'application_type': 'How do people apply?',
+            'external_url': 'Application Link (URL)',
+            'application_email': 'Application Email Address',
+            'email_subject_line': 'Suggested Email Subject Line',
+            'brochure_upload': 'PDF Brochure / Flyer',
+            'required_documents': 'Accepted Documents (IDs)',
+            'prep_checklist': 'Application Checklist',
+            'description': 'Opportunity Description',
+            'created_by': 'Created By',
+            'raw_data': 'Original WhatsApp / Source Text',
+        }
+
+        help_texts = {
+            'title': 'Clear, specific title. Example: "Field Officer – UNHCR Kenya" not just "Job".',
+            'organization_name': 'Full name of the NGO, company, school, or foundation.',
+            'org_logo': 'Upload a square or circular logo (PNG/JPG preferred).',
+            'category': 'Pick the closest match. This drives the homepage category counts.',
+            'is_rolling': 'Tick this if the opportunity has no fixed deadline — applications are accepted anytime.',
+            'is_verified': 'Tick once you have personally confirmed this listing from the WhatsApp group or official source.',
+            'is_active': 'Untick to hide this opportunity without deleting it (useful after deadline passes).',
+            'is_featured': 'Featured opportunities appear prominently on the homepage.',
+            'work_mode': 'Remote = fully online. Hybrid = mix. On-site = physical location required.',
+            'target_group': 'Who is primarily eligible? "All" means anyone can apply.',
+            'is_paid': 'Tick if there is a salary, stipend, or any financial compensation.',
+            'stipend_min': 'Leave blank if amount is not mentioned.',
+            'stipend_max': 'Leave blank if amount is not mentioned.',
+            'application_type': (
+                '"External Link" = redirect to a website/form. '
+                '"Email Application" = user sends an email. '
+                '"PDF Brochure" = upload a flyer.'
+            ),
+            'email_subject_line': 'Suggest what subject line applicants should use when emailing.',
+            'brochure_upload': 'Upload the PDF flyer if the application type is "PDF Brochure".',
+            'description': 'This text appears on the opportunity detail page. Keep it informative but concise.',
+        }
+
+
+# ============================================
+# Job Admin
+# ============================================
 
 @admin.register(Job)
 class JobAdmin(ModelAdmin):
     """
     Admin configuration for Job listings using Django Unfold.
     """
-    
+
     form = JobAdminForm
-    
-    # This automatically fills the slug input as you type the title
+
+    # Automatically fills the slug input as you type the title
     prepopulated_fields = {"slug": ("title",)}
-    
+
     list_display = [
         'org_logo_thumbnail',
-        'title', 
-        'organization_name', 
+        'title',
+        'organization_name',
         'category',
-        'is_verified', 
+        'is_verified',
         'is_active',
+        'is_featured',
         'deadline',
         'total_clicks_display',
-        'created_at'
+        'created_at',
     ]
-    
+
     search_fields = ['title', 'organization_name', 'city']
-    
+
     list_filter = [
         'category',
         'work_mode',
@@ -105,21 +191,21 @@ class JobAdmin(ModelAdmin):
         'is_active',
         'is_featured',
     ]
-    
+
     date_hierarchy = 'created_at'
     ordering = ['-created_at']
-    
+
     readonly_fields = ['created_at', 'updated_at', 'total_clicks_display']
-    
-    # UPDATED FIELDSETS: Added 'slug' to 'Opportunity Details'
+
     fieldsets = (
-        ('Opportunity Details', {
+        # ── Tab 1: Core details ──────────────────────────────────────────
+        ('📋 Opportunity Details', {
             'fields': (
-                'title', 
+                'title',
                 'slug',
                 'organization_name',
                 'org_logo',
-                'category', 
+                'category',
                 'location',
                 'city',
                 'deadline',
@@ -129,8 +215,26 @@ class JobAdmin(ModelAdmin):
                 'is_featured',
             ),
             'classes': ['tab'],
+            'description': (
+                'Start here. Fill in the basics — title, organization, location, and deadline. '
+                'Tick "Verified" once you have confirmed the listing from the WhatsApp group.'
+            ),
         }),
-        ('Work Mode & Eligibility', {
+
+        # ── Tab 2: Description ───────────────────────────────────────────
+        ('📝 Description', {
+            'fields': (
+                'description',
+            ),
+            'classes': ['tab'],
+            'description': (
+                'Write 2–4 sentences describing the opportunity. '
+                'What will the person do? Who is it for? What skills are needed?'
+            ),
+        }),
+
+        # ── Tab 3: Who can apply? ────────────────────────────────────────
+        ('🎯 Eligibility & Work Mode', {
             'fields': (
                 'work_mode',
                 'commitment',
@@ -138,9 +242,11 @@ class JobAdmin(ModelAdmin):
                 'education_level',
             ),
             'classes': ['tab'],
-            'description': 'Work arrangement and eligibility requirements.'
+            'description': 'Who is this opportunity for, and how is the work structured?',
         }),
-        ('Funding & Compensation', {
+
+        # ── Tab 4: Money ─────────────────────────────────────────────────
+        ('💰 Funding & Compensation', {
             'fields': (
                 'funding_type',
                 'is_paid',
@@ -148,62 +254,84 @@ class JobAdmin(ModelAdmin):
                 'stipend_max',
             ),
             'classes': ['tab'],
-            'description': 'Financial details of the opportunity.'
+            'description': (
+                'Is there a salary or stipend? '
+                'Even entering "Fully Funded" or "Not Paid" helps people filter quickly.'
+            ),
         }),
-        ('Gateway Logic', {
+
+        # ── Tab 5: How to apply + documents ─────────────────────────────
+        ('📨 Application & Documents', {
             'fields': (
-                'application_type', 
-                'external_url', 
+                'application_type',
+                'external_url',
                 'application_email',
                 'email_subject_line',
                 'brochure_upload',
-                'required_documents', 
+                'required_documents',
                 'prep_checklist',
             ),
             'classes': ['tab'],
+            'description': (
+                'Tell people how to apply and which documents are accepted. '
+                'The document checkboxes power the "Filter by your document" feature on the homepage — '
+                'please tick all that apply.'
+            ),
         }),
-        ('Analytics & Metadata', {
+
+        # ── Tab 6: Analytics & metadata ──────────────────────────────────
+        ('📊 Analytics & Metadata', {
             'fields': (
                 'total_clicks_display',
-                'created_by', 
-                'created_at', 
+                'created_by',
+                'created_at',
                 'updated_at',
             ),
             'classes': ['tab'],
+            'description': 'Read-only tracking data. No action needed here.',
         }),
-        ('WhatsApp Raw Data', {
+
+        # ── Tab 7: WhatsApp source (collapsible) ─────────────────────────
+        ('💬 Original Source Text', {
             'fields': ('raw_data',),
             'classes': ['tab', 'collapse'],
+            'description': (
+                'Paste the original WhatsApp message or job advert here for reference. '
+                'This is not shown to users — it is just for your records.'
+            ),
         }),
     )
 
+    # ── Custom display methods ────────────────────────────────────────────
+
     def org_logo_thumbnail(self, obj):
         if obj.org_logo:
-            return mark_safe(f'<img src="{obj.org_logo.url}" width="50" height="50" style="object-fit: contain;" />')
-        return "No Image"
+            return mark_safe(
+                f'<img src="{obj.org_logo.url}" width="44" height="44" '
+                f'style="object-fit:contain;border-radius:6px;border:1px solid #e2e8f0;" />'
+            )
+        return "—"
     org_logo_thumbnail.short_description = 'Logo'
-    
+
     def total_clicks_display(self, obj):
         if obj.pk:
-            return sum(a.click_count for a in obj.click_analytics.all())
-        return 0
-    total_clicks_display.short_description = 'Total Clicks'
-    
+            total = sum(a.click_count for a in obj.click_analytics.all())
+            return total if total else "—"
+        return "—"
+    total_clicks_display.short_description = 'Clicks'
+
     def save_model(self, request, obj, form, change):
-        """
-        Final safety check: If slug is somehow still empty, generate it.
-        Also sets the creator.
-        """
+        """Auto-generate slug if missing. Set creator on new listings."""
         if not obj.slug:
             obj.slug = slugify(obj.title)
-            
+
         if not change:
             obj.created_by = request.user
-            
+
         is_new = not change
         super().save_model(request, obj, form, change)
 
-        # Notify update subscribers immediately for newly created active opportunities.
+        # Notify subscribers immediately for newly created active opportunities.
         if is_new and obj.is_active:
             try:
                 send_immediate_opportunity_notification.delay(obj.id)
@@ -211,11 +339,20 @@ class JobAdmin(ModelAdmin):
                 send_immediate_opportunity_notification(obj.id)
 
 
+# ============================================
+# Click Analytics Admin
+# ============================================
+
 @admin.register(ClickAnalytics)
 class ClickAnalyticsAdmin(ModelAdmin):
     list_display = ['job', 'click_type', 'click_count', 'last_clicked_at']
     readonly_fields = ['click_count', 'last_clicked_at']
+    ordering = ['-click_count']
 
+
+# ============================================
+# Partner Admin
+# ============================================
 
 @admin.register(Partner)
 class PartnerAdmin(ModelAdmin):
@@ -228,19 +365,29 @@ class PartnerAdmin(ModelAdmin):
 
     def logo_thumbnail(self, obj):
         if obj.logo:
-            return mark_safe(f'<img src="{obj.logo.url}" width="36" height="36" style="object-fit:contain;border-radius:8px;" />')
-        return "-"
+            return mark_safe(
+                f'<img src="{obj.logo.url}" width="36" height="36" '
+                f'style="object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;" />'
+            )
+        return "—"
     logo_thumbnail.short_description = 'Logo'
 
     def logo_preview(self, obj):
         if obj.logo:
-            return mark_safe(f'<img src="{obj.logo.url}" width="120" height="120" style="object-fit:contain;border-radius:10px;border:1px solid #e2e8f0;padding:8px;background:#fff;" />')
-        return "No uploaded logo yet."
+            return mark_safe(
+                f'<img src="{obj.logo.url}" width="120" height="120" '
+                f'style="object-fit:contain;border-radius:10px;border:1px solid #e2e8f0;'
+                f'padding:8px;background:#fff;" />'
+            )
+        return "No logo uploaded yet."
     logo_preview.short_description = 'Logo Preview'
 
 
+# ============================================
+# Event Admin
+# ============================================
+
 @admin.register(Event)
-# Admin UI configuration for managing curated events and livestreams exposed to the frontend.
 class EventAdmin(ModelAdmin):
     list_display = ['title', 'partner', 'category', 'start_time', 'is_virtual', 'is_active']
     list_filter = ['category', 'is_virtual', 'is_active']
@@ -250,7 +397,7 @@ class EventAdmin(ModelAdmin):
     readonly_fields = ['created_at', 'updated_at']
 
     fieldsets = (
-        ('Event Details', {
+        ('📅 Event Details', {
             'fields': (
                 'title',
                 'slug',
@@ -259,8 +406,9 @@ class EventAdmin(ModelAdmin):
                 'description',
             ),
             'classes': ['tab'],
+            'description': 'Basic event info. The slug auto-fills as you type the title.',
         }),
-        ('Timing & Access', {
+        ('🕐 Timing & Access', {
             'fields': (
                 'start_time',
                 'end_time',
@@ -269,28 +417,31 @@ class EventAdmin(ModelAdmin):
                 'is_active',
             ),
             'classes': ['tab'],
-            'description': 'Control the event status and livestream links.'
+            'description': 'Control when the event runs and where to join it.',
         }),
-        ('Venue & Logistics', {
+        ('📍 Venue & Logistics', {
             'fields': (
                 'location',
                 'directions',
                 'requirements',
             ),
             'classes': ['tab'],
-            'description': 'Provide venue and attendance guidance.'
+            'description': 'Physical venue details, or leave blank for fully virtual events.',
         }),
-        ('Metadata', {
+        ('🔧 Metadata', {
             'fields': (
                 'created_at',
                 'updated_at',
             ),
             'classes': ['tab'],
+            'description': 'Auto-recorded timestamps. Read-only.',
         }),
     )
 
 
-# Hide noisy technical models from the main admin navigation.
+# ============================================
+# Hide noisy technical models from the admin nav
+# ============================================
 try:
     from django.contrib.auth.models import Group
     admin.site.unregister(Group)

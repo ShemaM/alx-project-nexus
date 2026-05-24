@@ -1,12 +1,10 @@
-/**
+﻿/**
  * Admin Analytics Page
  * 
  * Dashboard view for administrators to see platform metrics.
  * 
  * @module app/(frontend)/dashboard/analytics
  */
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard'
 import { getCurrentUser } from '@/lib/api'
 import { isSuperAdmin } from '@/lib/authz'
@@ -32,11 +30,9 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <AnalyticsDashboard />
       </main>
-      <Footer />
     </div>
   )
 }

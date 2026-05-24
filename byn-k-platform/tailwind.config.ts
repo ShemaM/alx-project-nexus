@@ -7,33 +7,54 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-dm-sans)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        syne: ['var(--font-syne)', 'system-ui', 'sans-serif'],
+      },
       colors: {
-        // BYN-K Brand Colors (from logo)
-        primary: '#2D8FDD', // Logo Blue
-        'primary-dark': '#1E6BB8', // Darker blue for hover states
-        'primary-light': '#5BA8E6', // Lighter blue
-        secondary: '#F5D300', // Logo Yellow/Gold
-        'secondary-dark': '#D4B500', // Darker gold for hover states
-        'secondary-light': '#FFE033', // Lighter gold
-        accent: '#D52B2B', // Logo Red
-        'accent-dark': '#B82424', // Darker red for hover states
-        'accent-light': '#E05555', // Lighter red
-        // Legacy colors (for gradual migration)
-        'legacy-navy': '#0F4C81',
-        'legacy-gold': '#F5A623',
+        // ── Brand palette (from logo) ──────────────────────────────
+        primary: '#2D8FDD',
+        'primary-dark': '#1E6BB8',
+        'primary-light': '#5BA8E6',
+
+        secondary: '#F5D300',
+        'secondary-dark': '#D4B500',
+        'secondary-light': '#FFE533',
+
+        accent: '#D52B2B',
+        'accent-dark': '#B82424',
+        'accent-light': '#E05555',
+
+        // ── Hero / dark navy scale ─────────────────────────────────
+        navy: '#091336',
+        'navy-mid': '#0F2A5E',
+        'navy-hero': '#1E3A5F',
+
+        // Semantic dark-surface tokens for hero/footer contrast.
+        'surface-dark': '#05070C',
+        'surface-dark-elevated': '#07101F',
+        'hero-dark': '#061027',
+        'on-dark': '#F8FAFC',
+        'muted-on-dark': '#D8E8FF',
+        'link-on-dark': '#F5D300',
+        'border-on-dark': '#3B6EA8',
+        'glass-on-dark': 'rgba(45, 143, 221, 0.16)',
+        'focus-on-dark': '#FFE533',
+
+        // ── Third-party brand colours ──────────────────────────────
+        linkedin: '#0A66C2',
+        'linkedin-dark': '#084F99',
       },
       backgroundImage: {
-        // Advanced gradient backgrounds
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'gradient-brand': 'linear-gradient(135deg, #2D8FDD 0%, #F5D300 50%, #D52B2B 100%)',
         'gradient-brand-subtle': 'linear-gradient(135deg, rgba(45,143,221,0.1) 0%, rgba(245,211,0,0.1) 50%, rgba(213,43,43,0.1) 100%)',
-        'gradient-hero': 'linear-gradient(135deg, #1E3A5F 0%, #2D8FDD 50%, #5BA8E6 100%)',
+        'gradient-hero': 'linear-gradient(135deg, #091336 0%, #2D8FDD 50%, #5BA8E6 100%)',
         'gradient-card': 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%)',
         'shimmer': 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
       },
       boxShadow: {
-        // Enhanced shadows for depth
         'brand': '0 4px 20px -5px rgba(45, 143, 221, 0.3)',
         'brand-lg': '0 10px 40px -10px rgba(45, 143, 221, 0.4)',
         'glow': '0 0 20px rgba(45, 143, 221, 0.3)',
@@ -43,7 +64,6 @@ const config: Config = {
         'inner-brand': 'inset 0 2px 10px rgba(45, 143, 221, 0.1)',
       },
       animation: {
-        // Enhanced animations
         'shimmer': 'shimmer 2s linear infinite',
         'float': 'float 6s ease-in-out infinite',
         'pulse-glow': 'pulse-glow 2s ease-in-out infinite',

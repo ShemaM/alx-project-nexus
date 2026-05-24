@@ -30,16 +30,16 @@ export function NavigationLoader() {
       <div className="flex flex-col items-center gap-4">
         {/* Animated spinner */}
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-[#2D8FDD]/20 rounded-full"></div>
-          <div className="w-16 h-16 border-4 border-transparent border-t-[#2D8FDD] rounded-full absolute top-0 left-0 animate-spin"></div>
+          <div className="w-16 h-16 border-4 border-primary/20 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-transparent border-t-primary rounded-full absolute top-0 left-0 animate-spin"></div>
         </div>
         {/* Loading text with dots animation */}
         <div className="flex items-center gap-1">
           <p className="text-lg font-medium text-slate-600">Loading</p>
           <span className="flex gap-1">
-            <span className="w-1.5 h-1.5 bg-[#2D8FDD] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-1.5 h-1.5 bg-[#2D8FDD] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-1.5 h-1.5 bg-[#2D8FDD] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
           </span>
         </div>
       </div>

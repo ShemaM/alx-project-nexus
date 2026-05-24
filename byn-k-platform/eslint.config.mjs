@@ -1,18 +1,54 @@
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
-import { FlatCompat } from '@eslint/eslintrc'
+import nextPlugin from '@next/eslint-plugin-next'
+import tsPlugin from '@typescript-eslint/eslint-plugin'
+import tsParser from '@typescript-eslint/parser'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-})
+const browserGlobals = {
+  AbortSignal: 'readonly',
+  console: 'readonly',
+  document: 'readonly',
+  fetch: 'readonly',
+  File: 'readonly',
+  FormData: 'readonly',
+  Headers: 'readonly',
+  localStorage: 'readonly',
+  navigator: 'readonly',
+  process: 'readonly',
+  React: 'readonly',
+  Request: 'readonly',
+  Response: 'readonly',
+  setInterval: 'readonly',
+  setTimeout: 'readonly',
+  clearInterval: 'readonly',
+  clearTimeout: 'readonly',
+  URL: 'readonly',
+  URLSearchParams: 'readonly',
+  window: 'readonly',
+}
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
+    ignores: ['.next/**', 'node_modules/**', 'playwright-report/**', 'test-results/**', 'next-env.d.ts'],
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: browserGlobals,
+      parser: tsParser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: {
+      '@next/next': nextPlugin,
+      '@typescript-eslint': tsPlugin,
+    },
     rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
+      ...tsPlugin.configs.recommended.rules,
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -29,9 +65,19 @@ const eslintConfig = [
         },
       ],
     },
+    settings: {
+      next: {
+        rootDir: ['.'],
+      },
+    },
   },
   {
-    ignores: ['.next/'],
+    files: ['**/*.{js,mjs}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: browserGlobals,
+    },
   },
 ]
 

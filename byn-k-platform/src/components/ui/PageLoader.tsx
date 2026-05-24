@@ -20,7 +20,7 @@ export function PageLoader({ message = 'Loading...', className = '', fullScreen 
       {/* Stylish branded spinner */}
       <div className="relative">
         {/* Glow effect */}
-        <div className="absolute -inset-2 bg-gradient-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full opacity-20 blur-lg animate-pulse"></div>
+        <div className="absolute -inset-2 bg-gradient-to-r from-primary via-secondary to-accent rounded-full opacity-20 blur-lg animate-pulse"></div>
         
         {/* Main spinner */}
         <div className="relative w-16 h-16">
@@ -46,12 +46,12 @@ export function PageLoader({ message = 'Loading...', className = '', fullScreen 
           
           {/* Center dot */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-6 h-6 bg-gradient-to-br from-[#2D8FDD] to-[#1E6BB8] rounded-lg shadow-md"></div>
+            <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary-dark rounded-lg shadow-md"></div>
           </div>
         </div>
       </div>
       
-      <p className="text-sm font-semibold bg-gradient-to-r from-[#2D8FDD] to-[#1E6BB8] bg-clip-text text-transparent animate-pulse">
+      <p className="text-sm font-semibold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent animate-pulse">
         {message}
       </p>
     </div>

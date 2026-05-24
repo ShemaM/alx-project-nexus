@@ -147,10 +147,11 @@ async function handler(
     const attempted = pathCandidates
       .flatMap((pathCandidate) => baseCandidates.map((base) => `${base}/${pathCandidate}`))
       .join(', ')
-    console.error(`Proxy request failed for ${attempted}:`, error)
+    const message = error instanceof Error ? error.message : String(error)
+    console.warn(`Upstream API unavailable for ${attempted}: ${message}`)
     return NextResponse.json(
-      { error: 'Upstream API request failed' },
-      { status: 502 }
+      { error: 'Upstream API is unavailable' },
+      { status: 503 }
     )
   }
 }

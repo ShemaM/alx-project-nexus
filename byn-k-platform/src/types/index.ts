@@ -10,6 +10,9 @@ export type DocumentType =
   | 'national_id'
   | 'work_permit'
   | 'birth_certificate'
+  | 'refugee_id'
+  | 'proof_of_registration'
+  | 'mandate'
 
 // Application types matching Django backend
 export type ApplicationType = 'link' | 'email' | 'pdf'
@@ -261,6 +264,9 @@ export const documentTypeLabels: Record<DocumentType, string> = {
   work_permit: 'Work Permit',
 
   birth_certificate: 'Birth Certificate',
+  refugee_id: 'Refugee ID',
+  proof_of_registration: 'Proof of Registration',
+  mandate: 'Mandate Letter',
 
 }
 

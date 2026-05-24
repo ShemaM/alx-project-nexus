@@ -172,16 +172,16 @@ function LoadingIndicatorContent() {
     >
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-linear-to-br from-[#2D8FDD]/10 to-transparent rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-linear-to-tr from-[#F5D300]/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-[#D52B2B]/5 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-linear-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-linear-to-tr from-secondary/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-accent/5 to-transparent rounded-full blur-3xl"></div>
       </div>
 
       <div className="flex flex-col items-center gap-8 relative">
         {/* Stylish branded loader */}
         <div className="relative">
           {/* Outer glow ring */}
-          <div className="absolute -inset-4 bg-linear-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full opacity-20 blur-xl animate-pulse"></div>
+          <div className="absolute -inset-4 bg-linear-to-r from-primary via-secondary to-accent rounded-full opacity-20 blur-xl animate-pulse"></div>
           
           {/* Main spinner container */}
           <div className="relative w-24 h-24">
@@ -211,7 +211,7 @@ function LoadingIndicatorContent() {
             
             {/* Inner logo element */}
             <div className="absolute inset-3 flex items-center justify-center">
-              <div className="w-14 h-14 bg-linear-to-br from-[#2D8FDD] via-[#2D8FDD] to-[#1E6BB8] rounded-xl shadow-lg shadow-[#2D8FDD]/30 flex items-center justify-center transform hover:scale-105 transition-transform">
+              <div className="w-14 h-14 bg-linear-to-br from-primary via-primary to-primary-dark rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center transform hover:scale-105 transition-transform">
                 <span className="text-white font-black text-lg tracking-tight">BYN</span>
               </div>
             </div>
@@ -219,16 +219,16 @@ function LoadingIndicatorContent() {
           
           {/* Orbiting dots */}
           <div className="absolute inset-0 animate-spin" style={{ animationDuration: '3s' }}>
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#F5D300] rounded-full shadow-sm shadow-[#F5D300]/50"></div>
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-secondary rounded-full shadow-sm shadow-secondary/50"></div>
           </div>
           <div className="absolute inset-0 animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }}>
-            <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 bg-[#D52B2B] rounded-full shadow-sm shadow-[#D52B2B]/50"></div>
+            <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 bg-accent rounded-full shadow-sm shadow-accent/50"></div>
           </div>
         </div>
 
         {/* Loading text with brand styling */}
         <div className="text-center space-y-2">
-          <p className="text-xl font-bold bg-linear-to-r from-[#2D8FDD] to-[#1E6BB8] bg-clip-text text-transparent">
+          <p className="text-xl font-bold bg-linear-to-r from-primary to-primary-dark bg-clip-text text-transparent">
             {message}
           </p>
           <p className="text-sm text-slate-500 font-medium animate-pulse">
@@ -239,7 +239,7 @@ function LoadingIndicatorContent() {
         {/* Modern progress bar */}
         <div className="w-56 h-1.5 bg-slate-200/70 rounded-full overflow-hidden backdrop-blur-sm">
           <div 
-            className="h-full bg-linear-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] rounded-full relative"
+            className="h-full bg-linear-to-r from-primary via-secondary to-accent rounded-full relative"
             style={{ 
               width: `${Math.min(100, (elapsedMs / MAX_LOADING_MS) * 100)}%`,
               transition: 'width 0.5s ease-out'

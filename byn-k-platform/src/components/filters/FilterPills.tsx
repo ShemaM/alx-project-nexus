@@ -37,13 +37,13 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
           key={`${filter.key}-${filter.value}-${index}`}
           type="button"
           onClick={() => onRemove(filter.key, filter.value)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#2D8FDD]/10 text-[#2D8FDD] rounded-full text-sm font-medium hover:bg-[#2D8FDD]/20 transition-colors group"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium hover:bg-primary/20 transition-colors group"
           aria-label={`Remove ${filter.label} filter`}
         >
           <span>{filter.label}</span>
           <X 
             size={14} 
-            className="text-[#2D8FDD]/70 group-hover:text-[#2D8FDD]" 
+            className="text-primary/70 group-hover:text-primary" 
             aria-hidden="true"
           />
         </button>

@@ -1,11 +1,12 @@
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 import LandingHero from '@/components/landing/Hero'
+import { StatsBar } from '@/components/landing/StatsBar'
+import { CategoryGrid } from '@/components/landing/CategoryGrid'
+import { HowItWorks } from '@/components/landing/HowItWorks'
 import RecentUpdatesSection from '@/components/landing/RecentUpdates'
+import { PartnersMarquee } from '@/components/landing/PartnersMarquee'
 import { getCategoryCounts, getEvents, getOpportunities, type CategoryCounts } from '@/lib/api'
 import type { Event, Opportunity } from '@/types'
 
-/** Landing page that combines hero metrics with the latest events and update explorer. */
 const defaultCounts: CategoryCounts = {
   jobs: 0,
   scholarships: 0,
@@ -20,32 +21,49 @@ export const revalidate = 60
 export default async function HomePage() {
   let counts: CategoryCounts = defaultCounts
   let events: Event[] = []
-  let opportunityPreviews: Opportunity[] = []
+  let opportunities: Opportunity[] = []
   let fetchError = ''
 
-  // Attempt to load counts, events, and a few opportunities for the hero + updates components.
   try {
-    const [countsResponse, eventsResponse] = await Promise.all([
+    const [countsResponse, eventsResponse, opportunitiesResponse] = await Promise.all([
       getCategoryCounts(),
       getEvents(6),
-      getOpportunities({ page_size: 3, ordering: '-created_at' }),
+      getOpportunities({ page_size: 8, ordering: '-created_at', is_verified: true }),
     ])
 
     counts = countsResponse
     events = eventsResponse.results
+    opportunities = opportunitiesResponse.data
   } catch (error) {
     fetchError = error instanceof Error ? error.message : 'Unable to reach the gateway API.'
     console.error('Failed to load homepage data:', error)
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navbar />
-      <main className="flex-1 space-y-10">
+    <div className="min-h-screen">
+      <main>
+        {/* 1 — Hero */}
         <LandingHero counts={counts} />
-        <RecentUpdatesSection events={events} errorMessage={fetchError} />
+
+        {/* 2 — Key metrics */}
+        <StatsBar counts={counts} />
+
+        {/* 3 — Category grid */}
+        <CategoryGrid counts={counts} />
+
+        {/* 4 — How it works */}
+        <HowItWorks />
+
+        {/* 5 — Latest verified listings + sidebar */}
+        <RecentUpdatesSection
+          events={events}
+          opportunities={opportunities}
+          errorMessage={fetchError}
+        />
+
+        {/* 6 — Partner marquee */}
+        <PartnersMarquee />
       </main>
-      <Footer />
     </div>
   )
 }

@@ -29,7 +29,6 @@ const categoryNames: Record<OpportunityCategory, string> = {
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 
-// Convert milliseconds into a compact countdown string for deadlines.
 const formatDuration = (diff: number | undefined) => {
   if (diff === undefined) return ''
   const totalSeconds = Math.floor(diff / 1000)
@@ -49,17 +48,6 @@ const formatDuration = (diff: number | undefined) => {
   return parts.join(' ')
 }
 
-// Human-readable deadline label used on each opportunity card.
-const formatDeadline = (value?: string) => {
-  if (!value) return 'Open'
-  return new Date(value).toLocaleDateString('en-KE', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-/** Stateful explorer that queries the API with category/search filters and renders cards with timers. */
 export function OpportunityExplorer({ searchOverride }: OpportunityExplorerProps) {
   const [search, setSearch] = useState(searchOverride ?? '')
   const [category, setCategory] = useState('')
@@ -92,7 +80,6 @@ export function OpportunityExplorer({ searchOverride }: OpportunityExplorerProps
     return () => clearInterval(timer)
   }, [])
 
-  // Debounced API call that respects current filters and search query.
   const fetchResults = async () => {
     setLoading(true)
     setError('')
@@ -113,21 +100,21 @@ export function OpportunityExplorer({ searchOverride }: OpportunityExplorerProps
   }
 
   return (
-    <div className="space-y-4 rounded-3xl border border-slate-100 bg-white/80 p-6 shadow-lg">
+    <div className="byn-panel space-y-5 rounded-2xl p-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#2D8FDD]">Opportunity search</p>
-        <h3 className="text-xl font-semibold text-slate-900">Scholarships, internships, trainings & more</h3>
-        <p className="text-sm text-slate-600">
+        <p className="text-xs font-extrabold uppercase tracking-[0.32em] text-primary">Opportunity search</p>
+        <h3 className="mt-2 text-2xl font-black text-slate-950">Scholarships, internships, trainings & more</h3>
+        <p className="mt-1 text-sm leading-6 text-slate-700">
           Filter the curated list and uncover the latest opportunity matching your interests.
         </p>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="flex flex-col text-sm text-slate-600">
+        <label className="flex flex-col text-sm font-bold text-slate-700">
           Category
           <select
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="mt-1 rounded-2xl border border-[#2D8FDD]/40 px-3 py-2 text-sm text-slate-900 focus:border-[#2D8FDD] focus:outline-none"
+            className="byn-input mt-1 rounded-lg px-3 py-3 text-sm"
           >
             {categoryOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -139,11 +126,11 @@ export function OpportunityExplorer({ searchOverride }: OpportunityExplorerProps
       </div>
 
       {loading ? (
-        <p className="text-sm text-slate-500">Fetching opportunities…</p>
+        <p className="text-sm font-medium text-slate-600">Fetching opportunities...</p>
       ) : error ? (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm font-bold text-red-600">{error}</p>
       ) : results.length === 0 ? (
-        <p className="text-sm text-slate-500">No matches. Try a broader search or check back soon.</p>
+        <p className="text-sm font-medium text-slate-600">No matches. Try a broader search or check back soon.</p>
       ) : (
         <ul className="space-y-4">
           {results.map((opportunity) => {
@@ -161,30 +148,32 @@ export function OpportunityExplorer({ searchOverride }: OpportunityExplorerProps
                 : 'Open until filled'
 
             return (
-              <li key={opportunity.id} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
-                <div className="flex flex-col gap-2 text-sm text-slate-500">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+              <li
+                key={opportunity.id}
+                className="rounded-xl border border-primary/15 bg-white p-4 shadow-[0_18px_45px_-34px_rgba(6,16,39,0.75)] transition hover:-translate-y-0.5 hover:border-primary/45"
+              >
+                <div className="flex flex-col gap-2 text-sm text-slate-600">
+                  <span className="text-xs font-extrabold uppercase tracking-[0.28em] text-primary">
                     {categoryLabel}
                   </span>
-                  <h4 className="text-base font-semibold text-slate-900">{opportunity.title}</h4>
-                  <p className="text-sm text-slate-600">{opportunity.organization_name}</p>
+                  <h4 className="text-lg font-black text-slate-950">{opportunity.title}</h4>
+                  <p className="text-sm font-medium text-slate-700">{opportunity.organization_name}</p>
                   {opportunity.location && (
-                    <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-400">
-                      Location:{' '}
-                      <span className="text-slate-600 normal-case">{opportunity.location}</span>
+                    <p className="text-xs font-bold uppercase tracking-[0.26em] text-slate-500">
+                      Location: <span className="text-slate-700 normal-case">{opportunity.location}</span>
                     </p>
                   )}
-                  <div className="flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em]">
-                    <span className="rounded-full border border-[#2D8FDD]/40 px-3 py-1">
+                  <div className="flex flex-wrap items-center gap-2 text-[0.65rem] font-extrabold uppercase tracking-[0.24em]">
+                    <span className="rounded-lg border border-primary/35 bg-primary/5 px-3 py-1 text-primary">
                       {categoryLabel}
                     </span>
                     <span
-                      className={`rounded-full border px-3 py-1 text-[0.55rem] font-bold tracking-[0.3em] ${
+                      className={`rounded-lg border px-3 py-1 text-[0.55rem] font-black tracking-[0.24em] ${
                         expired
                           ? 'border-slate-200 bg-slate-100 text-slate-500'
                           : closingSoon
-                          ? 'border-[#D52B2B] bg-[#FEE2E2] text-[#B91C1C]'
-                          : 'border-slate-200 bg-white text-slate-600'
+                          ? 'border-accent bg-[#FEE2E2] text-[#B91C1C]'
+                          : 'border-slate-200 bg-slate-50 text-slate-700'
                       }`}
                     >
                       {countdownText}
@@ -194,9 +183,9 @@ export function OpportunityExplorer({ searchOverride }: OpportunityExplorerProps
                 <div className="mt-3 flex items-center justify-between">
                   <Link
                     href={buildOpportunityPath(categoryKey, opportunity.slug)}
-                    className="rounded-full border border-[#F5D300] bg-[#F5D300] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#091336] transition hover:bg-[#ffe533]"
+                    className="byn-button-primary px-4 py-2 text-xs font-extrabold uppercase tracking-[0.24em] transition"
                   >
-                    View details →
+                    View details
                   </Link>
                 </div>
               </li>

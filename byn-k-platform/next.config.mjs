@@ -1,65 +1,83 @@
-// Security headers for production deployment
+const isDev = process.env.NODE_ENV === 'development'
+
+// Content Security Policy — tightened for production
+const cspDirectives = [
+  "default-src 'self'",
+  // Next.js requires unsafe-inline for inline styles; unsafe-eval is needed in dev only
+  isDev
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
+  "img-src 'self' data: blob: https://alx-project-nexus-53hq.onrender.com",
+  "connect-src 'self' https://alx-project-nexus-53hq.onrender.com",
+  "frame-ancestors 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+]
+
 const securityHeaders = [
   {
-    // Prevent clickjacking
+    key: 'Content-Security-Policy',
+    value: cspDirectives.join('; '),
+  },
+  {
     key: 'X-Frame-Options',
     value: 'SAMEORIGIN',
   },
   {
-    // Prevent MIME type sniffing
     key: 'X-Content-Type-Options',
     value: 'nosniff',
   },
   {
-    // Control referrer information
     key: 'Referrer-Policy',
     value: 'strict-origin-when-cross-origin',
   },
   {
-    // Enable strict transport security
     key: 'Strict-Transport-Security',
-    value: 'max-age=31536000; includeSubDomains',
+    value: 'max-age=31536000; includeSubDomains; preload',
   },
   {
-    // Permissions policy
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=()',
   },
 ]
 
+// Image patterns allowed for Next.js <Image /> optimization.
+// HTTP localhost patterns are dev-only to avoid exposing them in production.
+const imageRemotePatterns = [
+  {
+    protocol: 'https',
+    hostname: 'alx-project-nexus-53hq.onrender.com',
+    pathname: '/media/**',
+  },
+  ...(isDev
+    ? [
+        { protocol: 'http', hostname: 'localhost', port: '8000', pathname: '/media/**' },
+        { protocol: 'http', hostname: '127.0.0.1', port: '8000', pathname: '/media/**' },
+      ]
+    : []),
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // TypeScript errors must fail the build — never silently ignore them
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
-  // Trailing slash configuration to avoid 301 redirects
   trailingSlash: false,
 
-  // 2. Image optimization configuration for external images
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'alx-project-nexus-53hq.onrender.com',
-        pathname: '/media/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '8000',
-        pathname: '/media/**',
-      },
-      {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '8000',
-        pathname: '/media/**',
-      },
-    ],
+    remotePatterns: imageRemotePatterns,
   },
 
-  // 3. Your existing Webpack config (kept unchanged)
+  // Turbopack config (Next.js 16 default bundler). Empty object silences the
+  // "webpack config but no turbopack config" error while keeping the webpack
+  // fallback available via --webpack flag.
+  turbopack: {},
+
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
@@ -69,11 +87,9 @@ const nextConfig = {
     return webpackConfig
   },
 
-  // 4. Your existing Security Headers (kept unchanged)
   async headers() {
     return [
       {
-        // Apply to all routes
         source: '/:path*',
         headers: securityHeaders,
       },

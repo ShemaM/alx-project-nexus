@@ -1,268 +1,209 @@
-import React from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import { ArrowLeft, ArrowRight, Building2, ShieldCheck, Briefcase, Globe } from 'lucide-react'
-import { getPartnerById, getOpportunities } from '@/lib/api'
-import { getSafePartnerLogoSrc } from '@/lib/partner-utils'
-import { buildOpportunityPath } from '@/lib/opportunity-utils'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Container } from '@/components/ui/Container'
-import { PageStatusTracker, type PageStatus } from '@/components/ui/PageStatusTracker'
-import { workModeLabels } from '@/types'
-import type { Opportunity, Partner } from '@/types'
+﻿import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Building2, Handshake, ArrowRight } from 'lucide-react';
+import { getPartners, getCategoryCounts } from '@/lib/api';
+import { getSafePartnerLogoSrc } from '@/lib/partner-utils';
 
-// Limit results to keep the partner detail view performant and focused.
-const JOB_LIMIT = 6
-
-interface PartnerPageProps {
-  params: { id: string }
+export const metadata = {
+  title: 'Our Partners | Opportunities for Banyamulenge Youth in Kenya',
+  description: 'Meet our trusted partners working together to provide opportunities for Banyamulenge refugee youth in Kenya.',
 }
 
+// Use ISR with revalidation for better performance
 export const revalidate = 60
 
-export async function generateMetadata({ params }: PartnerPageProps) {
-  const partnerId = Number(params.id)
-  const partner = await getPartnerById(partnerId)
-  return {
-    title: partner ? `${partner.name} | Partner Details` : `Partner ${params.id} | BYN-K`,
-    description:
-      partner?.description ||
-      'Explore the partner profile and verified opportunities curated for Banyamulenge youth.',
-  }
+// Type for partner data from API
+interface PartnerAPIData {
+  id: number
+  name: string
+  website_url?: string
+  logo_url?: string
+  logo?: string
+  is_featured?: boolean
+  opportunity_count?: number
+  description?: string
 }
 
-// Cozy helper to format deadline strings for job cards.
-const formatDate = (value?: string | null) => {
-  if (!value) return 'Deadline TBD'
-  const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) return 'Deadline TBD'
-  return Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(parsed)
-}
-
-// Derive the location/work-mode label for opportunity cards.
-const getLocationLabel = (job: Opportunity) =>
-  job.city ||
-  job.location ||
-  (job.work_mode ? workModeLabels[job.work_mode] : undefined) ||
-  'Remote / Hybrid'
-
-export default async function PartnerDetailPage({ params }: PartnerPageProps) {
-  // Fetch partner metadata + recent jobs to render the detail experience.
-  const partnerId = Number(params.id)
-  const [partner, opportunitiesResponse] = await Promise.all([
-    getPartnerById(partnerId),
-    getOpportunities({ partner: partnerId, page_size: JOB_LIMIT, ordering: '-deadline' }),
-  ])
-
-  const pageStatus: PageStatus = partner ? 'loaded' : 'error'
-  const jobListings = opportunitiesResponse.data || []
-
-  if (!partner) {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <Navbar />
-        <PageStatusTracker status={pageStatus} />
-        <Container className="py-20">
-          <Card className="border border-error bg-error-bg text-error space-y-4">
-            <p className="text-lg font-semibold">Partner not found</p>
-            <p className="text-sm text-error">
-              We could not locate that partner or the profile is unavailable right now. Please try again later.
-            </p>
-            <Button variant="secondary" size="sm" href="/partners">
-              Back to Partners
-            </Button>
-          </Card>
-        </Container>
-        <Footer />
-      </div>
-    )
+export default async function PartnersPage() {
+  // Build the partners grid and impact metrics page.
+  let partnersData: PartnerAPIData[] = []
+  let categoryCounts = {
+    jobs: 0,
+    scholarships: 0,
+    internships: 0,
+    fellowships: 0,
+    training: 0,
+    partners: 0,
+  }
+  let fetchError = false
+  
+  try {
+    const [partnersResponse, countsResponse] = await Promise.all([
+      getPartners(),
+      getCategoryCounts(),
+    ])
+    partnersData = partnersResponse?.data || []
+    categoryCounts = countsResponse || categoryCounts
+  } catch (error) {
+    console.error('Error fetching partners:', error)
+    fetchError = true
   }
 
-  const safeLogo = getSafePartnerLogoSrc(partner.logo_url || partner.logo)
-  const opportunityCount = partner.opportunity_count ?? jobListings.length
+  // Normalize the API payload into frontend-friendly partner cards.
+  const partners = partnersData.map(p => ({
+    id: p.id,
+    name: p.name,
+    website: p.website_url,
+    logo: p.logo_url || p.logo,
+    is_featured: p.is_featured,
+    opportunitiesCount: p.opportunity_count || 0,
+    description: p.description || '',
+  }))
 
+  // Calculate total opportunities
+  const totalOpportunities =
+    (categoryCounts.jobs || 0) +
+    (categoryCounts.scholarships || 0) +
+    (categoryCounts.internships || 0) +
+    (categoryCounts.fellowships || 0) +
+    (categoryCounts.training || 0)
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
-      <PageStatusTracker status={pageStatus} />
-
-      <section className="bg-gradient-to-br from-[#2D8FDD] via-[#1E6BB8] to-[#2D8FDD] py-12 md:py-16 text-white">
-        <Container>
-          <Link
-            href="/partners"
-            className="inline-flex items-center gap-2 text-blue-100 hover:text-white mb-6 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            Back to Partners
-          </Link>
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
-            <div className="w-28 h-28 rounded-3xl bg-white/20 flex items-center justify-center overflow-hidden shadow-lg">
-              {safeLogo ? (
-                <Image
-                  src={safeLogo}
-                  alt={`${partner.name} logo`}
-                  width={112}
-                  height={112}
-                  className="object-contain w-full h-full"
-                />
-              ) : (
-                <Building2 className="w-12 h-12 text-white" />
-              )}
-            </div>
-            <div className="flex-1 space-y-4">
-              <p className="text-xs uppercase tracking-[0.5em] text-blue-100">Partner Details</p>
-              <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">{partner.name}</h1>
-              <p className="body-md text-white/90 max-w-3xl">
-                {partner.description ||
-                  'This partner is part of our verified network of organizations dedicated to supporting Banyamulenge youth.'}
-              </p>
-              <div className="flex flex-wrap gap-3">
-                {partner.website_url && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    href={partner.website_url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <Globe size={16} />
-                    Visit website
-                  </Button>
-                )}
-                <Button variant="primary" size="sm" href="#jobs">
-                  View current opportunities
-                </Button>
-              </div>
-            </div>
+      
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-hero-dark via-primary-dark to-primary py-16 md:py-20">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="w-16 h-16 bg-glass-on-dark border border-border-on-dark/70 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Handshake className="w-8 h-8 text-secondary" />
           </div>
-        </Container>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-on-dark mb-4">
+            Our Partners
+          </h1>
+          <p className="text-lg md:text-xl text-muted-on-dark max-w-2xl mx-auto leading-relaxed">
+            We are proud to collaborate with a diverse range of organizations dedicated to empowering Banyamulenge refugee youth in Kenya.
+          </p>
+        </div>
       </section>
 
-      <Container className="mt-10 grid gap-4 lg:grid-cols-3">
-        <Card className="space-y-2">
-          <div className="flex items-center gap-2 text-slate-500 text-xs uppercase tracking-[0.4em]">
-            <ShieldCheck size={12} />
-            Verified partner
-          </div>
-          <p className="text-3xl font-bold text-slate-900">{opportunityCount}</p>
-          <p className="body-sm text-slate-600">Opportunities shared with Banyamulenge youth.</p>
-        </Card>
-        <Card className="space-y-2">
-          <div className="flex items-center gap-2 text-slate-500 text-xs uppercase tracking-[0.4em]">
-            <Globe size={14} />
-            Website
-          </div>
-          {partner.website_url ? (
-            <a
-              href={partner.website_url}
-              target="_blank"
-              rel="noreferrer"
-              className="body-md text-primary-600 hover:underline"
-            >
-              {partner.website_url}
-            </a>
-          ) : (
-            <p className="body-sm text-slate-500">Website information will appear here once available.</p>
-          )}
-        </Card>
-        <Card className="space-y-2 text-slate-700">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-slate-500">
-            <Briefcase size={12} />
-            Job listings
-          </div>
-          <p className="heading-lg text-slate-900">{jobListings.length}</p>
-          <p className="body-sm text-slate-500">
-            Updated hourly as soon as the partner publishes verified opportunities.
-          </p>
-        </Card>
-      </Container>
-
-      <Container className="mt-12" id="jobs">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-slate-500">Opportunities</p>
-            <h2 className="heading-lg text-slate-900 mt-1">Active job listings</h2>
-          </div>
-          <Link
-            href={`/opportunities?partner=${partnerId}`}
-            className="text-primary-600 font-semibold hover:underline"
-          >
-            Browse all opportunities <ArrowRight size={14} />
-          </Link>
-        </div>
-        {jobListings.length === 0 ? (
-          <Card className="mt-8 space-y-4 border-dashed border-slate-200 text-center bg-white">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
-              <Briefcase size={20} className="text-[#2D8FDD]" />
+      {/* Partners Grid */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          {partners.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Building2 className="w-8 h-8 text-slate-400" />
+              </div>
+              <p className="text-slate-500">
+                {fetchError 
+                  ? 'Unable to load partners at this time. Please try again later.'
+                  : 'Partner organizations will appear here once they are added.'}
+              </p>
             </div>
-            <p className="heading-md">No active listings yet</p>
-            <p className="body-md text-slate-500">
-              This partner has not shared any opportunities recently. Check back later or explore other partners.
-            </p>
-            <Button variant="secondary" size="sm" href="/opportunities">
-              Browse all opportunities
-            </Button>
-          </Card>
-        ) : (
-          <div className="grid gap-6 mt-8 lg:grid-cols-2">
-            {jobListings.map((job: Opportunity) => (
-              <Card key={job.id} className="flex h-full flex-col gap-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[0.65rem] uppercase tracking-[0.4em] text-slate-500">
-                      {job.category ? job.category.replace(/^\w/, (c: string) => c.toUpperCase()) : 'Opportunity'}
-                    </p>
-                    <h3 className="text-xl font-semibold text-slate-900 mt-2">{job.title}</h3>
-                  </div>
-                  <p className="text-xs text-slate-500">{formatDate(job.deadline)}</p>
-                </div>
-                <p className="body-sm text-slate-600">{getLocationLabel(job)}</p>
-                <div className="flex flex-wrap gap-2">
-                  {job.is_verified && (
-                    <span className="status-badge">Verified</span>
-                  )}
-                  {job.is_active && (
-                    <span className="status-badge status-badge--success">Active now</span>
-                  )}
-                  {job.is_featured && (
-                    <span className="status-badge status-badge--info">Featured</span>
-                  )}
-                </div>
-                <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    href={buildOpportunityPath(job.category, job.slug)}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {partners.map((partner) => {
+                const safeLogoSrc = getSafePartnerLogoSrc(partner.logo);
+                return (
+                  <Link 
+                    key={partner.id}
+                    href={`/partners/${partner.id}`}
+                    className="bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-all duration-300 hover:border-primary/30 group block"
                   >
-                    View job details
-                  </Button>
-                  {job.external_url ? (
-                    <a
-                      href={job.external_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sm font-semibold text-primary-600 inline-flex items-center gap-1"
-                    >
-                      Apply on partner site <ArrowRight size={14} />
-                    </a>
-                  ) : (
-                    <span className="text-sm text-slate-500">Apply information available on details page.</span>
-                  )}
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </Container>
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
+                        {safeLogoSrc ? (
+                          <Image 
+                            src={safeLogoSrc}
+                            alt={`${partner.name} logo`}
+                            width={48}
+                            height={48}
+                            className="object-contain w-full h-full"
+                          />
+                        ) : (
+                          <Building2 className="w-7 h-7 text-primary" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        {partner.is_featured && (
+                          <span className="text-xs font-semibold text-secondary uppercase tracking-wider">
+                            Featured Partner
+                          </span>
+                        )}
+                        <h3 className="text-xl font-bold text-slate-900 mt-1 mb-2 group-hover:text-primary transition-colors">
+                          {partner.name}
+                        </h3>
+                        {partner.description && (
+                          <p className="text-slate-600 leading-relaxed text-sm mb-3">
+                            {partner.description}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+                          <span className="text-sm text-slate-500">
+                            <span className="font-bold text-secondary">{partner.opportunitiesCount}</span> opportunities
+                          </span>
+                          <span className="flex items-center gap-1 text-primary text-xs font-semibold group-hover:text-primary-dark transition-colors">
+                            View <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
 
-      <Footer />
+      {/* Partnership Impact Section */}
+      <section className="py-16 bg-gradient-to-br from-primary/5 to-secondary/5">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-6">
+            Together, We Create Impact
+          </h2>
+          <p className="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto mb-8">
+            Our partnerships enable us to verify opportunities, provide training resources, and ensure every listing reaches the youth who need it most. Through collaboration, we bridge the gap between talented refugee youth and meaningful opportunities.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="text-3xl font-bold text-primary">100%</div>
+              <div className="text-sm text-slate-600 mt-1">Verified Listings</div>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="text-3xl font-bold text-secondary">{partners.length || 0}</div>
+              <div className="text-sm text-slate-600 mt-1">Key Partners</div>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="text-3xl font-bold text-primary">{totalOpportunities.toLocaleString()}</div>
+              <div className="text-sm text-slate-600 mt-1">Opportunities</div>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="text-3xl font-bold text-secondary">5+</div>
+              <div className="text-sm text-slate-600 mt-1">Categories</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Become a Partner CTA */}
+      <section className="py-16 bg-gradient-to-r from-hero-dark to-primary-dark">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-on-dark mb-4">
+            Become a Partner
+          </h2>
+          <p className="text-muted-on-dark mb-8 max-w-xl mx-auto">
+            Are you an NGO, employer, or community organization? Partner with us to reach and empower Banyamulenge youth in Kenya.
+          </p>
+          <a 
+            href="/contact"
+            className="inline-block bg-link-on-dark hover:bg-secondary-dark text-surface-dark px-8 py-4 rounded-xl font-bold text-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark"
+          >
+            Contact Us
+          </a>
+        </div>
+      </section>
+
     </div>
-  )
+  );
 }

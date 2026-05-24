@@ -18,6 +18,10 @@ function sanitizeBaseUrl(url: string): string {
 const DIRECT_API_BASE_URL = sanitizeBaseUrl(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api');
 const CLIENT_PROXY_BASE_URL = '/api/proxy';
 
+function isNetworkFailure(error: unknown): boolean {
+  return error instanceof TypeError || (error instanceof Error && error.message.toLowerCase().includes('fetch failed'));
+}
+
 /**
  * Classify API errors for better debugging in production.
  * Distinguishes between network/CORS issues and API response errors (like 404).
@@ -263,8 +267,8 @@ export async function getOpportunities(filters?: OpportunityFilterParams): Promi
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : ''
-    if (!message.includes('404')) {
-      console.error('Failed to fetch opportunities:', error)
+    if (!message.includes('404') && !isNetworkFailure(error)) {
+      console.warn('Failed to fetch opportunities:', message || error)
     }
     return { data: [], disclaimer: '', count: 0 };
   }
@@ -377,12 +381,18 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
         continue;
       }
 
+      if (response.status === 502 || response.status === 503 || response.status === 504) {
+        return null;
+      }
+
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
 
     return null;
   } catch (error) {
-    console.error('Failed to fetch current user:', error);
+    if (!isNetworkFailure(error)) {
+      console.warn('Failed to fetch current user:', error);
+    }
     return null;
   }
 }
@@ -543,7 +553,9 @@ export async function getCategoryCounts(): Promise<CategoryCounts> {
     // Cache category counts for 60 seconds to improve homepage load times
     return await apiFetch<CategoryCounts>('/category-counts/', {}, { suppressErrorLogging: true, revalidate: 60 });
   } catch (error) {
-    console.error('Failed to fetch category counts:', error);
+    if (!isNetworkFailure(error)) {
+      console.warn('Failed to fetch category counts:', error);
+    }
     return {
       jobs: 0,
       scholarships: 0,
@@ -575,7 +587,9 @@ export async function getCategories(): Promise<CategoryData[]> {
     const response = await apiFetch<{ results: CategoryData[] }>('/categories/', {}, { suppressErrorLogging: true, revalidate: 60 });
     return response.results || [];
   } catch (error) {
-    console.error('Failed to fetch categories:', error);
+    if (!isNetworkFailure(error)) {
+      console.warn('Failed to fetch categories:', error);
+    }
     return [];
   }
 }
@@ -590,9 +604,12 @@ export interface Announcement {
 /** Load the latest announcements for the announcement page. */
 export async function getAnnouncements(limit = 3): Promise<{ results: Announcement[] }> {
   try {
-    return await apiFetch<{ results: Announcement[] }>(`/announcements/?page_size=${limit}`, {}, { revalidate: 60 });
+    return await apiFetch<{ results: Announcement[] }>(`/announcements/?page_size=${limit}`, {}, { suppressErrorLogging: true, revalidate: 60 });
   } catch (error) {
-    console.error('Failed to fetch announcements:', error);
+    const message = error instanceof Error ? error.message : ''
+    if (!isNetworkFailure(error) && !message.includes('404')) {
+      console.warn('Failed to fetch announcements:', error);
+    }
     return { results: [] };
   }
 }
@@ -600,9 +617,11 @@ export async function getAnnouncements(limit = 3): Promise<{ results: Announceme
 /** Request a paginated list of active events for the landing/events pages. */
 export async function getEvents(limit = 5): Promise<{ results: Event[] }> {
   try {
-    return await apiFetch<{ results: Event[] }>(`/events/?page_size=${limit}`, {}, { revalidate: 60 });
+    return await apiFetch<{ results: Event[] }>(`/events/?page_size=${limit}`, {}, { suppressErrorLogging: true, revalidate: 60 });
   } catch (error) {
-    console.error('Failed to fetch events:', error);
+    if (!isNetworkFailure(error)) {
+      console.warn('Failed to fetch events:', error);
+    }
     return { results: [] };
   }
 }
@@ -635,4 +654,3 @@ export async function createEvent(payload: EventPayload): Promise<Event> {
     throw error;
   }
 }
-

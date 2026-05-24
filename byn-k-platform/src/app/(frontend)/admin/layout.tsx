@@ -6,6 +6,8 @@ import { getCurrentUser } from '@/lib/api';
 import { AuthUser, isSuperAdmin } from '@/lib/authz';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminLayout({
   children,
 }: Readonly<{

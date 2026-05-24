@@ -16,6 +16,7 @@
 'use client'
 
 import React, { ReactNode, Suspense } from 'react'
+import { SessionProvider } from 'next-auth/react'
 import { NotificationProvider, SiteTourProvider, LanguageProvider, LoadingStateProvider } from '@/contexts'
 import { ToastContainer } from '@/components/ui/Toast'
 import { SiteTour } from '@/components/ui/SiteTour'
@@ -31,21 +32,23 @@ interface ProvidersProps {
  */
 export function Providers({ children }: ProvidersProps) {
   return (
-    <LanguageProvider>
-      <LoadingStateProvider>
-        <NotificationProvider>
-          <SiteTourProvider>
-            {children}
-            {/* Global UI components */}
-            <ToastContainer />
-            <SiteTour />
-            <Suspense fallback={null}>
-              <GlobalLoadingIndicator />
-            </Suspense>
-          </SiteTourProvider>
-        </NotificationProvider>
-      </LoadingStateProvider>
-    </LanguageProvider>
+    <SessionProvider>
+      <LanguageProvider>
+        <LoadingStateProvider>
+          <NotificationProvider>
+            <SiteTourProvider>
+              {children}
+              {/* Global UI components */}
+              <ToastContainer />
+              <SiteTour />
+              <Suspense fallback={null}>
+                <GlobalLoadingIndicator />
+              </Suspense>
+            </SiteTourProvider>
+          </NotificationProvider>
+        </LoadingStateProvider>
+      </LanguageProvider>
+    </SessionProvider>
   )
 }
 

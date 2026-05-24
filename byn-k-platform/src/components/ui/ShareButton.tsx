@@ -91,7 +91,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
     <button 
       onClick={handleShare}
       disabled={isLoading}
-      className={`flex items-center justify-center gap-2 bg-white border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 px-6 py-4 rounded-xl font-bold text-base transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+      className={`flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-6 py-4 rounded-xl font-bold text-base transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       aria-label="Share opportunity"
       title={!isAuthenticated && !isLoading ? 'Sign in to share' : 'Share opportunity'}
     >

@@ -113,16 +113,16 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       }
       className={`group relative block bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all duration-300 ease-out
         hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 hover:-translate-y-1
-        ${featured ? 'ring-2 ring-[#F5D300]/50' : ''}
+        ${featured ? 'ring-2 ring-secondary/50' : ''}
         ${className}
       `}
     >
       {/* Gradient overlay on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#2D8FDD]/0 via-transparent to-[#F5D300]/0 group-hover:from-[#2D8FDD]/5 group-hover:to-[#F5D300]/5 transition-all duration-300 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-transparent to-secondary/0 group-hover:from-primary/5 group-hover:to-secondary/5 transition-all duration-300 pointer-events-none" />
       
       {/* Featured badge */}
       {featured && (
-        <div className="absolute top-0 right-0 bg-gradient-to-r from-[#F5D300] to-[#D4B500] text-white px-3 py-1 text-xs font-bold rounded-bl-xl flex items-center gap-1 shadow-md">
+        <div className="absolute top-0 right-0 bg-gradient-to-r from-secondary to-secondary-dark text-white px-3 py-1 text-xs font-bold rounded-bl-xl flex items-center gap-1 shadow-md">
           <Sparkles size={12} />
           Featured
         </div>
@@ -138,7 +138,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
               size="md"
             />
             {/* Subtle glow effect behind logo on hover */}
-            <div className="absolute inset-0 bg-[#2D8FDD]/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+            <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
           </div>
           
           <div className="flex-1 min-w-0">
@@ -162,7 +162,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
             </div>
             
             {/* Title */}
-            <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#2D8FDD] transition-colors duration-200 line-clamp-2">
+            <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors duration-200 line-clamp-2">
               {title}
             </h3>
             
@@ -177,7 +177,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         <div className="flex items-center justify-between text-sm text-slate-500 pt-3 border-t border-slate-100 group-hover:border-slate-200 transition-colors">
           {/* Location */}
           <div className="flex items-center gap-1.5 group-hover:text-slate-700 transition-colors">
-            <MapPin size={14} className="text-slate-400 group-hover:text-[#2D8FDD] transition-colors" />
+            <MapPin size={14} className="text-slate-400 group-hover:text-primary transition-colors" />
             <span className="capitalize">
               {city || location || 'Remote'}
             </span>
@@ -190,7 +190,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
                 ? 'text-red-600 font-semibold bg-red-50 animate-pulse' 
                 : 'group-hover:bg-slate-50'
             }`}>
-              <Calendar size={14} className={isUrgent ? 'text-red-500' : 'text-slate-400 group-hover:text-[#2D8FDD] transition-colors'} />
+              <Calendar size={14} className={isUrgent ? 'text-red-500' : 'text-slate-400 group-hover:text-primary transition-colors'} />
               <span>
                 {isUrgent && days_until_deadline !== null
                   ? `${days_until_deadline} days left`
@@ -203,7 +203,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
       </div>
 
       {/* Bottom accent line on hover */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2D8FDD] via-[#F5D300] to-[#D52B2B] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
     </Link>
   )
 }

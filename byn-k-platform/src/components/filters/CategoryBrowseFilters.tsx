@@ -82,7 +82,7 @@ export default function CategoryBrowseFilters({ categories, workModeCounts }: Re
     <aside className="bg-white border border-[#DDE5EF] rounded-2xl p-6 h-fit">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-3xl font-bold text-slate-900">Filters</h2>
-        <Link href={pathname} className="text-sm font-medium text-[#2D8FDD] hover:text-[#1E6BB8]">
+        <Link href={pathname} className="text-sm font-medium text-primary hover:text-primary-dark">
           Clear all
         </Link>
       </div>

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\alx-project-nexus\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(grep -E \"\\\\.tsx$\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\alx-project-nexus\" -Recurse -Directory -Filter \"backend\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(python -c \"import json; data=json.load\\(open\\('seed.json'\\)\\); models={}; [models.update\\({r['model']: models.get\\(r['model'],0\\)+1}\\) for r in data]; print\\(json.dumps\\(models, indent=2\\)\\); print\\('Total records:', len\\(data\\)\\)\")",
+      "Bash(python manage.py loaddata seed.json)"
+    ]
+  }
+}

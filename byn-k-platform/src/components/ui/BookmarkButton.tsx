@@ -105,8 +105,8 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
       disabled={isLoading}
       className={`transition-colors ${
         isBookmarked
-          ? 'text-[#F5D300] fill-[#F5D300]'
-          : 'text-slate-300 hover:text-[#F5D300]'
+          ? 'text-secondary fill-secondary'
+          : 'text-slate-300 hover:text-secondary'
       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       aria-label={isBookmarked ? 'Remove bookmark' : 'Save opportunity'}
       title={!isAuthenticated ? 'Login to bookmark' : isBookmarked ? 'Remove bookmark' : 'Save opportunity'}

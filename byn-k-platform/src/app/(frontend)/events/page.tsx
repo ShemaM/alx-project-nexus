@@ -1,6 +1,4 @@
-import { Navbar } from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import { CalendarDays, ArrowRight } from 'lucide-react'
+﻿import { CalendarDays, ArrowRight } from 'lucide-react'
 import { getEvents } from '@/lib/api'
 import Link from 'next/link'
 import type { EventCategory, Event } from '@/types'
@@ -76,14 +74,13 @@ export default async function EventsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
-      <section className="bg-gradient-to-br from-[#1E3A5F] via-[#2D8FDD] to-[#5BA8E6] py-20">
+      <section className="bg-gradient-to-br from-hero-dark via-primary-dark to-primary py-20">
         <div className="mx-auto max-w-5xl px-4 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-border-on-dark/70 bg-glass-on-dark">
             <CalendarDays className="h-7 w-7 text-amber-400" />
           </div>
-          <h1 className="mt-6 text-4xl font-extrabold text-white">Live events & conferences</h1>
-          <p className="mt-4 text-lg text-blue-100">
+          <h1 className="mt-6 text-4xl font-extrabold text-on-dark">Live events & conferences</h1>
+          <p className="mt-4 text-lg text-muted-on-dark">
             Connect with partners like RCK, IKEA, and the Amahoro Coalition over workshops, summits, and
             webinars that are happening in Kenya and regionally.
           </p>
@@ -127,7 +124,7 @@ export default async function EventsPage() {
                         </div>
                         <div className="text-right text-sm">
                           <p className="text-xs uppercase text-slate-400">Countdown</p>
-                          <p className="text-base font-semibold text-[#1E6BB8]">{countdown}</p>
+                          <p className="text-base font-semibold text-primary-dark">{countdown}</p>
                           <p className="text-[0.65rem] text-slate-400">{startsAt}</p>
                         </div>
                       </div>
@@ -163,14 +160,14 @@ export default async function EventsPage() {
                           href={event.stream_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-full border border-[#2D8FDD] px-4 py-2 font-semibold text-[#2D8FDD] transition hover:border-[#1E6BB8]/50 hover:bg-[#2D8FDD]/10"
+                          className="rounded-full border border-primary px-4 py-2 font-semibold text-primary transition hover:border-primary-dark/50 hover:bg-primary/10"
                         >
                           Join livestream
                         </a>
                       )}
                       <Link
                         href="/contact"
-                        className="inline-flex items-center gap-2 font-semibold text-[#2D8FDD]"
+                        className="inline-flex items-center gap-2 font-semibold text-primary"
                       >
                         Ask about this event
                         <ArrowRight size={14} />
@@ -184,7 +181,6 @@ export default async function EventsPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   )
 }

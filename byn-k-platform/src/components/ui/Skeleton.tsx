@@ -52,7 +52,7 @@ export const MarqueeSkeleton = () => (
 
 /** Skeleton used inside filter sidebars to mimic loading controls. */
 export const FilterSkeleton = () => (
-  <div className="bg-[#E2E8F0] rounded-2xl p-5 border border-[#CBD5E1]">
+  <div className="bg-slate-200 rounded-2xl p-5 border border-[#CBD5E1]">
     <Skeleton className="skeleton-bar h-12 w-full" />
     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {[...Array(4)].map((_, index) => (
