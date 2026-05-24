@@ -10,8 +10,8 @@
 #   Render reads this file and creates all services automatically.
 #
 # After first deploy, update these two env vars in the Render dashboard:
-#   bynk-backend  → FRONTEND_URL  = your bynk-frontend.onrender.com URL
-#   bynk-frontend → NEXTAUTH_URL  = your bynk-frontend.onrender.com URL
+#   bynk-backend  → FRONTEND_URL  = your actual bynk-frontend.onrender.com URL
+#   bynk-frontend → NEXTAUTH_URL  = your actual bynk-frontend.onrender.com URL
 # =============================================================================
 
 services:
@@ -24,21 +24,20 @@ services:
     runtime: python
     region: oregon
     rootDir: backend
+
     # Phase 1 — BUILD (no DB access): install deps + collectstatic
     buildCommand: bash build.sh
 
     # Phase 2 — PRE-DEPLOY (has DB access): migrate + create superuser
-    # Runs after build, before traffic is switched. Rolled back if it fails.
-    preDeployCommand: >-
-      python manage.py migrate --no-input &&
-      python manage.py shell -c "import os; from django.contrib.auth import get_user_model; U=get_user_model(); u=os.environ.get('DJANGO_SUPERUSER_USERNAME',''); p=os.environ.get('DJANGO_SUPERUSER_PASSWORD',''); e=os.environ.get('DJANGO_SUPERUSER_EMAIL',''); U.objects.filter(username=u).exists() or (u and p and U.objects.create_superuser(u,e,p) and print('superuser created')) or print('skipped')"
+    # Runs after build, before traffic switches. Rolled back on failure.
+    preDeployCommand: python manage.py migrate --no-input && python manage.py create_superuser_safe
 
-    # Phase 3 — START: pure gunicorn, no DB setup here
+    # Phase 3 — START: pure gunicorn, zero DB setup
     startCommand: gunicorn config.wsgi:application --workers 2 --worker-class gthread --worker-connections 1000 --max-requests 1000 --max-requests-jitter 50 --timeout 120 --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
 
-    # Health check hits the dedicated endpoint — confirms admin + API are up
     healthCheckPath: /health/
     plan: free
+
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.0"
@@ -52,18 +51,14 @@ services:
         fromDatabase:
           name: bynk-db
           property: connectionString
-      # Celery runs in eager mode on free tier (no Redis needed)
-      # Tasks execute synchronously — email confirmations still work
       - key: CELERY_TASK_ALWAYS_EAGER
         value: "True"
       - key: CELERY_TASK_EAGER_PROPAGATES
         value: "True"
       - key: SEND_EMAILS_ASYNC
         value: "False"
-      # Email — swap to SMTP when you have credentials
       - key: EMAIL_BACKEND
         value: "django.core.mail.backends.console.EmailBackend"
-      # Update FRONTEND_URL after bynk-frontend is deployed
       - key: FRONTEND_URL
         value: "https://bynk-frontend.onrender.com"
       - key: BACKEND_PUBLIC_URL
@@ -87,15 +82,14 @@ services:
     startCommand: pnpm start
     healthCheckPath: /
     plan: free
+
     envVars:
       - key: NODE_VERSION
         value: "20.18.0"
       - key: NODE_ENV
         value: "production"
-      # Points to the Django backend deployed above
       - key: NEXT_PUBLIC_API_URL
         value: "https://bynk-backend.onrender.com/api"
-      # Update NEXTAUTH_URL to your actual frontend URL after first deploy
       - key: NEXTAUTH_URL
         value: "https://bynk-frontend.onrender.com"
       - key: NEXTAUTH_SECRET
@@ -114,11 +108,11 @@ databases:
     plan: free
 
 # ════════════════════════════════════════════════════════════════════════════
-# AFTER DEPLOYMENT CHECKLIST
+# POST-DEPLOY CHECKLIST
 # ════════════════════════════════════════════════════════════════════════════
-# 1. Get your frontend URL from bynk-frontend service page
-# 2. Go to bynk-backend → Environment → update FRONTEND_URL
-# 3. Go to bynk-frontend → Environment → update NEXTAUTH_URL
-# 4. Go to bynk-backend → Environment → get DJANGO_SUPERUSER_PASSWORD
-# 5. Visit https://bynk-backend.onrender.com/admin/ to log in
-# 6. (Optional) Buy banyamulengefursa.org and add as custom domain
+# 1. Get your frontend URL from the bynk-frontend service page
+# 2. bynk-backend  → Environment → update FRONTEND_URL to that URL
+# 3. bynk-frontend → Environment → update NEXTAUTH_URL to that URL
+# 4. bynk-backend  → Environment → copy DJANGO_SUPERUSER_PASSWORD
+# 5. Visit https://bynk-backend.onrender.com/admin/ → log in as admin
+# 6. (Optional) Buy banyamulengefursa.org → add as custom domain
