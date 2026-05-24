@@ -1,0 +1,18 @@
+# Enforce LF line endings for files that must not have CRLF on Linux
+*.sh        text eol=lf
+*.py        text eol=lf
+Procfile    text eol=lf
+render.yaml text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+
+# Windows files keep CRLF
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# Binary files — no conversion
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.ico       binary
+*.pdf       binary

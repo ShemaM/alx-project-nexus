@@ -25,9 +25,7 @@ services:
     region: oregon
     rootDir: backend
     buildCommand: bash build.sh
-    # start.sh: migrate → create superuser → exec gunicorn
-    # Runs in deployed environment — has full network access to PostgreSQL
-    startCommand: bash start.sh
+    startCommand: "python manage.py migrate --no-input && gunicorn config.wsgi:application --workers 2 --worker-class gthread --worker-connections 1000 --max-requests 1000 --max-requests-jitter 50 --timeout 120 --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -"
     healthCheckPath: /api/category-counts/
     plan: free
     envVars:
