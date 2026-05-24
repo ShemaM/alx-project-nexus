@@ -1,84 +1,104 @@
 # =============================================================================
-# BYN-K Platform - Render Deployment Configuration
+# render.yaml — BYN-K Platform Infrastructure
+# Deploys the Django backend as a Render Web Service.
+# Commit this file → Render auto-creates/updates services.
+# Docs: https://render.com/docs/blueprint-spec
 # =============================================================================
-# 
-# This file configures the Django backend deployment on Render.
-# For full deployment instructions, see DEPLOYMENT.md in the repository root.
-#
-# REQUIRED MANUAL CONFIGURATION (Set in Render Dashboard):
-# - FRONTEND_URL: Your Vercel frontend URL (e.g., https://byn-k.vercel.app)
-# - BACKEND_PUBLIC_URL: Your Render backend URL (e.g., https://nexus-backend.onrender.com)
-# - DJANGO_SUPERUSER_USERNAME: Admin username
-# - DJANGO_SUPERUSER_PASSWORD: Strong admin password
-# - DJANGO_SUPERUSER_EMAIL: Admin email
-# =============================================================================
-
-databases:
-  - name: nexus-db
-    databaseName: nexus
-    user: nexus_user
 
 services:
+  # ── Django Web Server ──────────────────────────────────────────────────────
   - type: web
-    name: nexus-backend
+    name: bynk-backend
     runtime: python
-    buildCommand: "./build.sh"
-    startCommand: "python init_prod.py && gunicorn config.wsgi:application"
-    rootDir: "backend"
-    healthCheckPath: "/health/"
+    region: oregon
+    rootDir: backend
+    buildCommand: ./build.sh
+    startCommand: >-
+      gunicorn config.wsgi:application
+      --workers 2
+      --worker-class gthread
+      --worker-connections 1000
+      --max-requests 1000
+      --max-requests-jitter 50
+      --timeout 120
+      --bind 0.0.0.0:$PORT
+      --access-logfile -
+      --error-logfile -
+    healthCheckPath: /api/category-counts/
+    plan: free
     envVars:
-      # Auto-configured by Render
-      - key: DATABASE_URL
-        fromDatabase:
-          name: nexus-db
-          property: connectionString
       - key: DJANGO_SECRET_KEY
-        generateValue: true
-      
-      # Fixed production settings
+        generateValue: true          # Render generates a random secret automatically
       - key: DEBUG
-        value: "false"
+        value: "False"
       - key: ALLOWED_HOSTS
         value: "localhost,127.0.0.1,.onrender.com,.vercel.app"
-      - key: WEB_CONCURRENCY
-        value: 4
-      - key: PYTHON_VERSION
-        value: 3.11.9
-      
-      # REQUIRED: Set these in Render Dashboard
-      # These enable CORS and CSRF trust between Vercel frontend and Render backend
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bynk-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: bynk-redis
+          type: redis
+          property: connectionString
+      - key: CELERY_TASK_ALWAYS_EAGER
+        value: "False"
+      - key: SEND_EMAILS_ASYNC
+        value: "True"
+      - key: EMAIL_BACKEND
+        value: "django.core.mail.backends.console.EmailBackend"  # Change to SMTP in prod
       - key: FRONTEND_URL
-        sync: false
+        value: "https://byn-k-platform.vercel.app"   # Update to your actual Vercel URL
       - key: BACKEND_PUBLIC_URL
-        sync: false
-      
-      # REQUIRED: Admin credentials (set strong password!)
+        value: "https://bynk-backend.onrender.com"  # Update to your actual Render URL
       - key: DJANGO_SUPERUSER_USERNAME
-        sync: false
-      - key: DJANGO_SUPERUSER_PASSWORD
-        sync: false
+        value: admin
       - key: DJANGO_SUPERUSER_EMAIL
-        sync: false
-      
-      # Optional: Alternative super admin credentials for consolidate_opportunities
-      - key: PLATFORM_SUPERADMIN_USERNAME
-        sync: false
-      - key: PLATFORM_SUPERADMIN_EMAIL
-        sync: false
-      - key: PLATFORM_SUPERADMIN_PASSWORD
-        sync: false
-      
-      # Optional: OAuth configuration
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: GOOGLE_CLIENT_SECRET
-        sync: false
-      - key: GOOGLE_REDIRECT_URI
-        sync: false
-      - key: LINKEDIN_CLIENT_ID
-        sync: false
-      - key: LINKEDIN_CLIENT_SECRET
-        sync: false
-      - key: LINKEDIN_REDIRECT_URI
-        sync: false
+        value: shemamanase992@gmail.com
+      - key: DJANGO_SUPERUSER_PASSWORD
+        generateValue: true          # Render generates a random password — save it!
+      - key: PYTHON_VERSION
+        value: "3.12.0"
 
+  # ── Celery Background Worker ────────────────────────────────────────────────
+  - type: worker
+    name: bynk-celery-worker
+    runtime: python
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A config worker --loglevel=info --concurrency=2
+    plan: free
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        fromService:
+          name: bynk-backend
+          type: web
+          envVarKey: DJANGO_SECRET_KEY
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bynk-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: bynk-redis
+          type: redis
+          property: connectionString
+      - key: EMAIL_BACKEND
+        value: "django.core.mail.backends.console.EmailBackend"
+
+databases:
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  - name: bynk-db
+    databaseName: bynk_production
+    user: bynk_user
+    region: oregon
+    plan: free
+
+# ── Redis (for Celery task queue) ─────────────────────────────────────────────
+# NOTE: Render's free Redis is in the services block, not databases.
+# Add this manually in the Render dashboard:
+# New → Redis → name: bynk-redis → free plan

@@ -10,5 +10,8 @@
       "maxDuration": 60
     }
   },
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://bynk-backend.onrender.com/api"
+  },
   "crons": []
 }
