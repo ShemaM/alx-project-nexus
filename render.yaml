@@ -1,12 +1,24 @@
 # =============================================================================
-# render.yaml — BYN-K Platform Infrastructure
-# Deploys the Django backend as a Render Web Service.
-# Commit this file → Render auto-creates/updates services.
-# Docs: https://render.com/docs/blueprint-spec
+# render.yaml — BYN-K Platform Full Monorepo Blueprint
+#
+# Deploys BOTH services from a single repo:
+#   bynk-backend  → Django 5.2 + DRF   (backend/)
+#   bynk-frontend → Next.js 15          (byn-k-platform/)
+#
+# How to use:
+#   render.com → New → Blueprint → connect ShemaM/alx-project-nexus
+#   Render reads this file and creates all services automatically.
+#
+# After first deploy, update these two env vars in the Render dashboard:
+#   bynk-backend  → FRONTEND_URL  = your bynk-frontend.onrender.com URL
+#   bynk-frontend → NEXTAUTH_URL  = your bynk-frontend.onrender.com URL
 # =============================================================================
 
 services:
-  # ── Django Web Server ──────────────────────────────────────────────────────
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # 1. DJANGO BACKEND
+  # ════════════════════════════════════════════════════════════════════════════
   - type: web
     name: bynk-backend
     runtime: python
@@ -27,8 +39,10 @@ services:
     healthCheckPath: /api/category-counts/
     plan: free
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
       - key: DJANGO_SECRET_KEY
-        generateValue: true          # Render generates a random secret automatically
+        generateValue: true
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
@@ -37,68 +51,73 @@ services:
         fromDatabase:
           name: bynk-db
           property: connectionString
-      - key: CELERY_BROKER_URL
-        fromService:
-          name: bynk-redis
-          type: redis
-          property: connectionString
+      # Celery runs in eager mode on free tier (no Redis needed)
+      # Tasks execute synchronously — email confirmations still work
       - key: CELERY_TASK_ALWAYS_EAGER
-        value: "False"
-      - key: SEND_EMAILS_ASYNC
         value: "True"
+      - key: CELERY_TASK_EAGER_PROPAGATES
+        value: "True"
+      - key: SEND_EMAILS_ASYNC
+        value: "False"
+      # Email — swap to SMTP when you have credentials
       - key: EMAIL_BACKEND
-        value: "django.core.mail.backends.console.EmailBackend"  # Change to SMTP in prod
+        value: "django.core.mail.backends.console.EmailBackend"
+      # Update FRONTEND_URL after bynk-frontend is deployed
       - key: FRONTEND_URL
-        value: "https://byn-k-platform.vercel.app"   # Update to your actual Vercel URL
+        value: "https://bynk-frontend.onrender.com"
       - key: BACKEND_PUBLIC_URL
-        value: "https://bynk-backend.onrender.com"  # Update to your actual Render URL
+        value: "https://bynk-backend.onrender.com"
       - key: DJANGO_SUPERUSER_USERNAME
         value: admin
       - key: DJANGO_SUPERUSER_EMAIL
         value: shemamanase992@gmail.com
       - key: DJANGO_SUPERUSER_PASSWORD
-        generateValue: true          # Render generates a random password — save it!
-      - key: PYTHON_VERSION
-        value: "3.12.0"
+        generateValue: true
 
-  # ── Celery Background Worker ────────────────────────────────────────────────
-  - type: worker
-    name: bynk-celery-worker
-    runtime: python
+  # ════════════════════════════════════════════════════════════════════════════
+  # 2. NEXT.JS FRONTEND
+  # ════════════════════════════════════════════════════════════════════════════
+  - type: web
+    name: bynk-frontend
+    runtime: node
     region: oregon
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A config worker --loglevel=info --concurrency=2
+    rootDir: byn-k-platform
+    buildCommand: npm install -g pnpm@9 && pnpm install && pnpm build
+    startCommand: pnpm start
+    healthCheckPath: /
     plan: free
     envVars:
-      - key: DJANGO_SECRET_KEY
-        fromService:
-          name: bynk-backend
-          type: web
-          envVarKey: DJANGO_SECRET_KEY
-      - key: DEBUG
-        value: "False"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: bynk-db
-          property: connectionString
-      - key: CELERY_BROKER_URL
-        fromService:
-          name: bynk-redis
-          type: redis
-          property: connectionString
-      - key: EMAIL_BACKEND
-        value: "django.core.mail.backends.console.EmailBackend"
+      - key: NODE_VERSION
+        value: "20.18.0"
+      - key: NODE_ENV
+        value: "production"
+      # Points to the Django backend deployed above
+      - key: NEXT_PUBLIC_API_URL
+        value: "https://bynk-backend.onrender.com/api"
+      # Update NEXTAUTH_URL to your actual frontend URL after first deploy
+      - key: NEXTAUTH_URL
+        value: "https://bynk-frontend.onrender.com"
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_APP_URL
+        value: "https://bynk-frontend.onrender.com"
 
+# ════════════════════════════════════════════════════════════════════════════
+# DATABASE
+# ════════════════════════════════════════════════════════════════════════════
 databases:
-  # ── PostgreSQL ──────────────────────────────────────────────────────────────
   - name: bynk-db
     databaseName: bynk_production
     user: bynk_user
     region: oregon
     plan: free
 
-# ── Redis (for Celery task queue) ─────────────────────────────────────────────
-# NOTE: Render's free Redis is in the services block, not databases.
-# Add this manually in the Render dashboard:
-# New → Redis → name: bynk-redis → free plan
+# ════════════════════════════════════════════════════════════════════════════
+# AFTER DEPLOYMENT CHECKLIST
+# ════════════════════════════════════════════════════════════════════════════
+# 1. Get your frontend URL from bynk-frontend service page
+# 2. Go to bynk-backend → Environment → update FRONTEND_URL
+# 3. Go to bynk-frontend → Environment → update NEXTAUTH_URL
+# 4. Go to bynk-backend → Environment → get DJANGO_SUPERUSER_PASSWORD
+# 5. Visit https://bynk-backend.onrender.com/admin/ to log in
+# 6. (Optional) Buy banyamulengefursa.org and add as custom domain

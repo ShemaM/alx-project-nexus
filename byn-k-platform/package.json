@@ -14,7 +14,7 @@
     "dev": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8192\" next dev --webpack",
     "devsafe": "if exist .next rd /s /q .next && cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8192\" next dev --webpack",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
-    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p ${PORT:-3000}",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"

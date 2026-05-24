@@ -1,5 +1,20 @@
 const isDev = process.env.NODE_ENV === 'development'
 
+// Derive the backend hostname from NEXT_PUBLIC_API_URL so we never
+// hardcode a specific Render service URL in this config file.
+// e.g. "https://bynk-backend.onrender.com/api" → "bynk-backend.onrender.com"
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'
+let backendHostname = ''
+let backendProtocol = 'https'
+try {
+  const parsed = new URL(apiUrl)
+  backendHostname = parsed.hostname
+  backendProtocol = parsed.protocol.replace(':', '')
+} catch {
+  backendHostname = '127.0.0.1'
+  backendProtocol = 'http'
+}
+
 // Content Security Policy — tightened for production
 const cspDirectives = [
   "default-src 'self'",
@@ -9,8 +24,8 @@ const cspDirectives = [
     : "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
-  "img-src 'self' data: blob: https://alx-project-nexus-53hq.onrender.com",
-  "connect-src 'self' https://alx-project-nexus-53hq.onrender.com",
+  `img-src 'self' data: blob: ${backendProtocol}://${backendHostname}`,
+  `connect-src 'self' ${backendProtocol}://${backendHostname}`,
   "frame-ancestors 'self'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -45,14 +60,12 @@ const securityHeaders = [
 ]
 
 // Image patterns allowed for Next.js <Image /> optimization.
-// HTTP localhost patterns are dev-only to avoid exposing them in production.
+// Derived from NEXT_PUBLIC_API_URL — no hardcoded hostnames.
 const imageRemotePatterns = [
-  {
-    protocol: 'https',
-    hostname: 'alx-project-nexus-53hq.onrender.com',
-    pathname: '/media/**',
-  },
-  ...(isDev
+  ...(backendHostname && backendProtocol === 'https'
+    ? [{ protocol: 'https', hostname: backendHostname, pathname: '/media/**' }]
+    : []),
+  ...(isDev || backendProtocol === 'http'
     ? [
         { protocol: 'http', hostname: 'localhost', port: '8000', pathname: '/media/**' },
         { protocol: 'http', hostname: '127.0.0.1', port: '8000', pathname: '/media/**' },
