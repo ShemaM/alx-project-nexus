@@ -28,12 +28,10 @@ services:
     # Phase 1 — BUILD (no DB access): install deps + collectstatic
     buildCommand: bash build.sh
 
-    # Phase 2 — PRE-DEPLOY (has DB access): migrate + create superuser
-    # Runs after build, before traffic switches. Rolled back on failure.
-    preDeployCommand: python manage.py migrate --no-input && python manage.py create_superuser_safe
-
-    # Phase 3 — START: pure gunicorn, zero DB setup
-    startCommand: gunicorn config.wsgi:application --workers 2 --worker-class gthread --worker-connections 1000 --max-requests 1000 --max-requests-jitter 50 --timeout 120 --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
+    # START: migrate + create superuser + serve
+    # preDeployCommand is paid-only on Render — migrations run here instead.
+    # migrate is idempotent so running it on every start is safe.
+    startCommand: python manage.py migrate --no-input && python manage.py create_superuser_safe && gunicorn config.wsgi:application --workers 2 --worker-class gthread --worker-connections 1000 --max-requests 1000 --max-requests-jitter 50 --timeout 120 --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
 
     healthCheckPath: /health/
     plan: free
