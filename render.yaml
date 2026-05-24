@@ -24,7 +24,7 @@ services:
     runtime: python
     region: oregon
     rootDir: backend
-    buildCommand: ./build.sh
+    buildCommand: bash build.sh
     startCommand: >-
       gunicorn config.wsgi:application
       --workers 2
